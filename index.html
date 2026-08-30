@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#ffe3f0">
+<title>Isabela and the Lost Heart of the Pink Kingdom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3 4h3v1h1V4h3v1h1v4h-1v1h-1v1H8v1H6v-1H5v-1H4V9H3z' fill='%23ff4f9a'/></svg>">
+</head>
+<body>
+
+<!-- ══ marquee (kept from the prototype) ══ -->
+<div class="marquee-bar">
+  <div class="marquee-track">
+    <span>&#9829; INSERT COIN &#9829; A TINY LOST NES GAME &#9829; MADE FOR ISABELA &#9829; THE HEART IS MISSING &#9829; THE ROYAL FROG HAS RESIGNED &#9829; 73% OF OPTIMISM UNACCOUNTED FOR &#9829; SOMEONE STOLE A SOCK &#9829;</span>
+    <span aria-hidden="true">&#9829; INSERT COIN &#9829; A TINY LOST NES GAME &#9829; MADE FOR ISABELA &#9829; THE HEART IS MISSING &#9829; THE ROYAL FROG HAS RESIGNED &#9829; 73% OF OPTIMISM UNACCOUNTED FOR &#9829; SOMEONE STOLE A SOCK &#9829;</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ══ cartridge label header ══ -->
+  <header class="cart-label">
+    <div class="cart-holes" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="cart-title">
+      <h1>ISABELA<span class="cart-amp">and the</span>LOST HEART</h1>
+      <p class="cart-sub">OF THE PINK KINGDOM</p>
+    </div>
+    <div class="cart-scrawl" aria-hidden="true">ISABELA &#9829;</div>
+  </header>
+
+  <!-- ══ the console ══ -->
+  <div class="console-shell">
+
+    <div class="crt-monitor">
+      <div class="crt-inner">
+        <canvas id="screen" width="256" height="224" aria-label="Game screen"></canvas>
+        <div class="crt-scan" aria-hidden="true"></div>
+        <div class="crt-glow" aria-hidden="true"></div>
+      </div>
+      <div class="crt-brand" aria-hidden="true">
+        <span class="led"></span> PINKTENDO ENTERTAINMENT SYSTEM
+      </div>
+    </div>
+
+    <!-- ══ HUD ══ -->
+    <div class="hud" id="hud">
+      <div class="hud-cell">
+        <span class="hud-label">HEARTS</span>
+        <div class="hud-row" id="hud-hearts"></div>
+        <span class="hud-count" id="hud-hearts-count">00/07</span>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-label">STARS</span>
+        <div class="hud-row" id="hud-stars"></div>
+        <span class="hud-count" id="hud-stars-count">00/05</span>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-label">FLOWERS</span>
+        <div class="hud-row" id="hud-flowers"></div>
+        <span class="hud-count" id="hud-flowers-count">00/03</span>
+      </div>
+      <div class="hud-cell hud-cell--wide">
+        <span class="hud-label">QUEST</span>
+        <p class="hud-quest" id="hud-quest">Find the Heart.</p>
+        <span class="hud-place" id="hud-place">BELLAVISTA VILLAGE</span>
+      </div>
+    </div>
+
+    <!-- ══ touch controls ══ -->
+    <div class="touch" id="touch" aria-hidden="true">
+      <div class="dpad">
+        <button class="dbtn dbtn--up"    data-dir="up">&#9650;</button>
+        <button class="dbtn dbtn--left"  data-dir="left">&#9664;</button>
+        <button class="dbtn dbtn--right" data-dir="right">&#9654;</button>
+        <button class="dbtn dbtn--down"  data-dir="down">&#9660;</button>
+        <span class="dpad-center"></span>
+      </div>
+      <div class="abuttons">
+        <button class="rbtn rbtn--b" data-btn="b">B</button>
+        <button class="rbtn rbtn--a" data-btn="a">A</button>
+      </div>
+    </div>
+
+    <div class="console-feet">
+      <button class="pxbtn" id="btn-sound" type="button">&#9834; SOUND: ON</button>
+      <button class="pxbtn" id="btn-reset" type="button">RESET</button>
+      <span class="hint">MOVE: WASD / ARROWS &nbsp;&middot;&nbsp; TALK: SPACE / ENTER / Z</span>
+    </div>
+  </div>
+
+  <!-- ══ manual page (the "old website" half of the hybrid) ══ -->
+  <section class="manual">
+    <div class="panel panel--manual">
+      <h2 class="panel-head">&#9733; INSTRUCTION BOOKLET &#9733;</h2>
+      <div class="manual-cols">
+        <div>
+          <h3>THE STORY</h3>
+          <p>The kingdom of Bellavista was powered by the <b>Heart of the Pink Kingdom</b>. It kept the flowers blooming and generally prevented everyone from becoming boring.</p>
+          <p>One morning it vanished. The sky went gray. The royal frog resigned. A sock was stolen.</p>
+          <p>The kingdom needs a hero. All the actual heroes are busy. So: you.</p>
+        </div>
+        <div>
+          <h3>HOW TO PLAY</h3>
+          <ul class="manual-list">
+            <li><b>MOVE</b> &mdash; arrow keys, WASD, or the D-pad</li>
+            <li><b>TALK / CONFIRM</b> &mdash; SPACE, ENTER, Z, or <b>A</b></li>
+            <li><b>SEARCH</b> &mdash; face a thing and press A</li>
+            <li>Gather <b>7 hearts</b>, <b>5 stars</b> and <b>3 magical flowers</b></li>
+            <li>Wander behind things. That is the whole trick.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>WARNING</h3>
+          <p>The kingdom is troubled by <b>THE BEIGE ONES</b>, creatures who remove colour and personality from things.</p>
+          <p>They are not dangerous. They are just very, very tiring.</p>
+          <p class="manual-tiny">&copy; 199&mdash; PINKTENDO &middot; ALL RIGHTS RESERVED &middot; MADE FOR ISABELA</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-foot">
+    <span>&copy; 199&mdash; ISABELA&rsquo;S LUVNOTES &middot; BEST VIEWED ON A CRT</span>
+    <span class="foot-hearts" aria-hidden="true">&#9829; &#9733; &#9829; &#9733; &#9829;</span>
+  </footer>
+</div>
+
+<script src="src/config.js"></script>
+<script src="src/sprites.js"></script>
+<script src="src/maps.js"></script>
+<script src="src/audio.js"></script>
+<script src="src/dialogue.js"></script>
+<script src="src/game.js"></script>
+</body>
+</html>
