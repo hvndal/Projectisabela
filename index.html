@@ -5,9 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#ffe3f0">
 <title>Isabela and the Lost Heart of the Pink Kingdom</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<meta name="description" content="A tiny lost NES game from 1993 that happens to be a cute, pink, optimistic adventure made for Isabela. Playable in the browser, on desktop and phone.">
+
+<!-- Link preview. If you host this somewhere other than GitHub Pages,
+     change the two absolute URLs below to match. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PINKTENDO">
+<meta property="og:title" content="Isabela and the Lost Heart of the Pink Kingdom">
+<meta property="og:description" content="A tiny lost NES game that happens to be about her. Gather 7 hearts, 5 stars and 3 flowers, get past the slightly angry strawberry, and find out where the Heart really went.">
+<meta property="og:url" content="https://hvndal.github.io/Projectisabela/">
+<meta property="og:image" content="https://hvndal.github.io/Projectisabela/assets/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pixel-art title screen reading ISABELA AND THE LOST HEART OF THE PINK KINGDOM">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Isabela and the Lost Heart of the Pink Kingdom">
+<meta name="twitter:description" content="A tiny lost NES game that happens to be about her.">
+<meta name="twitter:image" content="https://hvndal.github.io/Projectisabela/assets/preview.png">
 <link rel="stylesheet" href="assets/style.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3 4h3v1h1V4h3v1h1v4h-1v1h-1v1H8v1H6v-1H5v-1H4V9H3z' fill='%23ff4f9a'/></svg>">
 </head>
@@ -81,15 +95,16 @@
         <span class="dpad-center"></span>
       </div>
       <div class="abuttons">
-        <button class="rbtn rbtn--b" data-btn="b">B</button>
-        <button class="rbtn rbtn--a" data-btn="a">A</button>
+        <button class="rbtn rbtn--b" data-btn="b" data-caption="RUN">B</button>
+        <button class="rbtn rbtn--a" data-btn="a" data-caption="TALK">A</button>
       </div>
     </div>
 
     <div class="console-feet">
       <button class="pxbtn" id="btn-sound" type="button">&#9834; SOUND: ON</button>
+      <button class="pxbtn pxbtn--go" id="btn-full" type="button">&#9974; FULLSCREEN</button>
       <button class="pxbtn" id="btn-reset" type="button">RESET</button>
-      <span class="hint">MOVE: WASD / ARROWS &nbsp;&middot;&nbsp; TALK: SPACE / ENTER / Z</span>
+      <span class="hint">MOVE: WASD / ARROWS &nbsp;&middot;&nbsp; TALK: SPACE / Z &nbsp;&middot;&nbsp; RUN: HOLD SHIFT</span>
     </div>
   </div>
 
@@ -109,6 +124,7 @@
           <ul class="manual-list">
             <li><b>MOVE</b> &mdash; arrow keys, WASD, or the D-pad</li>
             <li><b>TALK / CONFIRM</b> &mdash; SPACE, ENTER, Z, or <b>A</b></li>
+            <li><b>RUN</b> &mdash; hold SHIFT, or the <b>B</b> button</li>
             <li><b>SEARCH</b> &mdash; face a thing and press A</li>
             <li>Gather <b>7 hearts</b>, <b>5 stars</b> and <b>3 magical flowers</b></li>
             <li>Wander behind things. That is the whole trick.</li>

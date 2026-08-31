@@ -43,7 +43,7 @@ const Audio8 = (() => {
                    C3:2 G3:2 C3:2 G3:2
                    F2:2 C3:2 F2:2 C3:2
                    G2:2 D3:2 G2:2 G3:2`),
-      duty: 0.5, leadVol: 0.16,
+      duty: 0.5, leadVol: 0.20,
     },
     woods: {
       bpm: 112, unit: 0.5,
@@ -55,7 +55,7 @@ const Audio8 = (() => {
                    G2:2 D3:2 G2:2 D3:2
                    F2:2 C3:2 F2:2 C3:2
                    E2:2 B2:2 E2:2 E3:2`),
-      duty: 0.25, leadVol: 0.13,
+      duty: 0.25, leadVol: 0.17,
     },
     isabela: {
       bpm: 78, unit: 0.5,
@@ -71,7 +71,7 @@ const Audio8 = (() => {
                    G2:4 D3:4  C3:4 C3:4
                    F2:4 C3:4  D3:4 A2:4
                    Bb2:4 F3:4 F2:8`),
-      duty: 0.5, leadVol: 0.12, soft: true,
+      duty: 0.5, leadVol: 0.16, soft: true,
     },
     boss: {
       bpm: 150, unit: 0.5,
@@ -83,7 +83,7 @@ const Audio8 = (() => {
                    C2:1 C2:1 C2:1 C2:1 G2:1 G2:1 G2:1 G2:1
                    Ab2:1 Ab2:1 Ab2:1 Ab2:1 F2:1 F2:1 F2:1 F2:1
                    G2:1 G2:1 G2:1 G2:1 G2:1 G2:1 B2:1 B2:1`),
-      duty: 0.25, leadVol: 0.14,
+      duty: 0.25, leadVol: 0.18,
     },
     ending: {
       bpm: 84, unit: 0.5,
@@ -95,7 +95,7 @@ const Audio8 = (() => {
                    D3:4 A3:4 G2:4 G3:4
                    C3:4 G3:4 A2:4 E3:4
                    F2:4 G2:4 C3:8`),
-      duty: 0.5, leadVol: 0.13, soft: true,
+      duty: 0.5, leadVol: 0.17, soft: true,
     },
   };
 
@@ -105,11 +105,49 @@ const Audio8 = (() => {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) { enabled = false; return; }
     try { ctx = new AC(); } catch (e) { enabled = false; return; }
-    master = ctx.createGain();  master.gain.value = 0.5;  master.connect(ctx.destination);
+    master = ctx.createGain();  master.gain.value = 0.9;  master.connect(ctx.destination);
     musicGain = ctx.createGain(); musicGain.gain.value = 1; musicGain.connect(master);
     sfxGain = ctx.createGain();   sfxGain.gain.value = 1;   sfxGain.connect(master);
     started = true;
+    unlock();
   }
+
+  /* iOS keeps a fresh AudioContext suspended until something actually
+     plays inside the gesture, and routes plain WebAudio through the
+     RINGER channel -- so a phone on silent plays nothing at all.
+     A looping silent <audio> element flips the page into the media
+     playback category, which follows the volume buttons instead. */
+  let silentEl = null;
+  function unlock() {
+    try {
+      const b = ctx.createBuffer(1, 1, 22050);
+      const src = ctx.createBufferSource();
+      src.buffer = b; src.connect(ctx.destination); src.start(0);
+    } catch (e) {}
+    if (!silentEl) {
+      try {
+        silentEl = document.createElement('audio');
+        silentEl.loop = true;
+        silentEl.preload = 'auto';
+        silentEl.setAttribute('playsinline', '');
+        /* 0.05s of silence */
+        silentEl.src = 'data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAgD4A' +
+                       'AAB9AAACABAAZGF0YQ4AAAAAAAAAAAAAAAAAAAAAAA==';
+        silentEl.volume = 0.01;
+        const pr = silentEl.play();
+        if (pr && pr.catch) pr.catch(() => {});
+      } catch (e) {}
+    }
+    resume();
+  }
+
+  /* coming back from a locked screen or another tab */
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      resume();
+      if (silentEl) { const pr = silentEl.play(); if (pr && pr.catch) pr.catch(() => {}); }
+    }
+  });
 
   function resume() { if (ctx && ctx.state === 'suspended') ctx.resume(); }
 
@@ -208,7 +246,7 @@ const Audio8 = (() => {
     while (bassTime < horizon && guard++ < 64) {
       const n = song.bass[bassIdx % song.bass.length];
       const dur = n.beats * beat;
-      if (n.f) tone(n.f, bassTime, Math.max(0.05, dur * 0.9), 0.14, musicGain, 'triangle');
+      if (n.f) tone(n.f, bassTime, Math.max(0.05, dur * 0.9), 0.19, musicGain, 'triangle');
       if (!song.soft && bassIdx % 2 === 0) noise(bassTime, 0.03, 0.018, musicGain);
       bassTime += dur; bassIdx++;
     }
@@ -222,7 +260,7 @@ const Audio8 = (() => {
   function setEnabled(on) {
     enabled = on;
     if (!on) { stopMusic(); if (master) master.gain.value = 0; }
-    else { if (master) master.gain.value = 0.5; }
+    else { if (master) master.gain.value = 0.9; }
   }
 
   return {

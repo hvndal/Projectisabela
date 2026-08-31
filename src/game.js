@@ -53,20 +53,21 @@ let bumpCooldown = 0;
 /* ══ INPUT ═══════════════════════════════════════════════ */
 
 const keys = {};
-const held = { up: false, down: false, left: false, right: false, a: false };
+const held = { up: false, down: false, left: false, right: false, a: false, b: false };
 let aEdge = false;                   // A was pressed this frame
 
 const KEYMAP = {
   ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
   KeyW: 'up', KeyS: 'down', KeyA: 'left', KeyD: 'right',
   Space: 'a', Enter: 'a', KeyZ: 'a', KeyJ: 'a', NumpadEnter: 'a',
+  ShiftLeft: 'b', ShiftRight: 'b', KeyX: 'b', KeyK: 'b',
 };
 
 addEventListener('keydown', (e) => {
   const k = KEYMAP[e.code];
   if (!k) return;
   e.preventDefault();
-  if (!keys[e.code]) { if (k === 'a') aEdge = true; }
+  if (!keys[e.code]) { if (k === 'a' || (k === 'b' && Dialogue.active)) aEdge = true; }
   keys[e.code] = true;
   held[k] = true;
   Audio8.init();
@@ -86,32 +87,106 @@ addEventListener('blur', () => {
   for (const d in held) held[d] = false;
 });
 
-/* touch */
+/* ══ TOUCH CONTROLS ══════════════════════════════════════════
+   The D-pad is one continuous touch surface rather than four
+   separate buttons: direction comes from where your thumb is
+   relative to the centre, so you get all eight directions and
+   sliding never drops the input. Pointer capture keeps tracking
+   even when the thumb wanders off the pad.
+   ═══════════════════════════════════════════════════════════ */
 function bindTouch() {
-  const isTouch = matchMedia('(hover: none)').matches || 'ontouchstart' in window;
-  if (isTouch) document.body.classList.add('touch-on');
+  const coarse = matchMedia('(hover: none), (pointer: coarse)').matches || 'ontouchstart' in window;
+  if (coarse) document.body.classList.add('touch-on');
+  /* if we guessed wrong, the first real touch settles it */
+  addEventListener('touchstart', () => document.body.classList.add('touch-on'),
+                   { once: true, passive: true });
 
-  const press = (el, on) => {
-    el.classList.toggle('held', on);
-  };
+  const buzz = (ms) => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} };
+  window.__buzz = buzz;
 
-  document.querySelectorAll('.dbtn').forEach(btn => {
-    const dir = btn.dataset.dir;
-    const down = (e) => { e.preventDefault(); Audio8.init(); held[dir] = true; press(btn, true); };
-    const up   = (e) => { e.preventDefault(); held[dir] = false; press(btn, false); };
-    btn.addEventListener('pointerdown', down);
-    btn.addEventListener('pointerup', up);
-    btn.addEventListener('pointercancel', up);
-    btn.addEventListener('pointerleave', up);
+  /* ---- D-pad ---- */
+  const pad  = document.querySelector('.dpad');
+  const knob = document.querySelector('.dpad-center');
+  const arrow = {};
+  document.querySelectorAll('.dbtn').forEach(b => { arrow[b.dataset.dir] = b; });
+
+  let padId = null, lastSig = '';
+
+  function setDirs(u, d, l, r) {
+    held.up = u; held.down = d; held.left = l; held.right = r;
+    arrow.up.classList.toggle('held', u);
+    arrow.down.classList.toggle('held', d);
+    arrow.left.classList.toggle('held', l);
+    arrow.right.classList.toggle('held', r);
+    const sig = [u, d, l, r].join('');
+    if (sig !== lastSig) {
+      if (u || d || l || r) buzz(7);
+      lastSig = sig;
+    }
+  }
+
+  function knobTo(x, y) {
+    knob.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
+  }
+
+  function track(e) {
+    const r = pad.getBoundingClientRect();
+    const dx = e.clientX - (r.left + r.width / 2);
+    const dy = e.clientY - (r.top + r.height / 2);
+    const dist = Math.hypot(dx, dy);
+
+    if (dist < r.width * 0.13) { setDirs(false, false, false, false); knobTo(0, 0); return; }
+
+    /* cos(67.5 deg): splits the circle into eight even wedges */
+    const k = 0.383 * dist;
+    setDirs(dy < -k, dy > k, dx < -k, dx > k);
+
+    const reach = r.width * 0.17;
+    const pull  = Math.min(1, dist / (r.width * 0.42));
+    knobTo((dx / dist) * reach * pull, (dy / dist) * reach * pull);
+  }
+
+  pad.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    Audio8.init();
+    padId = e.pointerId;
+    try { pad.setPointerCapture(e.pointerId); } catch (err) {}
+    track(e);
   });
+  pad.addEventListener('pointermove', (e) => {
+    if (e.pointerId !== padId) return;
+    e.preventDefault();
+    track(e);
+  });
+  const padRelease = (e) => {
+    if (e.pointerId !== padId) return;
+    padId = null;
+    setDirs(false, false, false, false);
+    knobTo(0, 0);
+  };
+  pad.addEventListener('pointerup', padRelease);
+  pad.addEventListener('pointercancel', padRelease);
 
+  /* ---- A (talk / confirm) and B (hold to run) ---- */
   document.querySelectorAll('.rbtn').forEach(btn => {
-    const down = (e) => { e.preventDefault(); Audio8.init(); aEdge = true; held.a = true; press(btn, true); };
-    const up   = (e) => { e.preventDefault(); held.a = false; press(btn, false); };
-    btn.addEventListener('pointerdown', down);
-    btn.addEventListener('pointerup', up);
-    btn.addEventListener('pointercancel', up);
-    btn.addEventListener('pointerleave', up);
+    const slot = btn.dataset.btn;               // 'a' or 'b'
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      Audio8.init();
+      try { btn.setPointerCapture(e.pointerId); } catch (err) {}
+      btn.classList.add('held');
+      buzz(12);
+      held[slot] = true;
+      /* B doubles as confirm while a dialogue window is open */
+      if (slot === 'a' || Dialogue.active) aEdge = true;
+    });
+    const off = (e) => {
+      e.preventDefault();
+      btn.classList.remove('held');
+      held[slot] = false;
+    };
+    btn.addEventListener('pointerup', off);
+    btn.addEventListener('pointercancel', off);
   });
 
   /* tapping the screen counts as A -- handy on the title and in dialogue */
@@ -158,7 +233,7 @@ const objKey = (o) => state.area + ':' + o.x + ',' + o.y;
 
 /* ══ AREA BAKING ═════════════════════════════════════════ */
 
-let baked = null, waterTiles = [], overheadTiles = [];
+let baked = null, waterTiles = [], overheadTiles = [], exitMarkers = [];
 
 /* deterministic per-tile noise */
 function hash(x, y) {
@@ -261,6 +336,36 @@ function bakeArea() {
     }
   }
   baked = c;
+
+  /* where the screen can be walked out of, for the edge arrows */
+  exitMarkers = [];
+  const edge = {
+    north: { fixed: 'y', at: 0,         scan: 'x' },
+    south: { fixed: 'y', at: MAP_H - 1, scan: 'x' },
+    west:  { fixed: 'x', at: 0,         scan: 'y' },
+    east:  { fixed: 'x', at: MAP_W - 1, scan: 'y' },
+  };
+  for (const dir in a.exits) {
+    const e = edge[dir]; if (!e) continue;
+    const open = [];
+    const len = e.scan === 'x' ? MAP_W : MAP_H;
+    for (let i = 0; i < len; i++) {
+      const tx = e.fixed === 'x' ? e.at : i;
+      const ty = e.fixed === 'y' ? e.at : i;
+      if (!SOLID.has(tileAt(a, tx, ty))) open.push(i);
+    }
+    if (!open.length) continue;
+    const mid = open[Math.floor(open.length / 2)];
+    exitMarkers.push({
+      dir,
+      x: (e.fixed === 'x' ? e.at : mid) * TILE + 8,
+      y: (e.fixed === 'y' ? e.at : mid) * TILE + 8,
+    });
+  }
+  for (const g of a.gates) {
+    exitMarkers.push({ dir: 'gate', x: g.x * TILE + 8, y: g.y * TILE + 8, gate: g });
+  }
+
   spawnAmbient(true);
 }
 
@@ -545,7 +650,7 @@ function updateTransition() {
 /* ══ SCRIPT COMMANDS ═════════════════════════════════════ */
 
 Object.assign(Dialogue.handlers, {
-  shake:  () => { shake = 26; Audio8.sfx('boss'); },
+  shake:  () => { shake = 26; Audio8.sfx('boss'); if (window.__buzz) window.__buzz(60); },
   flash:  () => { flash = 16; },
   sfx:    (s) => { Audio8.sfx(s.name); },
   music:  (s) => { Audio8.music(s.name); },
@@ -555,6 +660,7 @@ Object.assign(Dialogue.handlers, {
     if (state.secrets[s.id]) return;
     state.secrets[s.id] = true;
     Audio8.sfx('secret');
+    if (window.__buzz) window.__buzz([14, 40, 22]);
     toast('spark', 'SECRET FOUND!');
   },
   give:   (s) => {
@@ -583,6 +689,18 @@ function resolveScript(s) {
 function say(key, onEnd, forceAnchor) {
   Dialogue.setAnchor(forceAnchor || (state.py > 8.2 * TILE ? 'top' : 'bottom'));
   Dialogue.start(key, onEnd);
+}
+
+/* What, if anything, is actionable on a given tile. Used both by
+   interact() and by the on-screen prompt, so the bubble never lies. */
+function interactTarget(tx, ty) {
+  const a = area();
+  if (gateAt(a, tx, ty)) return 'gate';
+  if (npcAt(a, tx, ty)) return 'talk';
+  const o = objAt(a, tx, ty);
+  if (o && !(o.once && state.opened[objKey(o)])) return o.sprite === 'chest' ? 'open' : 'look';
+  if (tileAt(a, tx, ty) === 'f') return 'smell';
+  return null;
 }
 
 function interact() {
@@ -675,7 +793,7 @@ function updatePlayer() {
 
   if (dx && dy) { dx *= 0.7071; dy *= 0.7071; }
 
-  const sp = CONFIG.playerSpeed;
+  const sp = CONFIG.playerSpeed * (held.b ? CONFIG.runMultiplier : 1);
   const moved = (dx || dy);
 
   if (moved) {
@@ -693,7 +811,7 @@ function updatePlayer() {
     else if (bumpCooldown <= 0 && dy) { bumpCooldown = 16; }
 
     state.anim += Math.hypot(dx, dy) * sp;
-    if (++stepTick % 16 === 0) Audio8.sfx('step');
+    if (++stepTick % (held.b ? 11 : 16) === 0) Audio8.sfx('step');
   }
   state.moving = !!moved;
   if (bumpCooldown > 0) bumpCooldown--;
@@ -717,6 +835,7 @@ function checkPickups() {
     const plural = { heart: 'hearts', star: 'stars', flower: 'flowers' }[it.type];
     state[plural]++;
     Audio8.sfx(it.type);
+    if (window.__buzz) window.__buzz(18);
     toast(it.type, it.type.toUpperCase() + ' FOUND!');
     refreshHud(plural);
     for (let i = 0; i < 10; i++) particles.push({
@@ -902,6 +1021,109 @@ function drawGrayVeil() {
   g.fillStyle = '#cfc7cf';
   g.fillRect(0, 0, W, H);
   g.restore();
+}
+
+/* ── ON-SCREEN GUIDANCE ──────────────────────────────────────
+   Three small things that turn "what am I doing" into "oh, I see":
+   a prompt over whatever you're facing, arrows at the edges you
+   can leave by, and a permanent count of what you still need.
+   ─────────────────────────────────────────────────────────── */
+
+const PROMPT_LABEL = { talk: 'TALK', look: 'LOOK', open: 'OPEN', gate: 'ENTER', smell: 'SMELL' };
+
+function drawActionPrompt() {
+  if (Dialogue.busy || trans || mode !== 'play') return;
+  const [tx, ty] = facingTile();
+  const kind = interactTarget(tx, ty);
+  if (!kind) return;
+
+  const label = PROMPT_LABEL[kind] || 'LOOK';
+  const bob = Math.round(Math.sin(frame * 0.14) * 1.5);
+  const w = label.length * 6 + 16;
+  let x = Math.max(2, Math.min(W - w - 2, tx * TILE + 8 - w / 2));
+  let y = ty * TILE - 13 + bob;
+  if (y < 2) y = ty * TILE + TILE + 2 + bob;      // flip below if it would clip
+
+  g.fillStyle = '#4a0f2b'; g.fillRect(x, y, w, 12);
+  g.fillStyle = '#ffe04f'; g.fillRect(x + 1, y + 1, w - 2, 10);
+  g.fillStyle = '#4a0f2b'; g.fillRect(x + 2, y + 2, 7, 8);
+  g.font = '6px "Press Start 2P", monospace';
+  g.textBaseline = 'top';
+  g.fillStyle = '#ffe04f'; g.fillText('A', x + 3, y + 3);
+  g.fillStyle = '#4a0f2b'; g.fillText(label, x + 11, y + 3);
+}
+
+function drawExitArrows() {
+  if (Dialogue.busy || trans || mode !== 'play') return;
+  const pulse = 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(frame * 0.07));
+
+  for (const m of exitMarkers) {
+    let locked = false;
+    if (m.gate) {
+      const need = CONFIG.gates[m.gate.need] || {};
+      locked = !(state.hearts >= (need.hearts || 0)
+              && state.stars >= (need.stars || 0)
+              && state.flowers >= (need.flowers || 0));
+    }
+    g.globalAlpha = locked ? 0.75 : pulse;
+    g.fillStyle = locked ? '#9d8b74' : '#fff6ec';
+    const sx = m.x, sy = m.y;
+
+    if (m.gate) {
+      /* a padlock over the gate: shut and grey, or open and green.
+         Nudged inward so an edge gate still shows it. */
+      g.globalAlpha = 1;
+      const lx = Math.max(6, Math.min(W - 12, sx)) - 5;
+      const ly = sy - 11 + Math.round(Math.sin(frame * 0.08) * 1);
+      g.fillStyle = '#4a0f2b'; g.fillRect(lx - 1, ly - 1, 12, 14);
+      g.fillStyle = locked ? '#c9b79a' : '#8fe06f';
+      if (locked) { g.fillRect(lx + 2, ly, 6, 2); g.fillRect(lx + 2, ly, 2, 5); g.fillRect(lx + 6, ly, 2, 5); }
+      else        { g.fillRect(lx, ly, 6, 2);     g.fillRect(lx, ly, 2, 5); }
+      g.fillStyle = locked ? '#9d8b74' : '#5fbf6a';
+      g.fillRect(lx, ly + 5, 10, 7);
+      g.fillStyle = '#4a0f2b'; g.fillRect(lx + 4, ly + 7, 2, 3);
+    } else {
+      const d = { north: [0, -1], south: [0, 1], west: [-1, 0], east: [1, 0] }[m.dir];
+      const wob = Math.round(Math.sin(frame * 0.09) * 2);
+      const cx = sx + d[0] * wob, cy = sy + d[1] * wob;
+      /* a chevron pointing out of the screen */
+      for (let i = 0; i < 4; i++) {
+        const len = 7 - i * 2;
+        if (d[0]) g.fillRect(cx + d[0] * (i - 2) * 2, cy - len / 2, 2, len);
+        else      g.fillRect(cx - len / 2, cy + d[1] * (i - 2) * 2, len, 2);
+      }
+    }
+    g.globalAlpha = 1;
+  }
+}
+
+/* Compact always-on counter, top-left, so the objective never leaves
+   the screen. Fades back when the player walks underneath it. */
+function drawMiniHud() {
+  if (mode !== 'play' && mode !== 'boss') return;
+  const near = state.px < 96 && state.py < 34;
+  g.globalAlpha = near ? 0.28 : 0.94;
+
+  const rows = [
+    ['heart',  state.hearts,  CONFIG.targets.hearts],
+    ['star',   state.stars,   CONFIG.targets.stars],
+    ['flower', state.flowers, CONFIG.targets.flowers],
+  ];
+  /* 6px glyphs: icon(8) + gap(1) + "n/n"(18) = 27, stepped by 29 */
+  const step = 29, w = 5 + rows.length * step, h = 13;
+  g.fillStyle = '#4a0f2b'; g.fillRect(2, 2, w, h);
+  g.fillStyle = '#fff6ec'; g.fillRect(3, 3, w - 2, h - 2);
+
+  g.font = '6px "Press Start 2P", monospace';
+  g.textBaseline = 'top';
+  let x = 5;
+  for (const [icon, have, need] of rows) {
+    g.drawImage(ICONS[icon], x, 4);
+    g.fillStyle = have >= need ? '#3d8f4d' : '#7a0f42';
+    g.fillText(have + '/' + need, x + 9, 6);
+    x += step;
+  }
+  g.globalAlpha = 1;
 }
 
 function drawTitleCard() {
@@ -1258,6 +1480,9 @@ function render() {
     if (mode === 'boss') drawBoss();
     drawParticles(false);
     drawGrayVeil();
+    drawExitArrows();
+    drawActionPrompt();
+    drawMiniHud();
     drawTitleCard();
     drawToasts();
   }
@@ -1289,6 +1514,39 @@ document.getElementById('btn-sound').addEventListener('click', (e) => {
     Audio8.music(a.theme === 'woods' ? 'woods' : a.theme === 'isabela' ? 'isabela' : 'overworld');
   }
 });
+
+/* ── fullscreen ─────────────────────────────────────────── */
+const shell = document.querySelector('.console-shell');
+const fsBtn = document.getElementById('btn-full');
+
+function fsElement() {
+  return document.fullscreenElement || document.webkitFullscreenElement || null;
+}
+
+fsBtn.addEventListener('click', () => {
+  Audio8.init();
+  if (fsElement()) {
+    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  } else {
+    const req = shell.requestFullscreen || shell.webkitRequestFullscreen;
+    if (req) {
+      const p = req.call(shell, { navigationUI: 'hide' });
+      if (p && p.catch) p.catch(() => {});
+    } else {
+      /* iPhone Safari has no element fullscreen -- do the next best thing */
+      document.body.classList.toggle('fs-on');
+      scrollTo(0, 0);
+    }
+  }
+});
+
+function syncFs() {
+  const on = !!fsElement();
+  document.body.classList.toggle('fs-on', on);
+  fsBtn.innerHTML = on ? '\u2716 EXIT FULL' : '\u26F6 FULLSCREEN';
+}
+document.addEventListener('fullscreenchange', syncFs);
+document.addEventListener('webkitfullscreenchange', syncFs);
 
 document.getElementById('btn-reset').addEventListener('click', () => {
   Dialogue.cancel();

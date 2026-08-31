@@ -21,6 +21,7 @@ const CONFIG = {
 
   /* Feel. */
   playerSpeed: 1.35,        // pixels per frame at 60fps
+  runMultiplier: 1.75,      // how much faster B / SHIFT makes you
   textSpeed: 1.6,           // characters per frame
   startArea: 'village',
   startTile: { x: 6, y: 5 },
@@ -39,12 +40,12 @@ const FINAL_MESSAGE = [
 
 /* ── QUEST LOG LINES ─────────────────────────────────────── */
 const QUESTS = {
-  start:      'Find the Heart. (No one knows where.)',
-  gathering:  'Gather optimism: hearts, stars, flowers.',
+  start:      'Explore. Talk to everyone. Collect hearts, stars and flowers.',
+  gathering:  'Keep collecting: 7 hearts, 5 stars, 3 flowers.',
   field:      'A gate east of the garden smells of strawberry.',
-  shrine:     'The Heart Shrine waits past the woods.',
+  shrine:     'All collected! Head east past the woods to the shrine.',
   boss:       'Something beige is blocking the shrine.',
-  garden:     'Go to the garden at the end of the world.',
+  garden:     'The shrine door is open. Go through it.',
   done:       'You found the Heart.',
 };
 
@@ -78,6 +79,13 @@ const DIALOGUE = {
     { who: '{HER}', text: 'Where is it?' },
     { who: 'VILLAGER', text: 'I have absolutely no idea.' },
     { text: 'The villager walks away with great confidence.' },
+    { text: 'HOW TO BE A HERO:' },
+    { text: 'MOVE with the arrows, WASD, or the D-pad.' },
+    { text: 'When a yellow [A] tag pops up, press A.' },
+    { text: 'That is talking, reading, opening and searching.' },
+    { text: 'White arrows at the edges are ways out. Use them.' },
+    { text: 'Find 7 hearts, 5 stars and 3 flowers. Then the shrine.' },
+    { text: 'Go on. Be curious. That is the whole job.' },
     { cmd: 'quest', text: QUESTS.start },
   ],
 
