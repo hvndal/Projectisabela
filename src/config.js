@@ -10,6 +10,9 @@ const CONFIG = {
   /* Who the game is for. Used everywhere in text via {HER}. */
   heroName: 'ISABELA',
 
+  /* Who made it. Available in any line as {BY}. */
+  madeBy: 'HERMAN',
+
   /* How much optimism must be recovered. */
   targets: { hearts: 7, stars: 5, flowers: 3 },
 
@@ -33,9 +36,9 @@ const CONFIG = {
    box fits roughly 3 lines of ~34 characters.
    ─────────────────────────────────────────────────────────── */
 const FINAL_MESSAGE = [
-  '[INSERT PERSONAL MESSAGE TO ISABELA HERE]',
-  '[LINE TWO -- a memory, a date, an inside joke]',
-  '[LINE THREE -- the sincere one]',
+  'Hi {HER}.',
+  "Thanks for playing. Or something. I don't know.",
+  'Made by {BY}.',
 ];
 
 /* ── QUEST LOG LINES ─────────────────────────────────────── */
@@ -402,9 +405,12 @@ const ENDING_TEXT = {
   ending:  'ENDING 01 -- THE GOOD ENDING',
   thanks:  'THANK YOU FOR PLAYING.',
   signoff: 'MADE FOR {HER}',
+  author:  'BY {BY}',
 };
 
-/* Substitute {HER} (and any future tokens) into a string. */
+/* Substitute {HER} / {BY} (and any future tokens) into a string. */
 function T(str) {
-  return String(str).replace(/\{HER\}/g, CONFIG.heroName);
+  return String(str)
+    .replace(/\{HER\}/g, CONFIG.heroName)
+    .replace(/\{BY\}/g, CONFIG.madeBy);
 }

@@ -38,13 +38,13 @@ needs touching.
 
 ### The final message
 
-This is the one you came here for. Near the top of `src/config.js`:
+The one that matters. Near the top of `src/config.js`:
 
 ```js
 const FINAL_MESSAGE = [
-  '[INSERT PERSONAL MESSAGE TO ISABELA HERE]',
-  '[LINE TWO -- a memory, a date, an inside joke]',
-  '[LINE THREE -- the sincere one]',
+  'Hi {HER}.',
+  "Thanks for playing. Or something. I don't know.",
+  'Made by {BY}.',
 ];
 ```
 
@@ -52,14 +52,19 @@ Each string is one dialogue box. Roughly **3 lines of 27 characters** fit per
 box; add as many boxes as you like. They play through the same retro window
 as the rest of the game, right after the reveal and just before the ending.
 
-### Her name
+`{HER}` becomes `heroName` and `{BY}` becomes `madeBy`, both set just above,
+so the names stay in one place and follow through to the ending card.
+
+### The names
 
 ```js
 heroName: 'ISABELA',
+madeBy:   'HERMAN',
 ```
 
-Write `{HER}` anywhere in any line of dialogue and it becomes the name — so
-changing this one string updates the whole game, ending card included.
+Write `{HER}` or `{BY}` anywhere in any line of dialogue and they become
+these — so changing these two strings updates the whole game, ending card
+included.
 
 ### Any other line
 

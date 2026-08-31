@@ -1327,13 +1327,17 @@ function drawEnding() {
   const sw = textShadow(T(ENDING_TEXT.signoff), 0, y, '#7a0f42', '#ffffff', 8, true);
   g.drawImage(ICONS.heart, Math.round((W + sw) / 2) + 8, y);
   g.drawImage(ICONS.heart, Math.round((W - sw) / 2) - 16, y);
+  y += 22;
+  text(T(ENDING_TEXT.author), 0, y, 'rgba(122,15,66,0.75)', 8, true);
   y += 40;
 
   const end = y;
   g.restore();
-  if (end < 130) ending.scroll -= 0.32;    /* park it, don't scroll off */
+  /* Park with the last three lines -- thank you / made for her / by whom --
+     all comfortably on screen. That is the note to end on. */
+  if (end < 192) ending.scroll -= 0.32;
 
-  if (end > 190 && Math.floor(frame / 30) % 2 === 0) {
+  if (end > 215 && Math.floor(frame / 30) % 2 === 0) {
     text('HOLD A TO SCROLL', 0, 208, 'rgba(122,15,66,0.55)', 8, true);
   }
 }
