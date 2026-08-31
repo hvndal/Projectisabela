@@ -358,6 +358,7 @@ body.touch-on .touch { display: flex; }
    has no element fullscreen at all.
    ════════════════════════════════════════════════════════ */
 .pxbtn--go { background: var(--pink); color: #fff; }
+.pxbtn--warn { background: #ffe04f; color: var(--pink-ink); }
 .pxbtn--go:hover { background: var(--pink-deep); }
 
 .console-shell:fullscreen {

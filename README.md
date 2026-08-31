@@ -140,12 +140,44 @@ note strings (`'G4:1 C5:1 E5:1 ...'`) in `SONGS`; sound effects are short
 functions in `SFX`. The game runs perfectly with sound off, and stays silent
 until the player's first click or keypress, as browsers require.
 
-**If you can't hear anything on an iPhone**, check the physical mute switch
-first. iOS routes plain WebAudio through the ringer channel, so a silenced
-phone plays a silent game. The code works around this by starting a looping
-silent `<audio>` element on first touch, which moves the page into the media
-category — but a hardware mute switch still wins on some iOS versions. The
-`♪ SOUND` button toggles audio off and on regardless.
+### Getting audio started on a phone
+
+Phones make this harder than it looks, and `src/audio.js` handles each part:
+
+1. No browser will start audio outside a user gesture.
+2. iOS creates the context *suspended*, and only really starts it once
+   something is scheduled inside that gesture — so a 1-sample buffer is
+   fired immediately on unlock.
+3. **iOS routes bare WebAudio through the ringer channel**, so a phone with
+   the mute switch flipped plays a completely silent game. Having an
+   `<audio>` element genuinely playing moves the page into the media
+   playback category, which follows the volume buttons instead. The game
+   holds half a second of looping silence (a data URI, attached to the DOM
+   — iOS ignores clips that are too short and elements that are detached).
+4. A single gesture can still be swallowed, so the unlock retries on
+   `touchstart`, `touchend`, `pointerdown`, `pointerup`, `mousedown`,
+   `click` and `keydown` until the context reports `running`, then
+   unhooks itself. It also re-resumes on `visibilitychange` and
+   `pageshow`, for coming back from a locked screen or a phone call.
+
+**The `♪ SOUND` button reports the truth**, so "no sound" is diagnosable
+rather than mysterious:
+
+| Button says | Meaning |
+|---|---|
+| `♪ TAP FOR SOUND` | the browser has not let audio start — tap anywhere |
+| `♪ SOUND: ON` | the audio context is genuinely running |
+| `♪ SOUND: OFF` | you muted it; tap to unmute |
+
+If it says **SOUND: ON** and you still hear nothing on an iPhone, the
+remaining suspect is the hardware mute switch or the volume being at zero
+for the *media* channel — press volume-up while the game is running.
+
+A caveat worth stating plainly: this was verified in Chromium with autoplay
+blocking on, desktop and emulated Android. **Real iOS Safari could not be
+tested here** — the WebKit build would not install in the build sandbox — so
+the iOS-specific paths are written to the documented behaviour rather than
+confirmed on a device.
 
 ## Fonts
 

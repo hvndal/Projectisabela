@@ -1393,6 +1393,11 @@ function drawTitle() {
   if (Math.floor(titleT / 26) % 2 === 0) {
     text('PRESS  A  TO  START', 0, 184, '#d3216b', 8, true);
   }
+
+  /* say so plainly if the browser has not let audio start yet */
+  if (Audio8.status() === 'blocked') {
+    text('\u266A TAP THE SCREEN FOR SOUND', 0, 204, '#7a0f42', 6, true);
+  }
   text('© 199- PINKTENDO', 0, 208, 'rgba(122,15,66,0.55)', 8, true);
 }
 
@@ -1446,6 +1451,8 @@ function step() {
       held['_last' + d] = held[d];
     }
   }
+
+  if (frame % 30 === 0) syncSound();
 
   if (shake > 0) shake--;
   if (flash > 0) flash--;
@@ -1504,16 +1511,46 @@ function render() {
 
 /* ══ BUTTONS ═════════════════════════════════════════════ */
 
-document.getElementById('btn-sound').addEventListener('click', (e) => {
-  Audio8.init();
+const soundBtn = document.getElementById('btn-sound');
+
+/* The label reports what the audio engine is actually doing, so
+   "no sound" is a visible state rather than a mystery. */
+/* What the button is currently showing. The click handler decides from
+   THIS, not from live state: the capture-phase unlock listener fires on
+   touchstart, before this click handler runs, so by the time we get here
+   audio is often already running -- and reading live state would turn
+   "tap for sound" into "mute". Act on what the player actually saw. */
+let shownStatus = 'blocked';
+
+function syncSound() {
+  const st = Audio8.status();
+  soundBtn.innerHTML = st === 'running' ? '\u266A SOUND: ON'
+                     : st === 'off'     ? '\u266A SOUND: OFF'
+                                        : '\u266A TAP FOR SOUND';
+  soundBtn.classList.toggle('pxbtn--warn', st === 'blocked');
+  shownStatus = st;
+}
+
+soundBtn.addEventListener('click', () => {
+  /* The player pressed a button reading "TAP FOR SOUND" -- that is a
+     request to start audio, never to mute it. */
+  if (shownStatus === 'blocked') {
+    Audio8.init();
+    syncSound();
+    if (mode === 'play') restartMusic();
+    return;
+  }
   const on = !Audio8.on;
   Audio8.setEnabled(on);
-  e.target.innerHTML = on ? '♪ SOUND: ON' : '♪ SOUND: OFF';
-  if (on && mode === 'play') {
-    const a = area();
-    Audio8.music(a.theme === 'woods' ? 'woods' : a.theme === 'isabela' ? 'isabela' : 'overworld');
-  }
+  if (on) { Audio8.init(); if (mode === 'play') restartMusic(); }
+  syncSound();
 });
+
+function restartMusic() {
+  const a = area();
+  Audio8.music(a.theme === 'woods' ? 'woods'
+             : a.theme === 'isabela' ? 'isabela' : 'overworld');
+}
 
 /* ── fullscreen ─────────────────────────────────────────── */
 const shell = document.querySelector('.console-shell');
@@ -1584,6 +1621,7 @@ window.__GAME = {
 
 function boot() {
   bindTouch();
+  syncSound();
   buildHud();
   bakeArea();
   spawnAmbient(true);

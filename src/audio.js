@@ -99,9 +99,75 @@ const Audio8 = (() => {
     },
   };
 
+  /* ══ UNLOCKING AUDIO ══════════════════════════════════════
+     Phones make this harder than it looks:
+
+     1. Every browser refuses to start audio outside a user gesture.
+     2. iOS creates the context "suspended" and only really starts it
+        once something is scheduled inside that gesture.
+     3. iOS routes bare WebAudio through the RINGER channel, so a phone
+        with the mute switch flipped plays a completely silent game.
+        Having an <audio> element actually playing moves the page into
+        the media playback category, which follows the volume buttons.
+     4. The gesture that unlocks can be swallowed (a scroll, a rejected
+        play() promise), so one attempt is not enough.
+
+     So: retry on every gesture until the context reports "running",
+     and hold a real half-second of looping silence, not a 0.4ms blip.
+     ════════════════════════════════════════════════════════ */
+
+  /* A genuine silent WAV, built at runtime. iOS ignores clips that are
+     too short to establish a session, so this is half a second. */
+  let silentUrl = null;
+  function silentWavUrl() {
+    if (silentUrl) return silentUrl;
+    const rate = 8000, n = rate / 2;                 // 0.5s, 8-bit mono
+    const buf = new ArrayBuffer(44 + n);
+    const v = new DataView(buf);
+    const tag = (o, str) => { for (let i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i)); };
+    tag(0, 'RIFF');  v.setUint32(4, 36 + n, true);
+    tag(8, 'WAVE');  tag(12, 'fmt ');
+    v.setUint32(16, 16, true);   v.setUint16(20, 1, true);   // PCM
+    v.setUint16(22, 1, true);    v.setUint32(24, rate, true);
+    v.setUint32(28, rate, true); v.setUint16(32, 1, true);
+    v.setUint16(34, 8, true);
+    tag(36, 'data'); v.setUint32(40, n, true);
+    for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);      // 128 = silence
+    /* a data: URI rather than a blob: URL -- iOS is fussy about
+       blob-backed media elements, and this is only a few KB */
+    let bin = '';
+    const bytes = new Uint8Array(buf);
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    silentUrl = 'data:audio/wav;base64,' + btoa(bin);
+    return silentUrl;
+  }
+
+  let silentEl = null;
+  function playSilent() {
+    if (!silentEl) {
+      try {
+        silentEl = new Audio();
+        silentEl.loop = true;
+        silentEl.preload = 'auto';
+        silentEl.volume = 0.001;
+        silentEl.setAttribute('playsinline', '');
+        silentEl.setAttribute('webkit-playsinline', '');
+        silentEl.src = silentWavUrl();
+        /* several iOS versions will not play a detached media element */
+        silentEl.style.cssText = 'position:absolute;width:0;height:0;opacity:0;pointer-events:none';
+        (document.body || document.documentElement).appendChild(silentEl);
+      } catch (e) { return; }
+    }
+    try {
+      const pr = silentEl.play();
+      if (pr && pr.catch) pr.catch(() => {});
+    } catch (e) {}
+  }
+
   /* ── boot (must follow a user gesture) ────────────────── */
   function init() {
-    if (ctx || !enabled) return;
+    if (ctx) { if (ctx.state !== 'running') kick(); return; }
+    if (!enabled) return;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) { enabled = false; return; }
     try { ctx = new AC(); } catch (e) { enabled = false; return; }
@@ -109,45 +175,70 @@ const Audio8 = (() => {
     musicGain = ctx.createGain(); musicGain.gain.value = 1; musicGain.connect(master);
     sfxGain = ctx.createGain();   sfxGain.gain.value = 1;   sfxGain.connect(master);
     started = true;
-    unlock();
+    kick();
   }
 
-  /* iOS keeps a fresh AudioContext suspended until something actually
-     plays inside the gesture, and routes plain WebAudio through the
-     RINGER channel -- so a phone on silent plays nothing at all.
-     A looping silent <audio> element flips the page into the media
-     playback category, which follows the volume buttons instead. */
-  let silentEl = null;
-  function unlock() {
+  /* Schedule something immediately -- iOS needs a node started inside
+     the gesture before it will really leave the suspended state. */
+  function kick() {
+    if (!ctx) return;
     try {
       const b = ctx.createBuffer(1, 1, 22050);
       const src = ctx.createBufferSource();
-      src.buffer = b; src.connect(ctx.destination); src.start(0);
+      src.buffer = b;
+      src.connect(ctx.destination);
+      src.start(0);
     } catch (e) {}
-    if (!silentEl) {
-      try {
-        silentEl = document.createElement('audio');
-        silentEl.loop = true;
-        silentEl.preload = 'auto';
-        silentEl.setAttribute('playsinline', '');
-        /* 0.05s of silence */
-        silentEl.src = 'data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAgD4A' +
-                       'AAB9AAACABAAZGF0YQ4AAAAAAAAAAAAAAAAAAAAAAA==';
-        silentEl.volume = 0.01;
-        const pr = silentEl.play();
-        if (pr && pr.catch) pr.catch(() => {});
-      } catch (e) {}
-    }
+    playSilent();
     resume();
   }
 
-  /* coming back from a locked screen or another tab */
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      resume();
-      if (silentEl) { const pr = silentEl.play(); if (pr && pr.catch) pr.catch(() => {}); }
+  /* Keep trying on every gesture until the context is genuinely running. */
+  const GESTURES = ['touchstart', 'touchend', 'pointerdown', 'pointerup',
+                    'mousedown', 'click', 'keydown'];
+  let armed = false;
+
+  function attempt() {
+    if (!enabled) return;
+    init();
+    if (ctx && ctx.state === 'running') disarm();
+  }
+
+  function disarm() {
+    if (!armed) return;
+    armed = false;
+    for (const ev of GESTURES) {
+      document.removeEventListener(ev, attempt, true);
+      window.removeEventListener(ev, attempt, true);
     }
+  }
+
+  function arm() {
+    if (armed) return;
+    armed = true;
+    for (const ev of GESTURES) {
+      document.addEventListener(ev, attempt, { capture: true, passive: true });
+      window.addEventListener(ev, attempt, { capture: true, passive: true });
+    }
+  }
+  arm();
+
+  /* Coming back from a locked screen, an incoming call, or another tab
+     leaves the context suspended and the silent element paused. */
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    resume();
+    playSilent();
+    if (!ctx || ctx.state !== 'running') arm();
   });
+  window.addEventListener('pageshow', () => { resume(); playSilent(); });
+
+  /* What the UI should tell the player. */
+  function status() {
+    if (!enabled) return 'off';
+    if (!ctx) return 'blocked';
+    return ctx.state === 'running' ? 'running' : 'blocked';
+  }
 
   function resume() { if (ctx && ctx.state === 'suspended') ctx.resume(); }
 
@@ -264,7 +355,7 @@ const Audio8 = (() => {
   }
 
   return {
-    init, sfx, setEnabled,
+    init, sfx, setEnabled, status,
     music: startMusic,
     stop: stopMusic,
     get on() { return enabled; },
