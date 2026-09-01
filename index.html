@@ -72,9 +72,24 @@
         <canvas id="screen" width="256" height="224" aria-label="Hermanify 8-bit game screen"></canvas>
         <div class="crt-scan" aria-hidden="true"></div>
         <div class="crt-glow" aria-hidden="true"></div>
+
+        <!-- In-Screen Virtual Arcade Controls for Mobile & Fullscreen (Safari / Android) -->
+        <div class="screen-controls" id="screen-controls" aria-hidden="true">
+          <div class="dpad" id="v-dpad">
+            <button class="dbtn dbtn--up"    data-dir="up" aria-label="Up">&#9650;</button>
+            <button class="dbtn dbtn--left"  data-dir="left" aria-label="Left">&#9664;</button>
+            <button class="dbtn dbtn--right" data-dir="right" aria-label="Right">&#9654;</button>
+            <button class="dbtn dbtn--down"  data-dir="down" aria-label="Down">&#9660;</button>
+            <span class="dpad-center"></span>
+          </div>
+          <div class="abuttons" id="v-abuttons">
+            <button class="rbtn rbtn--b" data-btn="b" data-caption="SPRINT / B">B</button>
+            <button class="rbtn rbtn--a" data-btn="a" data-caption="TALK / A">A</button>
+          </div>
+        </div>
       </div>
       <div class="crt-brand" aria-hidden="true">
-        <span class="led"></span> HERMANIFY ENTERTAINMENT SYSTEM &middot; 8-BIT CHIPTUNE ENGINE
+        <span class="led"></span> FITWAY ENTERTAINMENT SYSTEM &middot; SECTOR 67 MOHALI
       </div>
     </div>
 
@@ -96,21 +111,6 @@
         <span class="hud-label">FITWAY GYM — CHAPTER 1</span>
         <p class="hud-quest">JUST COME TO THE GYM &bull; MEET SUKH &amp; GAGAN &bull; REBOOT CARDIO</p>
         <span class="hud-place">SECTOR 67, MOHALI</span>
-      </div>
-    </div>
-
-    <!-- On-Screen Touch D-Pad & Action Buttons (for Mobile/Tablet) -->
-    <div class="touch" id="touch" aria-hidden="true">
-      <div class="dpad">
-        <button class="dbtn dbtn--up"    data-dir="up" aria-label="Up">&#9650;</button>
-        <button class="dbtn dbtn--left"  data-dir="left" aria-label="Left">&#9664;</button>
-        <button class="dbtn dbtn--right" data-dir="right" aria-label="Right">&#9654;</button>
-        <button class="dbtn dbtn--down"  data-dir="down" aria-label="Down">&#9660;</button>
-        <span class="dpad-center"></span>
-      </div>
-      <div class="abuttons">
-        <button class="rbtn rbtn--b" data-btn="b" data-caption="SPRINT / B">B</button>
-        <button class="rbtn rbtn--a" data-btn="a" data-caption="TALK / A">A</button>
       </div>
     </div>
 

@@ -278,17 +278,62 @@
       btn.addEventListener('pointercancel', off);
     });
 
+    // Direct Screen Touch Steering for Mobile Safari & Android
+    let canvasTouchId = null, canvasTouchStart = null;
     cv.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       Audio8.init();
-      window.__aEdge = true;
-      if (activeCartridge && activeCartridge.engine && activeCartridge.engine.onAction) {
-        activeCartridge.engine.onAction();
+      const rect = cv.getBoundingClientRect();
+      const relX = (e.clientX - rect.left) / rect.width;
+      const relY = (e.clientY - rect.top) / rect.height;
+
+      if (relX < 0.5) {
+        // Left side of screen: Virtual movement steering
+        canvasTouchId = e.pointerId;
+        canvasTouchStart = { x: e.clientX, y: e.clientY };
+      } else {
+        // Right side of screen: Action [A] trigger & edge
+        window.__aEdge = true;
+        window.__held.a = true;
+        buzz(15);
+        if (activeCartridge && activeCartridge.engine && activeCartridge.engine.onAction) {
+          activeCartridge.engine.onAction();
+        }
       }
     });
 
+    cv.addEventListener('pointermove', (e) => {
+      if (e.pointerId !== canvasTouchId || !canvasTouchStart) return;
+      e.preventDefault();
+      const dx = e.clientX - canvasTouchStart.x;
+      const dy = e.clientY - canvasTouchStart.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist < 10) {
+        setDirs(false, false, false, false);
+      } else {
+        const angle = Math.atan2(dy, dx);
+        const u = dy < -10;
+        const d = dy > 10;
+        const l = dx < -10;
+        const r = dx > 10;
+        setDirs(u, d, l, r);
+      }
+    });
+
+    const releaseCanvasTouch = (e) => {
+      if (e.pointerId === canvasTouchId) {
+        canvasTouchId = null;
+        canvasTouchStart = null;
+        setDirs(false, false, false, false);
+      }
+      window.__held.a = false;
+    };
+    cv.addEventListener('pointerup', releaseCanvasTouch);
+    cv.addEventListener('pointercancel', releaseCanvasTouch);
+
     document.addEventListener('touchmove', (e) => {
-      if (e.target.closest('.touch') || e.target === cv) e.preventDefault();
+      if (e.target.closest('.screen-controls') || e.target === cv) e.preventDefault();
     }, { passive: false });
   }
 
