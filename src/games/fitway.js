@@ -312,25 +312,25 @@ window.FitwayGame = (() => {
   let npcs = [];
 
   /* ═══ 512×448 DETAILED GYM ROOM MAPS ═════════════════════ */
-  const WALKABLE = '._, rbmgsJ><^vE';
+  const WALKABLE = '._, rbmgsJ><^vEXP';
   function isWalkable(ch) { return WALKABLE.includes(ch); }
 
   const ROOMS = {
     main_gym: {
       name: 'FITWAY MAIN GYM — SECTOR 67',
       map: [
-        'W.H..H..H..H..HW',
-        'Wd.k.J...Jqq..rW',
-        'Wd.k.J...Jqq..rW',
+        'W.H..H..I..Q..HW',
+        'Wd.k.J...Jqq.VrW',
+        'Wd.k.J...Jqq.VrW',
         'W..A...C...E...W',
         'W.TT.TT.BB.RR.nW',
         'W.TT.TT.BB.RR.nW',
         'W..............W',
-        'W.bK.bb.mm.U.Y.pW',
-        'W.bb.bb.mm.U.Y.wW',
+        'W.bK.bb.XX.U.Y.pW',
+        'W.bP.bb.XX.U.Y.wW',
         'W.OG.OG........W',
-        'W..DD.....LL..>W',
-        'W..DD.....LL..>W',
+        'W.ZDD.....LL.N.>W',
+        'W.ZDD.....LL.N.>W',
         'W..............W',
         'WWWWWW..WWWWWWWW'
       ],
@@ -361,9 +361,9 @@ window.FitwayGame = (() => {
         'W..............W',
         'W..............W',
         'W..............W',
-        'cccccccc..cccccc',
-        'ssssssss..ssssss',
-        'ssssssss..ssssss',
+        'clccfccc..ccfclc',
+        's..m....  ....ms',
+        's..m....  ....ms',
         'ssssssssssssssss',
         'ssssssssssssssss',
         'ssssssssssssssss'
@@ -381,14 +381,14 @@ window.FitwayGame = (() => {
       map: [
         'WMMWWWWFFFFFFWMM',
         'W..............W',
-        'W.qq..qq..qq...W',
-        'W.qq..qq..qq...W',
+        'W.SS..SS..qq.V.W',
+        'W.SS..SS..qq.V.W',
         'W..............W',
-        'W.bb..bb..bb.d.W',
-        'W.bb..bb..bb.d.W',
+        'W.bb..bb..JJ.d.W',
+        'W.bb..bb..JJ.d.W',
         'W..............W',
-        'W..dd..dd..dd..W',
-        'W..dd..dd..dd..W',
+        'W..dd..dd..NN..W',
+        'W..dd..dd..NN..W',
         'W..............W',
         '<..............W',
         '<..............W',
@@ -931,6 +931,169 @@ window.FitwayGame = (() => {
         }
         ctx.fillStyle = C.baseboard;
         ctx.fillRect(x, y + 25, TS, 7);
+        break;
+
+      case 'V': // Preacher Curl Bench Station
+        ctx.fillStyle = C.wood1;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#1e222a';
+        ctx.fillRect(x + 6, y + 8, 20, 10); // Angled preacher pad
+        ctx.fillStyle = '#d32f2f';
+        ctx.fillRect(x + 8, y + 9, 16, 8); // Crimson vinyl cushion
+        ctx.fillStyle = C.metalLt;
+        ctx.fillRect(x + 4, y + 18, 24, 3); // Chrome bar cradle
+        ctx.fillRect(x + 10, y + 20, 4, 8); // Steel frame leg
+        ctx.fillRect(x + 18, y + 20, 4, 8);
+        break;
+
+      case 'X': // Heavy Battle Ropes Anchor Station
+        ctx.fillStyle = C.turfBlue;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 2, y + 14, 6, 6); // Floor anchor bracket
+        // Sinuous Animated Battle Rope Waves
+        const ropeOff = Math.sin(frame * 0.3) * 3;
+        ctx.fillStyle = '#212121';
+        ctx.fillRect(x + 8, y + 13 + ropeOff, 12, 4);
+        ctx.fillRect(x + 18, y + 15 - ropeOff, 12, 4);
+        break;
+
+      case 'P': // Plyometric Wooden Jump Box Tower
+        ctx.fillStyle = C.turfBlue;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#8d6e63';
+        ctx.fillRect(x + 4, y + 6, 24, 22);
+        ctx.fillStyle = '#d7ccc8';
+        ctx.fillRect(x + 6, y + 8, 20, 18);
+        ctx.fillStyle = C.fblk;
+        ctx.font = '6px "Press Start 2P", monospace';
+        ctx.fillText('24"', x + 8, y + 20);
+        break;
+
+      case 'S': // Olympic Smith Machine / Squat Power Cage
+        ctx.fillStyle = C.rubber2;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 2, y, 5, TS);
+        ctx.fillRect(x + 25, y, 5, TS);
+        ctx.fillStyle = C.metalLt;
+        ctx.fillRect(x + 4, y + 4, 24, 3); // Top frame
+        ctx.fillStyle = C.plateRed;
+        ctx.fillRect(x, y + 10, 4, 10);
+        ctx.fillRect(x + 28, y + 10, 4, 10);
+        ctx.fillStyle = C.metalHi;
+        ctx.fillRect(x + 2, y + 13, 28, 3); // Barbell
+        break;
+
+      case 'Z': // Protein Shake Blender Bar & Supplement Tubs
+        ctx.fillStyle = C.wood1;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.fblk2;
+        ctx.fillRect(x, y, TS, 28);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x, y + 24, TS, 4);
+        // Blender Jar with Swirling Berry Shake
+        ctx.fillStyle = C.glass;
+        ctx.fillRect(x + 6, y + 6, 8, 12);
+        ctx.fillStyle = '#e91e63';
+        ctx.fillRect(x + 7, y + 10 + (frame % 3), 6, 6);
+        // Gold Fitway Protein Powder Tub
+        ctx.fillStyle = C.fblk;
+        ctx.fillRect(x + 18, y + 8, 10, 12);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 18, y + 12, 10, 4);
+        break;
+
+      case 'N': // Locker Change Bench with Towel & Shaker
+        ctx.fillStyle = C.rubber2;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.wood1;
+        ctx.fillRect(x + 2, y + 12, 28, 10);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 4, y + 22, 4, 8);
+        ctx.fillRect(x + 24, y + 22, 4, 8);
+        // White Gym Towel & Blue Shaker Bottle
+        ctx.fillStyle = C.white;
+        ctx.fillRect(x + 6, y + 8, 8, 6);
+        ctx.fillStyle = '#0288d1';
+        ctx.fillRect(x + 18, y + 6, 5, 8);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 19, y + 4, 3, 2); // Shaker lid
+        break;
+
+      case 'I': // Wall-Mounted TV with Animated Sports Highlights
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.fblk;
+        ctx.fillRect(x + 2, y + 4, 28, 18);
+        ctx.strokeStyle = C.metalDk;
+        ctx.strokeRect(x + 2, y + 4, 28, 18);
+        // Animated Sports Highlights (Weightlifter / Game)
+        ctx.fillStyle = (Math.floor(frame / 20) % 2 === 0) ? '#1e88e5' : '#43a047';
+        ctx.fillRect(x + 4, y + 6, 24, 14);
+        ctx.fillStyle = C.white;
+        ctx.fillRect(x + 12 + (frame % 8), y + 10, 4, 6);
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 25, TS, 7);
+        break;
+
+      case 'Q': // Sector 67 Bulletin Board & Hall of Fame
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#8d6e63';
+        ctx.fillRect(x + 3, y + 3, 26, 20);
+        ctx.fillStyle = '#d7ccc8';
+        ctx.fillRect(x + 5, y + 5, 22, 16);
+        // Pinned Flyers & Polaroids
+        ctx.fillStyle = C.red;
+        ctx.fillRect(x + 7, y + 7, 6, 5);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 15, y + 8, 8, 4);
+        ctx.fillStyle = C.cyan;
+        ctx.fillRect(x + 9, y + 13, 7, 6);
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 25, TS, 7);
+        break;
+
+      case 'm': // Parked Royal Enfield / Retro Motorcycle
+        ctx.fillStyle = '#3a3e48';
+        ctx.fillRect(x, y, TS, TS);
+        // Matte Black & Chrome Motorcycle
+        ctx.fillStyle = '#212121';
+        ctx.fillRect(x + 4, y + 8, 24, 10);
+        ctx.fillStyle = C.metalLt;
+        ctx.fillRect(x + 6, y + 14, 20, 4); // Chrome exhaust
+        ctx.fillStyle = '#111';
+        ctx.beginPath();
+        ctx.arc(x + 7, y + 20, 6, 0, Math.PI * 2); // Front spoked wheel
+        ctx.arc(x + 25, y + 20, 6, 0, Math.PI * 2); // Rear wheel
+        ctx.fill();
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 26, y + 10, 3, 3); // Headlight
+        break;
+
+      case 'l': // Cast-Iron Street Light Lantern
+        ctx.fillStyle = '#7c8696';
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#263238';
+        ctx.fillRect(x + 13, y, 6, TS);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 10, y + 4, 12, 10); // Glowing Lantern Head
+        ctx.fillStyle = C.white;
+        ctx.fillRect(x + 12, y + 6, 8, 6);
+        break;
+
+      case 'f': // Concrete Street Planter with Flowers
+        ctx.fillStyle = '#7c8696';
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#b0bec5';
+        ctx.fillRect(x + 4, y + 12, 24, 16);
+        ctx.fillStyle = '#2e7d32';
+        ctx.fillRect(x + 6, y + 6, 20, 10);
+        ctx.fillStyle = '#e91e63';
+        ctx.fillRect(x + 8, y + 4, 4, 4);
+        ctx.fillStyle = '#ffeb3b';
+        ctx.fillRect(x + 18, y + 5, 4, 4);
         break;
 
       default:
