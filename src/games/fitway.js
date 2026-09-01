@@ -172,6 +172,7 @@ window.FitwayGame = (() => {
   /* ═══ STATE & VARIABLES ══════════════════════════════════ */
   let state = 'title'; // title | chapter_select | char_select | chapter_card | explore | dialogue | challenge | chaos_minigame | unlock | credits
   let selectedMenuIndex = 0;
+  let csAnim = 0;            // roster screen animation clock
   let menuOptions = [
     'PLAY STORY (CHAPTER 1)',
     'SELECT CHAPTER (1-4)',
@@ -2115,13 +2116,23 @@ window.FitwayGame = (() => {
     g.fillStyle = C.fy;
     g.fillText(`CHAPTER ${ch.num}`, W / 2, 140);
 
-    g.font = '18px "Press Start 2P", monospace';
+    /* the title is quoted with typographic quotes the face has no
+       glyphs for, and was set at a size that ran off the screen */
+    const tSize = fitSize('"' + ch.title + '"', W - 48, 18, 10);
+    g.font = tSize + 'px "Press Start 2P", monospace';
     g.fillStyle = C.white;
-    g.fillText(`“${ch.title}”`, W / 2, 190);
+    g.fillText('"' + ch.title + '"', W / 2, 190);
 
-    g.font = '10px "Press Start 2P", monospace';
+    /* the description was one centred line ~570px wide on a 512px
+       screen, so it was cut off at BOTH ends. Wrapped now. */
+    g.font = '9px "Press Start 2P", monospace';
     g.fillStyle = C.uiMuted;
-    g.fillText(ch.desc, W / 2, 250);
+    wrapWords(ch.desc, 46).slice(0, 3).forEach((ln, i) => {
+      g.fillText(ln, W / 2, 240 + i * 16);
+    });
+
+    g.fillStyle = C.fy;
+    g.fillRect(W / 2 - 60, 214, 120, 2);
 
     if (chapterCardTimer > 60 && Math.floor(frame / 14) % 2 === 0) {
       g.font = '11px "Press Start 2P", monospace';
@@ -2168,73 +2179,239 @@ window.FitwayGame = (() => {
     g.textAlign = 'left';
   }
 
+  /* ═══ ROSTER SELECT ═══════════════════════════════════════
+     The front door of the game. Built like an arcade fighter's
+     character select: one big lit portrait, the fighter's own
+     accent colour driving the whole screen, stats that count up
+     on selection, and a roster strip along the bottom.
+     ════════════════════════════════════════════════════════ */
+
+  /* light a hex colour by a factor, for accent tints */
+  function tint(hex, f) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = Math.min(255, ((n >> 16) & 255) * f) | 0;
+    const gg = Math.min(255, ((n >> 8) & 255) * f) | 0;
+    const b = Math.min(255, (n & 255) * f) | 0;
+    return `rgb(${r},${gg},${b})`;
+  }
+  function rgba(hex, a) {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  }
+
   function renderCharSelect() {
-    g.fillStyle = '#0a0c10';
+    csAnim++;
+    const accent = selChar.col.shirt;
+
+    /* ── ground ── */
+    g.fillStyle = '#06070a';
     g.fillRect(0, 0, W, H);
 
+    /* raking diagonal light in the fighter's colour */
+    g.save();
+    g.globalAlpha = 0.055;
+    g.fillStyle = accent;
+    for (let i = -H; i < W + H; i += 44) {
+      const off = (frame * 0.25) % 44;
+      g.beginPath();
+      g.moveTo(i + off, 0);
+      g.lineTo(i + off + 18, 0);
+      g.lineTo(i + off + 18 - H, H);
+      g.lineTo(i + off - H, H);
+      g.closePath();
+      g.fill();
+    }
+    g.restore();
+
+    /* pooled glow behind the hero */
+    const glow = g.createRadialGradient(96, 150, 8, 96, 150, 190);
+    glow.addColorStop(0, rgba(accent, 0.34));
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = glow;
+    g.fillRect(0, 0, 300, 320);
+
+    /* ── header ── */
+    g.fillStyle = '#0d0f15';
+    g.fillRect(0, 0, W, 40);
+    g.fillStyle = accent;
+    g.fillRect(0, 40, W, 2);
     g.textAlign = 'center';
-    g.font = '14px "Press Start 2P", monospace';
-    g.fillStyle = C.fy;
-    g.fillText('FITWAY — CHOOSE YOUR MEMBER', W / 2, 28);
-
-    drawPortrait(selChar.id, 24, 48, 110, false);
-
-    const ix = 150;
+    g.font = '13px "Press Start 2P", monospace';
+    g.fillStyle = C.white;
+    g.fillText('CHOOSE YOUR FIGHTER', W / 2, 15);
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillStyle = rgba(accent, 0.85);
+    g.fillText('FITWAY GYM  -  SECTOR 67, MOHALI', W / 2, 30);
     g.textAlign = 'left';
-    g.font = '16px "Press Start 2P", monospace';
-    g.fillStyle = C.uiText;
-    g.fillText(selChar.name, ix, 64);
 
-    g.font = '10px "Press Start 2P", monospace';
-    g.fillStyle = C.fy;
-    g.fillText(selChar.title, ix, 84);
+    /* ── hero portrait, framed ── */
+    const px = 22, py = 58, ps = 132;
+    g.fillStyle = '#0a0d13';
+    g.fillRect(px - 6, py - 6, ps + 12, ps + 12);
+    drawPortrait(selChar.id, px, py, ps, false);
 
-    g.fillStyle = C.uiMuted;
-    g.font = '9px "Press Start 2P", monospace';
-    selChar.quote.split('\n').forEach((ql, i) => g.fillText(ql, ix, 108 + i * 16));
+    /* animated corner brackets */
+    const br = Math.min(18, 6 + csAnim * 1.4);
+    g.strokeStyle = accent;
+    g.lineWidth = 3;
+    [[px - 6, py - 6, 1, 1], [px + ps + 6, py - 6, -1, 1],
+     [px - 6, py + ps + 6, 1, -1], [px + ps + 6, py + ps + 6, -1, -1]
+    ].forEach(([cx, cy, sx, sy]) => {
+      g.beginPath();
+      g.moveTo(cx + sx * br, cy);
+      g.lineTo(cx, cy);
+      g.lineTo(cx, cy + sy * br);
+      g.stroke();
+    });
+    g.lineWidth = 1;
 
+    /* today's challenge, under the portrait -- the column was empty */
+    g.fillStyle = '#0d1017';
+    g.fillRect(px - 6, py + ps + 14, ps + 12, 46);
+    g.fillStyle = rgba(accent, 0.6);
+    g.fillRect(px - 6, py + ps + 14, ps + 12, 2);
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillStyle = '#6f7889';
+    g.fillText('CHALLENGE', px + 2, py + ps + 26);
+    g.fillStyle = C.white;
+    g.fillText(fitTrim(selChar.challenge, 17, 7), px + 2, py + ps + 40);
+    g.fillStyle = accent;
+    g.fillText(selChar.reps + ' REPS', px + 2, py + ps + 53);
+
+    /* ── name plate ── */
+    const ix = 176;
+    g.fillStyle = accent;
+    g.fillRect(ix, 58, 4, 30);
+    g.font = '20px "Press Start 2P", monospace';
+    g.fillStyle = '#000';
+    g.fillText(selChar.name, ix + 13, 82);
+    g.fillStyle = C.white;
+    g.fillText(selChar.name, ix + 11, 80);
+
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillStyle = accent;
+    g.fillText(fitTrim(selChar.title, 40, 7), ix + 12, 96);
+    g.fillStyle = '#6f7889';
+    g.fillText(fitTrim(selChar.subtitle, 40, 7), ix + 12, 108);
+
+    /* ── quote ── */
+    g.fillStyle = '#1a1f2b';
+    g.fillRect(ix, 120, W - ix - 20, 40);
+    g.fillStyle = rgba(accent, 0.5);
+    g.fillRect(ix, 120, 2, 40);
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillStyle = C.cyan;
+    selChar.quote.split('\n').forEach((ql, i) => {
+      g.fillText(fitTrim(ql.trim(), 40, 7), ix + 10, 134 + i * 13);
+    });
+
+    /* ── stats, counting up on select ── */
     STAT_NAMES.forEach((sn, i) => {
-      const sx = (i < 3) ? ix : ix + 160;
-      const syi = 155 + (i % 3) * 20;
-      g.fillStyle = '#808890';
-      g.font = '10px "Press Start 2P", monospace';
-      g.fillText(sn, sx, syi);
-      for (let p = 0; p < 5; p++) {
-        g.fillStyle = p < selChar.stats[i] ? C.fy : '#2a2a3a';
-        g.fillRect(sx + 55 + p * 14, syi - 10, 10, 10);
+      const sy = 178 + i * 17;
+      g.font = '8px "Press Start 2P", monospace';
+      g.fillStyle = '#7b8496';
+      g.fillText(sn, ix, sy);
+      const grown = Math.max(0, Math.min(selChar.stats[i], (csAnim - i * 4) / 5));
+      for (let b = 0; b < 5; b++) {
+        const bx = ix + 44 + b * 17;
+        g.fillStyle = '#20242f';
+        g.fillRect(bx, sy - 8, 14, 9);
+        if (b < grown) {
+          g.fillStyle = b < 3 ? accent : tint(accent, 1.35);
+          g.fillRect(bx, sy - 8, 14, 9);
+          g.fillStyle = 'rgba(255,255,255,0.35)';
+          g.fillRect(bx, sy - 8, 14, 2);
+        }
       }
     });
 
-    g.fillStyle = C.white;
-    g.font = '10px "Press Start 2P", monospace';
-    g.fillText('WEAPON: ' + selChar.weapon, ix, 226);
-    g.fillStyle = '#00e676';
-    g.fillText('SPECIAL: ' + selChar.special, ix, 246);
+    /* ── kit chips ── */
+    const chip = (label, val, cy, col) => {
+      g.font = '7px "Press Start 2P", monospace';
+      g.fillStyle = '#151922';
+      g.fillRect(ix, cy, W - ix - 20, 15);
+      g.fillStyle = col;
+      g.fillRect(ix, cy, 3, 15);
+      g.fillStyle = col;
+      g.fillText(label, ix + 9, cy + 5);
+      g.fillStyle = C.white;
+      g.fillText(fitTrim(val, 26, 7), ix + 9 + label.length * 7 + 8, cy + 5);
+    };
+    chip('KIT', selChar.weapon, 268, '#ffd000');
+    chip('SPC', selChar.special, 286, '#00e676');
 
-    const rosterY = 275, boxSize = 56, gap = 16;
-    const totalW = CHARS.length * boxSize + (CHARS.length - 1) * gap;
-    const startX = (W - totalW) / 2;
+    /* ── roster strip ── */
+    g.textBaseline = 'alphabetic';
+    const rY = 318, box = 54, gap = 14;
+    const totalW = CHARS.length * box + (CHARS.length - 1) * gap;
+    const sX = (W - totalW) / 2;
+
+    g.fillStyle = '#0b0e14';
+    g.fillRect(0, rY - 16, W, box + 54);
+    g.fillStyle = '#1b202b';
+    g.fillRect(0, rY - 16, W, 1);
 
     CHARS.forEach((ch, i) => {
-      const bx = startX + i * (boxSize + gap);
-      const selected = i === charIdx;
-      if (selected) {
-        g.fillStyle = C.fy;
-        g.fillRect(bx - 3, rosterY - 3, boxSize + 6, boxSize + 6);
+      const bx = sX + i * (box + gap);
+      const sel = i === charIdx;
+      const lift = sel ? Math.round(Math.sin(frame * 0.09) * 2) - 4 : 0;
+      const by = rY + lift;
+
+      if (sel) {
+        g.fillStyle = rgba(ch.col.shirt, 0.35);
+        g.fillRect(bx - 5, by - 5, box + 10, box + 10);
+        g.fillStyle = ch.col.shirt;
+        g.fillRect(bx - 3, by - 3, box + 6, 3);
+        g.fillRect(bx - 3, by + box, box + 6, 3);
+        g.fillRect(bx - 3, by - 3, 3, box + 6);
+        g.fillRect(bx + box, by - 3, 3, box + 6);
+      } else {
+        g.fillStyle = '#12161e';
+        g.fillRect(bx - 2, by - 2, box + 4, box + 4);
       }
-      drawPortrait(ch.id, bx, rosterY, boxSize, false);
-      g.fillStyle = selected ? C.fy : '#606070';
-      g.font = '9px "Press Start 2P", monospace';
+
+      drawPortrait(ch.id, bx, by, box, false);
+      if (!sel) {                       // push the unpicked ones well back
+        g.fillStyle = 'rgba(6,7,10,0.72)';
+        g.fillRect(bx, by, box, box);
+      }
+
+      /* name sits on its own plate BELOW the portrait -- it used to
+         land on the bottom edge of the art */
+      const ny2 = rY + box + 6;
+      g.fillStyle = sel ? ch.col.shirt : '#171c25';
+      g.fillRect(bx - 3, ny2, box + 6, 13);
       g.textAlign = 'center';
-      g.fillText(ch.name, bx + boxSize / 2, rosterY + boxSize + 16);
+      g.font = '7px "Press Start 2P", monospace';
+      g.fillStyle = sel ? '#000' : '#79839a';
+      g.fillText(ch.name, bx + box / 2, ny2 + 10);
       g.textAlign = 'left';
     });
 
+    /* ── prompt ── */
     g.textAlign = 'center';
-    g.font = '11px "Press Start 2P", monospace';
-    g.fillStyle = C.uiText;
-    g.fillText('◄ D-PAD ►     [A] SELECT', W / 2, 410);
+    g.font = '9px "Press Start 2P", monospace';
+    if (Math.floor(frame / 20) % 2 === 0) {
+      g.fillStyle = accent;
+      g.fillText('[A]  FIGHT', W / 2, 426);
+    }
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillStyle = '#5b6373';
+    g.fillText('D-PAD TO CHOOSE', W / 2, 440);
     g.textAlign = 'left';
+
+    /* CRT veil, so the screen sits in the same world as the game */
+    g.fillStyle = 'rgba(0,0,0,0.16)';
+    for (let y = 0; y < H; y += 3) g.fillRect(0, y, W, 1);
+  }
+
+  /* clip a label to a column width, on a word boundary when it can */
+  function fitTrim(text, cols, size) {
+    const t = String(text);
+    if (t.length <= cols) return t;
+    const cut = t.slice(0, cols);
+    const sp = cut.lastIndexOf(' ');
+    return (sp > cols * 0.6 ? cut.slice(0, sp) : cut).trim();
   }
 
   /* ── text fitting ────────────────────────────────────────
@@ -2557,24 +2734,27 @@ window.FitwayGame = (() => {
 
     const held = window.__held || {};
     const aEdge = window.__aEdge;
+    const dirEdge = window.__dirEdge || { up: false, down: false, left: false, right: false };
 
     switch (state) {
       case 'title':
-        if (held.up && !held._tU) {
+        /* consume the latched edge, so a quick tap is never lost
+           between frames the way per-frame sampling dropped it */
+        if (dirEdge.up) {
           selectedMenuIndex = (selectedMenuIndex - 1 + menuOptions.length) % menuOptions.length;
           Audio8.sfx('menu');
         }
-        if (held.down && !held._tD) {
+        if (dirEdge.down) {
           selectedMenuIndex = (selectedMenuIndex + 1) % menuOptions.length;
           Audio8.sfx('menu');
         }
-        held._tU = held.up;
-        held._tD = held.down;
 
         if (aEdge) {
           Audio8.sfx('start');
           if (selectedMenuIndex === 0) {
-            startChapter(1);
+            /* choosing who you are is the front door now, not a submenu */
+            csAnim = 0;
+            state = 'char_select';
           } else if (selectedMenuIndex === 1) {
             state = 'chapter_select';
           } else if (selectedMenuIndex === 2) {
@@ -2596,41 +2776,39 @@ window.FitwayGame = (() => {
         break;
 
       case 'chapter_select':
-        if (held.up && !held._cU) {
+        if (dirEdge.up) {
           chapterSelectIndex = (chapterSelectIndex - 1 + CHAPTERS.length) % CHAPTERS.length;
           Audio8.sfx('menu');
         }
-        if (held.down && !held._cD) {
+        if (dirEdge.down) {
           chapterSelectIndex = (chapterSelectIndex + 1) % CHAPTERS.length;
           Audio8.sfx('menu');
         }
-        held._cU = held.up;
-        held._cD = held.down;
 
         if (aEdge) {
           startChapter(CHAPTERS[chapterSelectIndex].num);
         }
         break;
 
-      case 'char_select':
-        if (held.left && !held._csL) {
-          charIdx = (charIdx - 1 + CHARS.length) % CHARS.length;
+      case 'char_select': {
+        /* up/down step the roster too -- the pad has four directions
+           and a player will absolutely try all of them here */
+        const prevIdx = charIdx;
+        if (dirEdge.left || dirEdge.up) charIdx = (charIdx - 1 + CHARS.length) % CHARS.length;
+        if (dirEdge.right || dirEdge.down) charIdx = (charIdx + 1) % CHARS.length;
+        if (charIdx !== prevIdx) {
           selChar = CHARS[charIdx];
+          csAnim = 0;
           Audio8.sfx('menu');
         }
-        if (held.right && !held._csR) {
-          charIdx = (charIdx + 1) % CHARS.length;
-          selChar = CHARS[charIdx];
-          Audio8.sfx('menu');
-        }
-        held._csL = held.left;
-        held._csR = held.right;
 
         if (aEdge) {
           selChar = CHARS[charIdx];
+          Audio8.sfx('workout_win');
           startChapter(1);
         }
         break;
+      }
 
       case 'explore':
         if (pl.actionTimer > 0) pl.actionTimer--;
@@ -2640,7 +2818,7 @@ window.FitwayGame = (() => {
         const spd = held.b ? pl.spd * 1.6 : pl.spd;
 
         if (held.up) { ny -= spd; pl.dir = 'up'; pl.moving = true; }
-        if (held.down) { ny -= spd; pl.dir = 'down'; pl.moving = true; }
+        if (held.down) { ny += spd; pl.dir = 'down'; pl.moving = true; }
         if (held.left) { nx -= spd; pl.dir = 'left'; pl.moving = true; }
         if (held.right) { nx += spd; pl.dir = 'right'; pl.moving = true; }
 
@@ -2838,5 +3016,8 @@ window.FitwayGame = (() => {
     };
   }
 
-  return { start, stop, reset, update, render, onAction, getHUD };
+  /* small hook for automated checks and console tinkering */
+  function debug() { return { state, x: pl.x, y: pl.y, dir: pl.dir, room: curRoom?.name, char: selChar?.id, charIdx }; }
+
+  return { start, stop, reset, update, render, onAction, getHUD, debug };
 })();

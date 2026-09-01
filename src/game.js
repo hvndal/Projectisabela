@@ -149,6 +149,10 @@
   /* ══ UNIVERSAL INPUT STATE ════════════════════════════════ */
   window.__held = { up: false, down: false, left: false, right: false, a: false, b: false };
   window.__aEdge = false;
+  /* Directions get the same edge latch as [A]. Menus sample state once
+     per frame, so a tap shorter than ~16ms used to be dropped entirely
+     -- which is why a quick press of UP/DOWN often did nothing. */
+  window.__dirEdge = { up: false, down: false, left: false, right: false };
 
   const keys = {};
   const KEYMAP = {
@@ -177,6 +181,7 @@
       if (k === 'a' || (k === 'b' && window.Dialogue && window.Dialogue.active)) {
         window.__aEdge = true;
       }
+      if (k in window.__dirEdge) window.__dirEdge[k] = true;
     }
     keys[e.code] = true;
     window.__held[k] = true;
@@ -216,6 +221,10 @@
     let padId = null, lastSig = '';
 
     function setDirs(u, d, l, r) {
+      if (u && !window.__held.up) window.__dirEdge.up = true;
+      if (d && !window.__held.down) window.__dirEdge.down = true;
+      if (l && !window.__held.left) window.__dirEdge.left = true;
+      if (r && !window.__held.right) window.__dirEdge.right = true;
       window.__held.up = u; window.__held.down = d; window.__held.left = l; window.__held.right = r;
       if (arrow.up) arrow.up.classList.toggle('held', u);
       if (arrow.down) arrow.down.classList.toggle('held', d);
@@ -681,6 +690,8 @@
     }
 
     window.__aEdge = false;
+    window.__dirEdge.up = window.__dirEdge.down =
+      window.__dirEdge.left = window.__dirEdge.right = false;
     requestAnimationFrame(mainLoop);
   }
 
