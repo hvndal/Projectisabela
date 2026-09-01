@@ -15,6 +15,32 @@
   /* ══ CARTRIDGE CATALOG ═════════════════════════════════════ */
   const CATALOG = [
     {
+      id: 'fitway',
+      title: 'FITWAY: IRON RUN',
+      subtitle: 'SECTOR 67, MOHALI • 16-BIT GYM RPG',
+      cartLabel: 'FITWAY',
+      genre: '16-BIT GYM RPG / ARCADE',
+      year: '1994',
+      players: '1 PLAYER (5 HEROES)',
+      difficulty: 'CHAPTERS 1 — 4',
+      color: '#ffd000',
+      darkColor: '#141414',
+      engine: window.FitwayGame,
+      desc: 'Sector 67, Mohali! 16-bit gym exploration RPG with 5 heroes: Sukh, Gagan, Shubham, Rakesh, and Herman. 4 full story chapters, Machine Override, workout challenges, and interconnected gym exploration!',
+      controls: 'MOVE: D-Pad/WASD • TALK/SEARCH: A/Space • SPRINT: Hold B/Shift',
+      manual: {
+        story: 'Herman enters Fitway Gym in Sector 67, Mohali for an ordinary morning workout. What follows is a 4-chapter sitcom adventure across Reception, Cardio, Functional Training, and the legendary Floor 2 Weights Floor.',
+        howToPlay: [
+          '<b>CHOOSE HERO</b>: Street Fighter-style character select — Sukh, Gagan, Shubham, Rakesh, or Herman',
+          '<b>EXPLORE</b>: Navigate the 6 connected gym areas',
+          '<b>TALK</b>: Press A near NPCs to interact and trigger dialogue',
+          '<b>WORKOUT CHALLENGES</b>: Complete rep-based fitness challenges and timing minigames',
+          '<b>MACHINE OVERRIDE</b>: Fix malfunctioning gym electronics and unlock equipment powers'
+        ],
+        tips: 'Talk to everyone in Sector 67! Clear all 4 chapters to unlock the Free Roam gym mode.'
+      }
+    },
+    {
       id: 'isabela',
       title: 'ISABELA & THE LOST HEART',
       subtitle: 'OF THE PINK KINGDOM',
@@ -37,32 +63,6 @@
           'Gather <b>7 hearts</b>, <b>5 stars</b>, and <b>3 magical flowers</b> to unseal the shrine.'
         ],
         tips: 'Wander behind trees, inspect chests, and be gentle to the Beige Ones!'
-      }
-    },
-    {
-      id: 'fitway',
-      title: 'FITWAY: IRON RUN',
-      subtitle: 'A FITNESS ARCADE ADVENTURE',
-      cartLabel: 'FITWAY',
-      genre: 'RPG / FITNESS ADVENTURE',
-      year: '1994',
-      players: '1 PLAYER (5 HEROES)',
-      difficulty: 'BUILD 01 — VERTICAL SLICE',
-      color: '#ffd000',
-      darkColor: '#000000',
-      engine: window.FitwayGame,
-      desc: 'Explore Fitway Gym as a 16-bit top-down RPG! Choose from 5 heroes — Sukh, Gagan, Shubham, Rakesh, or Herman. Navigate the gym, talk to trainers, complete real workout challenges, and unlock equipment abilities!',
-      controls: 'MOVE: D-Pad/WASD • INTERACT: A/Space • SPRINT: Hold B/Shift',
-      manual: {
-        story: 'You walk through the doors of Fitway Gym for the first time. Sukh, the owner, sizes you up at reception. Gagan, the power trainer, blocks the cardio floor. Prove yourself through real fitness challenges to earn your place in the gym.',
-        howToPlay: [
-          '<b>CHOOSE HERO</b>: Street Fighter-style character select — Sukh, Gagan, Shubham, Rakesh, or Herman',
-          '<b>EXPLORE</b>: Walk through the gym rooms — Reception, Hallway, Cardio Floor',
-          '<b>TALK</b>: Press A near NPCs to interact and trigger dialogue',
-          '<b>WORKOUT CHALLENGES</b>: Complete rep-based fitness challenges to progress',
-          '<b>UNLOCK</b>: Earn equipment abilities by proving yourself to trainers'
-        ],
-        tips: 'Talk to everyone! Explore every corner of the gym. The weights floor on Floor 2 is waiting...'
       }
     },
     {
@@ -760,8 +760,8 @@
     initSoundboard();
     initCartridgeRack();
 
-    // Default start with Isabela or Fitway
-    loadCartridge('isabela');
+    // Default start with Fitway as primary premier cartridge
+    loadCartridge('fitway');
 
     requestAnimationFrame(mainLoop);
   }

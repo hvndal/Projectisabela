@@ -60,10 +60,10 @@
     <div class="cart-label">
       <div class="cart-holes" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="cart-title">
-        <h1>ISABELA &amp; THE LOST HEART<span class="cart-amp">&#9829;</span></h1>
-        <p class="cart-sub">OF THE PINK KINGDOM</p>
+        <h1>FITWAY: IRON RUN<span class="cart-amp">&#9733;</span></h1>
+        <p class="cart-sub">SECTOR 67, MOHALI &bull; 16-BIT GYM RPG</p>
       </div>
-      <div class="cart-scrawl" aria-hidden="true">ISABELA &#9829;</div>
+      <div class="cart-scrawl" aria-hidden="true" style="color:#ffd000;">FITWAY &#9733;</div>
     </div>
 
     <!-- CRT Screen & Monitor Bezel -->
@@ -81,24 +81,21 @@
     <!-- Dynamic Console HUD -->
     <div class="hud" id="hud">
       <div class="hud-cell">
-        <span class="hud-label">HEARTS</span>
-        <div class="hud-row" id="hud-hearts"></div>
-        <span class="hud-count" id="hud-hearts-count">00/07</span>
+        <span class="hud-label">TRAINER</span>
+        <span class="hud-count">&#127947;&#65039; HERMAN</span>
       </div>
       <div class="hud-cell">
-        <span class="hud-label">STARS</span>
-        <div class="hud-row" id="hud-stars"></div>
-        <span class="hud-count" id="hud-stars-count">00/05</span>
+        <span class="hud-label">LOCATION</span>
+        <span class="hud-count">&#128205; SECTOR 67</span>
       </div>
       <div class="hud-cell">
-        <span class="hud-label">FLOWERS</span>
-        <div class="hud-row" id="hud-flowers"></div>
-        <span class="hud-count" id="hud-flowers-count">00/03</span>
+        <span class="hud-label">EQUIPPED</span>
+        <span class="hud-count">&#9889; OVERRIDE</span>
       </div>
       <div class="hud-cell hud-cell--wide">
-        <span class="hud-label">QUEST</span>
-        <p class="hud-quest" id="hud-quest">Find the Heart.</p>
-        <span class="hud-place" id="hud-place">BELLAVISTA VILLAGE</span>
+        <span class="hud-label">FITWAY GYM — CHAPTER 1</span>
+        <p class="hud-quest">JUST COME TO THE GYM &bull; MEET SUKH &amp; GAGAN &bull; REBOOT CARDIO</p>
+        <span class="hud-place">SECTOR 67, MOHALI</span>
       </div>
     </div>
 
@@ -112,8 +109,8 @@
         <span class="dpad-center"></span>
       </div>
       <div class="abuttons">
-        <button class="rbtn rbtn--b" data-btn="b" data-caption="ATTACK / B">B</button>
-        <button class="rbtn rbtn--a" data-btn="a" data-caption="JUMP / A">A</button>
+        <button class="rbtn rbtn--b" data-btn="b" data-caption="SPRINT / B">B</button>
+        <button class="rbtn rbtn--a" data-btn="a" data-caption="TALK / A">A</button>
       </div>
     </div>
 
@@ -123,7 +120,7 @@
       <button class="pxbtn" id="btn-sound" type="button">&#9834; SOUND: ON</button>
       <button class="pxbtn pxbtn--go" id="btn-full" type="button">&#9974; FULLSCREEN</button>
       <button class="pxbtn" id="btn-reset" type="button">&#8635; RESET</button>
-      <span class="hint">CONTROLS: ARROWS / WASD &bull; JUMP: A/SPACE &bull; ATTACK: B/SHIFT</span>
+      <span class="hint">CONTROLS: ARROWS / WASD &bull; TALK: A/SPACE &bull; SPRINT: B/SHIFT</span>
     </div>
   </main>
 
@@ -136,10 +133,29 @@
 
     <div class="cart-grid">
 
-      <!-- Cartridge 1: Isabela -->
-      <article class="cart-card active" data-id="isabela">
+      <!-- Cartridge 1: FITWAY: IRON RUN -->
+      <article class="cart-card active" data-id="fitway">
+        <div class="cart-card-top" style="background: linear-gradient(135deg, #ffd000, #141414); color: #000;">
+          <span class="cart-num" style="color: #000; font-weight: 900;">CART 01 &bull; FEATURED</span>
+          <span class="cart-badge badge-platformer" style="background: #ffd000; color: #000; font-weight: bold;">16-BIT GYM RPG</span>
+        </div>
+        <div class="cart-card-body">
+          <h3 class="cart-card-title">FITWAY: IRON RUN</h3>
+          <p class="cart-card-sub">A FITNESS ARCADE ADVENTURE &bull; CHAPTERS 1-4</p>
+          <p class="cart-card-desc">Sector 67, Mohali! Street Fighter-style roster: Sukh (Owner), Gagan, Shubham, Rakesh, and Herman. 4-Chapter sitcom story, Machine Override, workout challenges, and interconnected gym exploration!</p>
+          <div class="cart-meta">
+            <span>&#128197; 1994</span>
+            <span>&#128100; 5 HEROES</span>
+            <span>&#9874; 4 CHAPTERS</span>
+          </div>
+          <button class="pxbtn pxbtn--play btn-play-cart" type="button" style="background: #ffd000; color: #000;">&#9654; INSERT &amp; PLAY</button>
+        </div>
+      </article>
+
+      <!-- Cartridge 2: Isabela -->
+      <article class="cart-card" data-id="isabela">
         <div class="cart-card-top" style="background: linear-gradient(135deg, #ff5fa2, #d3216b);">
-          <span class="cart-num">CART 01</span>
+          <span class="cart-num">CART 02</span>
           <span class="cart-badge badge-rpg">ADVENTURE</span>
         </div>
         <div class="cart-card-body">
@@ -152,25 +168,6 @@
             <span>&#9874; NORMAL</span>
           </div>
           <button class="pxbtn pxbtn--play btn-play-cart" type="button">&#9654; INSERT &amp; PLAY</button>
-        </div>
-      </article>
-
-      <!-- Cartridge 2: FITWAY: IRON RUN -->
-      <article class="cart-card" data-id="fitway">
-        <div class="cart-card-top" style="background: linear-gradient(135deg, #ffd000, #000000); color: #000;">
-          <span class="cart-num" style="color: #000;">CART 02</span>
-          <span class="cart-badge badge-platformer" style="background: #ffd000; color: #000; font-weight: bold;">FITNESS ARCADE</span>
-        </div>
-        <div class="cart-card-body">
-          <h3 class="cart-card-title">FITWAY: IRON RUN</h3>
-          <p class="cart-card-sub">A FITNESS ARCADE ADVENTURE</p>
-          <p class="cart-card-desc">Choose from 5 heroes: Sukh (Owner), Gagan, Shubham, Rakesh, or Herman (Tech Guy)! Explore the multi-floor gym, ride moving treadmills, pump workout reps to charge specials, and battle The Sedentary King!</p>
-          <div class="cart-meta">
-            <span>&#128197; 1991</span>
-            <span>&#128100; 5 HEROES</span>
-            <span>&#9874; WORKOUT</span>
-          </div>
-          <button class="pxbtn pxbtn--play btn-play-cart" type="button" style="background: #ffd000; color: #000;">&#9654; INSERT &amp; PLAY</button>
         </div>
       </article>
 
@@ -279,19 +276,19 @@
 </div>
 
 <!-- ══ SCRIPTS ══ -->
-<script src="src/config.js"></script>
-<script src="src/sprites.js"></script>
-<script src="src/maps.js"></script>
-<script src="src/audio.js"></script>
-<script src="src/dialogue.js"></script>
+<script src="src/config.js?v=2.2.0"></script>
+<script src="src/sprites.js?v=2.2.0"></script>
+<script src="src/maps.js?v=2.2.0"></script>
+<script src="src/audio.js?v=2.2.0"></script>
+<script src="src/dialogue.js?v=2.2.0"></script>
 <!-- Cartridge Engines -->
-<script src="src/games/isabela.js"></script>
-<script src="src/games/fitway.js"></script>
-<script src="src/games/tank.js"></script>
-<script src="src/games/space.js"></script>
-<script src="src/games/plumber.js"></script>
+<script src="src/games/fitway.js?v=2.2.0"></script>
+<script src="src/games/isabela.js?v=2.2.0"></script>
+<script src="src/games/tank.js?v=2.2.0"></script>
+<script src="src/games/space.js?v=2.2.0"></script>
+<script src="src/games/plumber.js?v=2.2.0"></script>
 <!-- Master Console Router -->
-<script src="src/game.js"></script>
+<script src="src/game.js?v=2.2.0"></script>
 
 </body>
 </html>
