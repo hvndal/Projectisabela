@@ -1,31 +1,28 @@
 /* ============================================================
-   FITWAY: IRON RUN — 512×448 Ultra-HD Gym RPG Masterpiece
-   Sector 67, Mohali • Museum-Grade Environmental & Audio Edition
+   FITWAY: IRON RUN — 512×448 Ultra-HD Masterpiece Edition
+   Sector 67, Mohali • Definitive Visual, Audio & Environmental Simulation
    ============================================================
-   Dense 32-Bit / Modern Indie Pixel Art Gym Simulation:
-   - 512×448 Native Resolution (32×32 Pixel Handcrafted Tiles)
-   - Expanded Environmental Stations & Props:
-     * Heavy Tractor Tire Stack & Sledgehammer Zone
-     * Deadlift Platform with Olympic Barbell & Colored Bumpers
-     * Concept2-Style Indoor Rower with Flywheel & Monitored Rail
-     * 3-Tier Kettlebell Pyramid Tree (Color-Coded Competition Bells)
+   Indie Masterpiece 32-Bit Aesthetics:
+   - 512×448 Native Resolution with Rich 32×32 Pixel Handcrafted Tiles
+   - Dense Environmental Additions across All Gym Zones:
+     * Full-Length Oak Deadlift Platform with Olympic Calibrated Bumpers
+     * Concept2 Indoor Rower with Monitored Ergometer Flywheel
+     * Heavy Tractor Tire Stack & Steel Sledgehammer
+     * 3-Tier Kettlebell Pyramid Tree (Color-Coded 8kg to 32kg)
      * Foam Roller & Yoga Mat Storage Rack (Multicolor Rolls)
-     * Glass Mini-Fridge with Glowing Cold Protein Drinks
-     * Dual-Tower Cable Crossover & Squat Power Cage
-     * High-Tech Treadmills & Aerodynamic Spin Bikes
-     * Suspended Heavy Leather Punching Bags & Speed Bag Station
-     * Water Cooler with Rising Animated Bubbles & Cup Dispenser
-     * Wall-Mounted Glowing 7-Segment Timer & PR Leaderboard
-     * Trophy Showcase & Ficus/Monstera Tropical Planters
-     * Sector 67 Street Exterior: Parked Motorcycle, Crosswalk, Storefront
-   - Living Animated Gym NPCs:
-     * Barbell Bench Presser with Spotter
-     * Heavy Olympic Deadlifter
-     * Indoor Rower with Dynamic Stroke Cycle
-     * High-Pace Treadmill Runner & Spin Cyclist
-     * Heavy Bag Boxer with Rebound Physics
-     * Jump Rope Conditioning Athlete
-   - Multi-Beam Volumetric Sunbeams, Chalk Motes & Rotating Fan Shadows
+     * Glass Mini-Fridge with Glowing Cold Protein Shakes
+     * Dual-Tower Cable Crossover with Pull-up Bridge & Weight Stacks
+     * High-Tech Treadmills with Cyan LED Pace Graphs & Safety Keys
+     * Aerodynamic Spin Bikes with Real-Time Rotating Flywheels
+     * Suspended Heavy Leather Boxing Bags with Ceiling Chains
+     * Speed Bag Station with Rebound Board
+     * Water Cooler Station with Rising Animated Water Bubbles
+     * Wall-Mounted Glowing 7-Segment Digital Timer & PR Leaderboard
+     * Trophy & Achievement Showcase with Specular Sparkles
+     * Lush Monstera & Ficus Tropical Planters with Cast Shadows
+     * Sector 67 Mohali Exterior: Storefront Glass, Parked Motorcycle, Crosswalk
+   - Living Multi-Discipline Gym NPC Athletes with Fluid Exercise Animations
+   - Multi-Beam Volumetric Sunbeams, Floating Chalk Motes & Rotating Fan Shadows
    - 96×96 Street Fighter II Character Busts & Glassmorphic UI
    ============================================================ */
 
@@ -34,7 +31,7 @@ window.FitwayGame = (() => {
   const W = 512, H = 448, TS = 32, COLS = 16, ROWS = 14;
   let g = null, frame = 0;
 
-  /* ═══ ULTRA-HD COLOR PALETTE ═════════════════════════════ */
+  /* ═══ MASTERPIECE COLOR PALETTE ═══════════════════════════ */
   const C = {
     // Parquet Walnut Hardwood Floor with Lacquer Gloss
     wood1: '#b88652', wood2: '#9e6d3c', wood3: '#835429', wood4: '#cf9e6b',
@@ -239,7 +236,7 @@ window.FitwayGame = (() => {
   // Room NPCs
   let npcs = [];
 
-  /* ═══ 512×448 DENSE GYM ROOM MAPS ════════════════════════ */
+  /* ═══ 512×448 EXPANDED GYM ROOM MAPS ═════════════════════ */
   // Tile Key:
   // . = walnut wood floor, , = rubber mat, r = red lifting zone, b = blue agility turf
   // s = street asphalt, c = sidewalk curb, g = grass, J = deadlift platform
@@ -404,7 +401,6 @@ window.FitwayGame = (() => {
       case '.': // 32×32 Polished Walnut Hardwood Plank
         ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
-        // Realistic wood plank joints & grain lines
         ctx.fillStyle = C.wood2;
         ctx.fillRect(x, y + 8, TS, 2);
         ctx.fillRect(x, y + 20, TS, 2);
@@ -412,11 +408,9 @@ window.FitwayGame = (() => {
         ctx.fillRect(x + 15, y, 2, TS);
         ctx.fillStyle = C.wood4;
         ctx.fillRect(x + 17, y, 2, TS);
-        // Wood knots & grain noise
         ctx.fillStyle = C.woodKnot;
         ctx.fillRect(x + 6, y + 4, 3, 2);
         ctx.fillRect(x + 24, y + 14, 3, 2);
-        // Lacquer sheen gloss
         ctx.fillStyle = C.woodHi;
         ctx.fillRect(x + 2, y + 2, TS - 4, 3);
         break;
@@ -469,7 +463,6 @@ window.FitwayGame = (() => {
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.turfBlueLt;
         ctx.fillRect(x + 2, y + 2, TS - 4, TS - 4);
-        // White agility track yard marker
         ctx.fillStyle = C.turfLine;
         ctx.fillRect(x + 6, y + 14, TS - 12, 3);
         ctx.fillStyle = C.fy;
@@ -904,7 +897,7 @@ window.FitwayGame = (() => {
       g.fillStyle = C.shadow;
       g.fillRect(x + 4, y + 38, 24, 6);
       g.fillStyle = '#43a047';
-      g.fillRect(x + 8 + rowX, y + 16, 14, 12); // Athlete torso sliding on seat rail
+      g.fillRect(x + 8 + rowX, y + 16, 14, 12); // Athlete sliding on seat rail
       g.fillStyle = '#e0b080';
       g.fillRect(x + 10 + rowX, y + 6, 10, 10);
       g.fillStyle = C.metalLt;
