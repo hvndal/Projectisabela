@@ -1,45 +1,59 @@
 /* ============================================================
-   FITWAY: IRON RUN — 16/32-Bit Modern Gym RPG Experience
-   Sector 67, Mohali • Visual & Environmental Overhaul
+   FITWAY: IRON RUN — 512×448 HD Modern Gym RPG Experience
+   Sector 67, Mohali • Ultimate Visual & Environmental Overhaul
    ============================================================
-   High-Fidelity 16/32-Bit Aesthetics:
-   - Dynamic Atmospheric Lighting (Volumetric Sunbeams & Dust Motes)
-   - Real-time Rotating Ceiling Fan Shadows & Ambient Specular Sheen
-   - Precision-Crafted Modern Gym Equipment & Living NPC Lifters
-   - Real-time Mirror Reflection Silhouettes
-   - Glassmorphic Sleek HUD with Fluid Gradient Energy Gauges
-   - Street Fighter II-Grade 72x72 Detailed Character Busts
-   - Chapter Select (Chapters 1 to 4) + Free Roam Gym Mode
+   High-Definition 32-Bit / Modern Indie Pixel Aesthetics:
+   - 512×448 Native HD Resolution (32×32 Rich Detailed Tiles)
+   - Dense Environmental Additions:
+     * Dual-Tower Cable Crossover with Multi-grip Pull-up Bridge
+     * High-Tech Treadmills with Glowing Cyan Heart-Rate Dashboards
+     * Aerodynamic Spin Bikes with Rotating Chrome Flywheels
+     * Heavy Olympic Squat Racks with Calibrated Bumper Plates
+     * 3-Tier Multi-Dumbbell Racks with Hex Weights
+     * Suspended Heavy Punching Bags with Hanging Chains & Rebound
+     * Water Cooler Station with Animated Water Bubbles
+     * Wall-Mounted Glowing 7-Segment Digital Workout Timer
+     * Trophy & Achievement Showcase with Specular Glints
+     * Ficus & Monstera Tropical Plants in Terracotta Planters
+     * Chalk Pedestal with Lifting Chalk & Floor Markings
+   - Living Gym Lifters & Boxers with Realistic Exercise Animations
+   - Layered Volumetric Sunbeams, Floating Chalk Motes & Fan Shadows
+   - 96×96 Street Fighter-Grade Character Busts & Glassmorphic UI
    ============================================================ */
 
 window.FitwayGame = (() => {
   'use strict';
-  const W = 256, H = 224, TS = 16, COLS = 16, ROWS = 14;
+  const W = 512, H = 448, TS = 32, COLS = 16, ROWS = 14;
   let g = null, frame = 0;
 
-  /* ═══ MODERN 16/32-BIT PALETTE ═══════════════════════════ */
+  /* ═══ HIGH-DEFINITION PALETTE ═════════════════════════════ */
   const C = {
-    // Hardwood Flooring (Rich multi-tone walnut with lacquer sheen)
-    wood1: '#b88652', wood2: '#9a6b3c', wood3: '#7d5229', wood4: '#cf9e6b', woodLine: '#66411d',
-    // Rubber Heavy Matting (Interlocking carbon texture)
-    rubber1: '#262932', rubber2: '#1d1f27', rubber3: '#323642', rubberBorder: '#ffd000',
-    carpetRed: '#8f242e', carpetBlue: '#1e4875',
-    // Architectural Walls & Trim
-    wall: '#ede5d8', wallDk: '#cebfac', wallTop: '#786856', baseboard: '#442d1b',
-    // Fitway Neon Branding
-    fy: '#ffd000', fyDk: '#cc9900', fyLt: '#ffe766', fyGlow: 'rgba(255, 208, 0, 0.45)',
-    fblk: '#0f1115', fblk2: '#1a1d24',
-    // High-Tech Chrome & Steel
-    metal: '#929ca8', metalDk: '#545d68', metalLt: '#c8d2dc', metalHi: '#eef4fa',
-    // Glass, Mirrors & Atmosphere
-    mirror: '#a8ccdc', mirrorLt: '#cce6f4', mirrorHi: '#ffffff',
-    sunbeam: 'rgba(255, 245, 210, 0.12)', sunbeamCore: 'rgba(255, 250, 230, 0.22)',
-    glass: '#8cbcd8',
+    // Rich Walnut Hardwood Planks with Lacquer Sheen
+    wood1: '#b88652', wood2: '#9e6d3c', wood3: '#835429', wood4: '#cf9e6b',
+    woodLine: '#66411d', woodKnot: '#543213', woodHi: 'rgba(255, 255, 255, 0.08)',
+    // Vulcanized Interlocking Rubber Matting
+    rubber1: '#262932', rubber2: '#1c1e26', rubber3: '#323644', rubberBorder: '#ffd000',
+    // Performance Turf & Mats
+    turfBlue: '#154878', turfBlueLt: '#2062a0', turfLine: '#ffffff',
+    carpetRed: '#8f242e', carpetRedLt: '#b83240',
+    // Structural Wall & Trims
+    wall: '#ede5d8', wallDk: '#cfc0ad', wallTop: '#786856', baseboard: '#442d1b', baseboardHi: '#6b492f',
+    // Fitway Electric Neon Gold
+    fy: '#ffd000', fyDk: '#cc9900', fyLt: '#ffe766', fyGlow: 'rgba(255, 208, 0, 0.5)',
+    fblk: '#0d0f14', fblk2: '#161922', fblk3: '#222634',
+    // Chrome, Steel & Equipment
+    metal: '#949ea8', metalDk: '#505862', metalLt: '#c8d4e0', metalHi: '#f2f7fc',
+    // Weight Bumper Plates (Olympic Calibrated)
+    plateRed: '#e53935', plateBlue: '#1e88e5', plateYellow: '#fdd835', plateGreen: '#43a047',
+    // Glass, Atmosphere & Neon
+    mirror: '#a0c8dc', mirrorLt: '#cce4f2', mirrorHi: '#ffffff',
+    glass: '#88bad8', waterJug: '#4fc3f7',
+    sunbeam: 'rgba(255, 245, 210, 0.14)', sunbeamCore: 'rgba(255, 250, 230, 0.26)',
     // Dynamic Accents
-    red: '#f03a3a', green: '#00e676', blue: '#00b0ff', cyan: '#00e5ff', purple: '#ab47bc', orange: '#ff9100',
+    cyan: '#00e5ff', red: '#f03a3a', emerald: '#00e676', orange: '#ff9100', purple: '#ab47bc',
     // UI Theme
-    uiGlass: 'rgba(15, 17, 23, 0.88)', uiGlassBorder: '#ffd000', uiText: '#f0f3f8', uiMuted: '#8a94a6',
-    black: '#000000', white: '#ffffff', shadow: 'rgba(0, 0, 0, 0.32)'
+    uiGlass: 'rgba(13, 15, 20, 0.88)', uiGlassBorder: '#ffd000', uiText: '#f0f3f8', uiMuted: '#8a94a6',
+    black: '#000000', white: '#ffffff', shadow: 'rgba(0, 0, 0, 0.35)'
   };
 
   /* ═══ 5 PLAYABLE FITWAY HEROES ═══════════════════════════ */
@@ -126,7 +140,7 @@ window.FitwayGame = (() => {
   ];
 
   /* ═══ STATE & VARIABLES ══════════════════════════════════ */
-  let state = 'title'; // title | menu | chapter_select | char_select | explore | dialogue | challenge | chaos_minigame | unlock | credits
+  let state = 'title'; // title | chapter_select | char_select | explore | dialogue | challenge | chaos_minigame | unlock | credits
   let selectedMenuIndex = 0;
   let menuOptions = [
     'PLAY STORY (CHAPTER 1)',
@@ -141,27 +155,27 @@ window.FitwayGame = (() => {
 
   // Player with floating-point position for ultra-smooth movement
   let pl = {
-    x: 112, y: 160, vx: 0, vy: 0,
+    x: 224, y: 320,
     dir: 'down', moving: false,
-    walkT: 0, walkFrame: 0, spd: 2.0,
+    walkT: 0, walkFrame: 0, spd: 3.5,
     interactCooldown: 0,
     hp: 100, maxHp: 100,
     energy: 85, maxEnergy: 100,
     stamina: 100, maxStamina: 100
   };
 
-  // Atmospheric Dust Motes
+  // Atmospheric Dust Motes & Chalk Particles
   let motes = [];
   function initMotes() {
     motes = [];
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 36; i++) {
       motes.push({
         x: Math.random() * W,
         y: Math.random() * H,
-        vx: (Math.random() - 0.5) * 0.25,
-        vy: -0.1 - Math.random() * 0.2,
-        sz: Math.random() > 0.6 ? 1.5 : 1.0,
-        alpha: 0.2 + Math.random() * 0.5
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: -0.15 - Math.random() * 0.35,
+        sz: Math.random() > 0.6 ? 2.5 : 1.5,
+        alpha: 0.2 + Math.random() * 0.6
       });
     }
   }
@@ -217,14 +231,15 @@ window.FitwayGame = (() => {
   // Room NPCs
   let npcs = [];
 
-  /* ═══ 16-BIT DETAILED GYM ROOM MAPS ══════════════════════ */
+  /* ═══ 512×448 DETAILED GYM ROOM MAPS ═════════════════════ */
   // Tile Key:
-  // . = walnut wood floor, , = rubber deadlift mat, r = red carpet, b = blue carpet
-  // s = street pavement, c = sidewalk curb, g = grass
-  // W = solid wall, M = full mirror, P = Fitway poster, C = clock, V = TV, H = sunbeam window
-  // F = Fitway gold sign, D = desk, L = lockers, p = ficus plant, w = water cooler, n = bench
-  // T = animated treadmill, B = spin bike, k = kettlebell & yoga ball, q = squat/cable machine
-  // d = chrome dumbbell rack, m = exercise mat, U = heavy bag, Y = speed bag, O = terminal
+  // . = walnut hardwood floor, , = rubber deadlift mat, r = red carpet, b = blue agility turf
+  // s = street asphalt, c = sidewalk curb, g = grass
+  // W = solid wall with baseboard, M = full chrome mirror, H = upper sunbeam window
+  // F = Fitway gold sign, D = desk & terminal, L = lockers, p = ficus plant, w = water cooler
+  // n = bench press station, T = treadmill, B = spin bike, k = kettlebell & yoga ball
+  // q = cable crossover tower, d = dumbbell rack, U = punching bag, Y = speed bag
+  // K = chalk pedestal, C = wall digital timer, A = award trophy case
   const WALKABLE = '._, rbmgs><^vEO';
   function isWalkable(ch) { return WALKABLE.includes(ch); }
 
@@ -235,12 +250,12 @@ window.FitwayGame = (() => {
         'W.H..H..H..H..HW',
         'Wd.k......qq..rW',
         'Wd.k......qq..rW',
-        'W..............W',
+        'W..A...C.......W',
         'W.TT.TT.BB..n..W',
         'W.TT.TT.BB..n..W',
         'W..............W',
-        'W..mm..mm.U.Y.pW',
-        'W..mm..mm.U.Y..W',
+        'W.bK.bb.mm.U.Y.pW',
+        'W.bb.bb.mm.U.Y.wW',
         'W..............W',
         'W..DD.....LL..>W',
         'W..DD.....LL..>W',
@@ -258,7 +273,8 @@ window.FitwayGame = (() => {
         { id: 'shubham_main', charId: 'shubham', tx: 3, ty: 7, dir: 'down', isStory: true, name: 'SHUBHAM' },
         { id: 'rakesh_main', charId: 'rakesh', tx: 12, ty: 5, dir: 'left', isStory: true, name: 'RAKESH' },
         { id: 'bench_lifter', tx: 12, ty: 4, dir: 'up', sprite: 'lifter_bench', exercising: true, name: 'BENCH LIFTER' },
-        { id: 'treadmill_runner', tx: 2, ty: 4, dir: 'down', sprite: 'member_m', exercising: true, name: 'RUNNER' }
+        { id: 'treadmill_runner', tx: 2, ty: 4, dir: 'down', sprite: 'member_m', exercising: true, name: 'RUNNER' },
+        { id: 'boxer_bag', tx: 11, ty: 7, dir: 'right', sprite: 'boxer', exercising: true, name: 'BOXER' }
       ]
     },
     street: {
@@ -372,303 +388,377 @@ window.FitwayGame = (() => {
     ]
   };
 
-  /* ═══ HIGH-DEFINITION PIXEL TILE RENDERING ═══════════════ */
+  /* ═══ 32×32 HIGH-DEFINITION TILE RENDERER ════════════════ */
   function drawTile(ctx, ch, x, y) {
     switch (ch) {
-      case '.': // 16-bit Polished Walnut Hardwood Plank
+      case '.': // 32×32 Polished Walnut Hardwood Plank
         ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
+        // Realistic wood plank joints & grain lines
         ctx.fillStyle = C.wood2;
-        ctx.fillRect(x, y + 4, TS, 1);
-        ctx.fillRect(x, y + 10, TS, 1);
+        ctx.fillRect(x, y + 8, TS, 2);
+        ctx.fillRect(x, y + 20, TS, 2);
         ctx.fillStyle = C.wood3;
-        ctx.fillRect(x + 7, y, 1, TS);
+        ctx.fillRect(x + 15, y, 2, TS);
         ctx.fillStyle = C.wood4;
-        ctx.fillRect(x + 8, y, 1, TS);
-        // Lacquer sheen dot
-        ctx.fillStyle = 'rgba(255,255,255,0.06)';
-        ctx.fillRect(x + 1, y + 1, TS - 2, 2);
+        ctx.fillRect(x + 17, y, 2, TS);
+        // Wood knots & subtle grain noise
+        ctx.fillStyle = C.woodKnot;
+        ctx.fillRect(x + 6, y + 4, 3, 2);
+        ctx.fillRect(x + 24, y + 14, 3, 2);
+        // Lacquer sheen gloss
+        ctx.fillStyle = C.woodHi;
+        ctx.fillRect(x + 2, y + 2, TS - 4, 3);
         break;
 
-      case ',': // Interlocking High-Density Rubber Mat
+      case ',': // 32×32 Heavy-Duty Interlocking Vulcanized Rubber
         ctx.fillStyle = C.rubber2;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.rubber3;
-        for (let i = 0; i < 4; i++) {
-          ctx.fillRect(x + i * 4 + 1, y + i * 4 + 1, 2, 2);
-          ctx.fillRect(x + i * 4 + 2, y + i * 4 + 2, 1, 1);
+        for (let i = 0; i < 8; i++) {
+          ctx.fillRect(x + (i % 4) * 8 + 2, y + Math.floor(i / 4) * 16 + 2, 4, 4);
+          ctx.fillRect(x + (i % 4) * 8 + 4, y + Math.floor(i / 4) * 16 + 4, 2, 2);
         }
-        ctx.fillStyle = '#14161c';
-        ctx.fillRect(x, y, TS, 1);
-        ctx.fillRect(x, y, 1, TS);
+        ctx.fillStyle = '#101218';
+        ctx.fillRect(x, y, TS, 2);
+        ctx.fillRect(x, y, 2, TS);
         break;
 
-      case 'r': // Crimson Performance Mat
+      case 'r': // 32×32 Crimson Performance Lifting Zone
         ctx.fillStyle = C.carpetRed;
         ctx.fillRect(x, y, TS, TS);
-        ctx.fillStyle = '#b32e3b';
-        ctx.fillRect(x + 1, y + 1, TS - 2, TS - 2);
-        ctx.fillStyle = '#e04050';
-        ctx.fillRect(x + 2, y + 2, TS - 4, 1);
+        ctx.fillStyle = C.carpetRedLt;
+        ctx.fillRect(x + 2, y + 2, TS - 4, TS - 4);
+        ctx.fillStyle = '#e53935';
+        ctx.fillRect(x + 4, y + 4, TS - 8, 2);
         break;
 
-      case 'b': // Cobalt Agility Mat
-        ctx.fillStyle = C.carpetBlue;
+      case 'b': // 32×32 Cobalt Blue Agility Turf & Speed Track
+        ctx.fillStyle = C.turfBlue;
         ctx.fillRect(x, y, TS, TS);
-        ctx.fillStyle = '#26598f';
-        ctx.fillRect(x + 1, y + 1, TS - 2, TS - 2);
-        ctx.fillStyle = '#3a78bd';
-        ctx.fillRect(x + 2, y + 2, TS - 4, 1);
+        ctx.fillStyle = C.turfBlueLt;
+        ctx.fillRect(x + 2, y + 2, TS - 4, TS - 4);
+        // White agility track yard marker
+        ctx.fillStyle = C.turfLine;
+        ctx.fillRect(x + 6, y + 14, TS - 12, 3);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 10, y + 6, 4, 20); // Agility ladder rung
         break;
 
-      case 's': // Street Asphalt
-        ctx.fillStyle = '#3a3e47';
+      case 's': // 32×32 Street Asphalt
+        ctx.fillStyle = '#3a3e48';
         ctx.fillRect(x, y, TS, TS);
-        ctx.fillStyle = '#282b32';
-        ctx.fillRect(x, y + 7, TS, 1);
-        ctx.fillRect(x + 7, y, 1, TS);
+        ctx.fillStyle = '#262930';
+        ctx.fillRect(x, y + 15, TS, 2);
+        ctx.fillRect(x + 15, y, 2, TS);
         break;
 
-      case 'c': // Sidewalk Curb
-        ctx.fillStyle = '#848d9c';
+      case 'c': // 32×32 Sidewalk Curb
+        ctx.fillStyle = '#7c8696';
         ctx.fillRect(x, y, TS, TS);
-        ctx.fillStyle = '#b6bfcc';
-        ctx.fillRect(x, y, TS, 3);
-        ctx.fillStyle = '#5c6470';
-        ctx.fillRect(x, y + 13, TS, 3);
+        ctx.fillStyle = '#b0bac8';
+        ctx.fillRect(x, y, TS, 6);
+        ctx.fillStyle = '#525a66';
+        ctx.fillRect(x, y + 26, TS, 6);
         break;
 
-      case 'g': // Lush Green Grass
+      case 'g': // 32×32 Lush Grass
         ctx.fillStyle = '#3d6c2e';
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = '#528e3f';
-        ctx.fillRect(x + 2, y + 3, 2, 4);
-        ctx.fillRect(x + 9, y + 7, 2, 4);
+        ctx.fillRect(x + 4, y + 6, 4, 8);
+        ctx.fillRect(x + 18, y + 14, 4, 8);
         break;
 
-      case 'W': // Structural Gym Wall with Baseboard & Top Trim
+      case 'W': // 32×32 Gym Wall with Architectural Wood Baseboard
         ctx.fillStyle = C.wall;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.wallDk;
-        ctx.fillRect(x, y + 11, TS, 2);
+        ctx.fillRect(x, y + 22, TS, 3);
         ctx.fillStyle = C.baseboard;
-        ctx.fillRect(x, y + 13, TS, 3);
+        ctx.fillRect(x, y + 25, TS, 7);
+        ctx.fillStyle = C.baseboardHi;
+        ctx.fillRect(x, y + 25, TS, 2);
         ctx.fillStyle = C.wallTop;
-        ctx.fillRect(x, y, TS, 2);
+        ctx.fillRect(x, y, TS, 4);
         break;
 
-      case 'H': // Upper Architectural Window with Atmospheric Sunbeam
+      case 'H': // 32×32 Upper Architectural Window with Sunbeam Cones
         ctx.fillStyle = C.wall;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.glass;
-        ctx.fillRect(x + 1, y + 1, 14, 10);
+        ctx.fillRect(x + 2, y + 2, TS - 4, 20);
         ctx.fillStyle = C.mirrorHi;
-        ctx.fillRect(x + 3, y + 2, 4, 8);
-        ctx.fillRect(x + 8, y + 2, 4, 8);
+        ctx.fillRect(x + 6, y + 4, 8, 16);
+        ctx.fillRect(x + 18, y + 4, 8, 16);
         ctx.fillStyle = C.metalDk;
-        ctx.fillRect(x + 7, y + 1, 2, 10);
+        ctx.fillRect(x + 15, y + 2, 3, 20);
         ctx.fillStyle = C.baseboard;
-        ctx.fillRect(x, y + 13, TS, 3);
+        ctx.fillRect(x, y + 25, TS, 7);
         break;
 
-      case 'F': // Glowing Fitway Gold Marquee Sign
+      case 'F': // 32×32 Fitway Electric Gold Marquee Sign
         ctx.fillStyle = C.fblk;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.fy;
-        ctx.fillRect(x + 1, y + 3, 14, 10);
+        ctx.fillRect(x + 2, y + 6, TS - 4, 20);
         ctx.fillStyle = C.fyLt;
-        ctx.fillRect(x + 2, y + 4, 12, 2);
+        ctx.fillRect(x + 4, y + 8, TS - 8, 4);
         ctx.fillStyle = C.fblk;
-        ctx.fillRect(x + 3, y + 5, 2, 6);
-        ctx.fillRect(x + 3, y + 5, 8, 2);
-        ctx.fillRect(x + 3, y + 8, 6, 2);
+        ctx.fillRect(x + 6, y + 10, 4, 12);
+        ctx.fillRect(x + 6, y + 10, 16, 4);
+        ctx.fillRect(x + 6, y + 16, 12, 4);
         break;
 
-      case 'M': // Full-Height Chrome Gym Mirror
+      case 'M': // 32×32 Chrome Mirror Wall with Dynamic Shimmer
         ctx.fillStyle = C.wall;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.mirror;
-        ctx.fillRect(x + 1, y + 1, 14, 12);
+        ctx.fillRect(x + 2, y + 2, TS - 4, 24);
         ctx.fillStyle = C.mirrorLt;
-        const sh = (frame * 0.3) % 20;
-        if (sh < 14) ctx.fillRect(x + 1 + sh, y + 2, 2, 10);
+        const sh = (frame * 0.4) % 40;
+        if (sh < 28) ctx.fillRect(x + 2 + sh, y + 4, 4, 20);
         ctx.fillStyle = C.mirrorHi;
-        ctx.fillRect(x + 4, y + 3, 5, 1);
-        ctx.fillStyle = C.metalDk;
-        ctx.fillRect(x + 1, y + 0, 14, 1);
+        ctx.fillRect(x + 8, y + 6, 10, 2);
         ctx.fillStyle = C.baseboard;
-        ctx.fillRect(x, y + 13, TS, 3);
+        ctx.fillRect(x, y + 25, TS, 7);
         break;
 
-      case 'D': // Sleek Modern Reception Desk & Terminal
+      case 'D': // 32×32 Modern High-Gloss Reception Desk & PC
         ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.fblk2;
-        ctx.fillRect(x, y, TS, 14);
+        ctx.fillRect(x, y, TS, 28);
         ctx.fillStyle = C.fy;
-        ctx.fillRect(x, y + 12, TS, 2); // Underglow LED strip
+        ctx.fillRect(x, y + 24, TS, 4); // Underglow LED strip
         ctx.fillStyle = '#21252d';
-        ctx.fillRect(x + 3, y + 2, 7, 6);
+        ctx.fillRect(x + 6, y + 4, 14, 12);
         ctx.fillStyle = C.cyan;
-        ctx.fillRect(x + 4, y + 3, 5, 4);
+        ctx.fillRect(x + 8, y + 6, 10, 8);
         break;
 
-      case 'L': // Modern Metallic Lockers with Vents
+      case 'L': // 32×32 Metallic Gym Lockers with Vents
         ctx.fillStyle = C.metal;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.metalDk;
-        ctx.fillRect(x + 7, y, 2, TS);
-        ctx.fillRect(x, y + 7, TS, 1);
+        ctx.fillRect(x + 15, y, 3, TS);
+        ctx.fillRect(x, y + 15, TS, 2);
         ctx.fillStyle = C.metalLt;
-        ctx.fillRect(x + 1, y + 1, 5, 5);
-        ctx.fillRect(x + 9, y + 1, 5, 5);
-        ctx.fillStyle = C.fblk;
-        ctx.fillRect(x + 5, y + 3, 1, 1);
-        ctx.fillRect(x + 13, y + 3, 1, 1);
+        ctx.fillRect(x + 2, y + 2, 10, 10);
+        ctx.fillRect(x + 18, y + 2, 10, 10);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 10, y + 6, 2, 2); // Gold badge
+        ctx.fillRect(x + 26, y + 6, 2, 2);
         break;
 
-      case 'p': // Ficus Plant in Terracotta Pot
+      case 'p': // 32×32 Lush Monstera & Ficus Plant in Pot
         ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = '#b85c38';
-        ctx.fillRect(x + 4, y + 9, 8, 6);
+        ctx.fillRect(x + 8, y + 18, 16, 12);
         ctx.fillStyle = '#2e7d32';
-        ctx.fillRect(x + 3, y + 2, 10, 8);
+        ctx.fillRect(x + 6, y + 4, 20, 16);
         ctx.fillStyle = '#4caf50';
-        ctx.fillRect(x + 5, y + 3, 6, 4);
+        ctx.fillRect(x + 10, y + 6, 12, 8);
         ctx.fillStyle = '#81c784';
-        ctx.fillRect(x + 6, y + 4, 3, 2);
+        ctx.fillRect(x + 12, y + 8, 6, 4);
         break;
 
-      case 'T': // High-Tech Treadmill with Animated Cyan LED Dash
-        ctx.fillStyle = C.rubber2;
+      case 'w': // 32×32 Water Cooler Station with Bubbles
+        ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
-        ctx.fillStyle = C.metalDk;
-        ctx.fillRect(x + 1, y + 1, 14, 14);
-        ctx.fillStyle = C.fblk;
-        ctx.fillRect(x + 2, y + 5, 12, 8);
-        // Belt animation
-        const bOff = (frame * 0.8) % 8;
-        ctx.fillStyle = '#2c303c';
-        for (let i = -1; i < 3; i++) {
-          const sy = y + 6 + i * 4 + bOff;
-          if (sy > y + 4 && sy < y + 13) ctx.fillRect(x + 3, sy, 10, 1);
-        }
-        // Cyan Dash Screen
+        ctx.fillStyle = C.waterJug;
+        ctx.fillRect(x + 8, y + 2, 16, 14);
+        ctx.fillStyle = '#b3e5fc';
+        ctx.fillRect(x + 12, y + 4, 8, 4);
+        // Animated air bubble in water jug
+        const bubY = y + 12 - (frame * 0.4 % 8);
+        ctx.fillStyle = C.white;
+        ctx.fillRect(x + 14, bubY, 3, 3);
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fillRect(x + 6, y + 16, 20, 14); // Cooler stand
         ctx.fillStyle = C.cyan;
-        ctx.fillRect(x + 4, y + 2, 8, 2);
-        ctx.fillStyle = C.red;
-        ctx.fillRect(x + 7, y + 3, 2, 1); // Safety key
-        // Rails
-        ctx.fillStyle = C.metalLt;
-        ctx.fillRect(x + 1, y + 3, 2, 11);
-        ctx.fillRect(x + 13, y + 3, 2, 11);
+        ctx.fillRect(x + 10, y + 18, 4, 4); // Cold tap
         break;
 
-      case 'B': // Ergonomic Spin Bike with Flywheel
+      case 'T': // 32×32 High-Tech Treadmill with Cyan LED Dashboard
         ctx.fillStyle = C.rubber2;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.metalDk;
-        ctx.fillRect(x + 5, y + 2, 6, 12);
+        ctx.fillRect(x + 2, y + 2, TS - 4, TS - 4);
         ctx.fillStyle = C.fblk;
-        ctx.fillRect(x + 4, y + 5, 8, 3);
+        ctx.fillRect(x + 4, y + 10, TS - 8, 16);
+        // Belt animation
+        const bOff = (frame * 1.2) % 12;
+        ctx.fillStyle = '#2c303c';
+        for (let i = -1; i < 4; i++) {
+          const sy = y + 12 + i * 6 + bOff;
+          if (sy > y + 8 && sy < y + 26) ctx.fillRect(x + 6, sy, TS - 12, 2);
+        }
+        // Cyan Matrix Running Screen & Speed Graph
+        ctx.fillStyle = C.cyan;
+        ctx.fillRect(x + 8, y + 4, 16, 4);
+        ctx.fillStyle = C.red;
+        ctx.fillRect(x + 14, y + 6, 4, 2); // Safety magnet key
+        // Chrome Rails
+        ctx.fillStyle = C.metalLt;
+        ctx.fillRect(x + 2, y + 6, 4, 22);
+        ctx.fillRect(x + 26, y + 6, 4, 22);
+        break;
+
+      case 'B': // 32×32 Ergonomic Spin Bike with Flywheel
+        ctx.fillStyle = C.rubber2;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 10, y + 4, 12, 24);
+        ctx.fillStyle = C.fblk;
+        ctx.fillRect(x + 8, y + 10, 16, 6);
         // Chrome Flywheel
         ctx.fillStyle = C.metalLt;
-        ctx.fillRect(x + 6, y + 9, 4, 4);
-        const pOff = Math.sin(frame * 0.2) * 2;
+        ctx.fillRect(x + 12, y + 18, 8, 8);
+        const pOff = Math.sin(frame * 0.25) * 4;
         ctx.fillStyle = C.metalHi;
-        ctx.fillRect(x + 3, y + 10 + pOff, 3, 2);
-        ctx.fillRect(x + 10, y + 10 - pOff, 3, 2);
+        ctx.fillRect(x + 6, y + 20 + pOff, 6, 3);
+        ctx.fillRect(x + 20, y + 20 - pOff, 6, 3);
         break;
 
-      case 'd': // Chrome & Rubber Hex Dumbbell Rack
+      case 'd': // 32×32 Chrome & Rubber Hex Multi-Tier Dumbbell Rack
         ctx.fillStyle = C.wall;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.metalDk;
-        ctx.fillRect(x + 1, y + 3, 14, 3);
-        ctx.fillRect(x + 1, y + 9, 14, 3);
+        ctx.fillRect(x + 2, y + 6, TS - 4, 6);
+        ctx.fillRect(x + 2, y + 18, TS - 4, 6);
         ctx.fillStyle = C.metalLt;
-        ctx.fillRect(x + 1, y + 3, 14, 1);
-        ctx.fillRect(x + 1, y + 9, 14, 1);
-        // Dumbbells
+        ctx.fillRect(x + 2, y + 6, TS - 4, 2);
+        ctx.fillRect(x + 2, y + 18, TS - 4, 2);
+        // Dumbbells with 3D Shading
         for (let i = 0; i < 4; i++) {
           ctx.fillStyle = C.fblk;
-          ctx.fillRect(x + 2 + i * 3, y + 4, 2, 1);
-          ctx.fillRect(x + 2 + i * 3, y + 10, 2, 1);
+          ctx.fillRect(x + 4 + i * 6, y + 8, 4, 3);
+          ctx.fillRect(x + 4 + i * 6, y + 20, 4, 3);
           ctx.fillStyle = C.metalHi;
-          ctx.fillRect(x + 2 + i * 3, y + 3, 2, 1);
-          ctx.fillRect(x + 2 + i * 3, y + 9, 2, 1);
+          ctx.fillRect(x + 4 + i * 6, y + 7, 4, 1);
+          ctx.fillRect(x + 4 + i * 6, y + 19, 4, 1);
         }
         ctx.fillStyle = C.baseboard;
-        ctx.fillRect(x, y + 13, TS, 3);
+        ctx.fillRect(x, y + 25, TS, 7);
         break;
 
-      case 'U': // Heavy Leather Punching Bag with Chain
+      case 'U': // 32×32 Heavy Leather Punching Bag with Hanging Chain
         ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.metalLt;
-        ctx.fillRect(x + 7, y + 0, 2, 3); // Hanging chain
+        ctx.fillRect(x + 14, y, 4, 6); // Steel link chain
         ctx.fillStyle = '#b71c1c';
-        ctx.fillRect(x + 4, y + 3, 8, 11);
+        ctx.fillRect(x + 8, y + 6, 16, 22);
         ctx.fillStyle = '#e53935';
-        ctx.fillRect(x + 5, y + 4, 6, 9);
-        // Blue repair tape
+        ctx.fillRect(x + 10, y + 8, 12, 18);
+        // Blue Repair Tape
         ctx.fillStyle = '#1976d2';
-        ctx.fillRect(x + 4, y + 8, 8, 2);
+        ctx.fillRect(x + 8, y + 16, 16, 4);
         break;
 
-      case 'Y': // Speed Bag Station
+      case 'Y': // 32×32 Speed Bag Station
         ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.metalDk;
-        ctx.fillRect(x + 6, y + 1, 4, 14);
+        ctx.fillRect(x + 12, y + 2, 8, 28);
         ctx.fillStyle = '#d32f2f';
-        ctx.fillRect(x + 5, y + 6, 6, 6);
+        ctx.fillRect(x + 10, y + 12, 12, 12);
         ctx.fillStyle = '#ff8a80';
-        ctx.fillRect(x + 6, y + 7, 2, 2);
+        ctx.fillRect(x + 12, y + 14, 4, 4);
         break;
 
-      case 'k': // Yoga Stability Ball & Kettlebell Set
+      case 'k': // 32×32 Yoga Stability Ball & Kettlebell Cluster
         ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
-        // Blue Stability Ball with Shading
+        // Large Blue Stability Ball
         ctx.fillStyle = '#1565c0';
-        ctx.fillRect(x + 2, y + 3, 8, 8);
-        ctx.fillStyle = '#1e88e5';
-        ctx.fillRect(x + 3, y + 4, 6, 6);
-        ctx.fillStyle = '#90caf9';
-        ctx.fillRect(x + 4, y + 4, 3, 2);
+        ctx.beginPath();
+        ctx.arc(x + 12, y + 14, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#64b5f6';
+        ctx.beginPath();
+        ctx.arc(x + 10, y + 11, 4, 0, Math.PI * 2);
+        ctx.fill();
         // Kettlebell
         ctx.fillStyle = C.fblk;
-        ctx.fillRect(x + 9, y + 8, 5, 5);
+        ctx.fillRect(x + 18, y + 16, 10, 10);
         ctx.fillStyle = C.metalLt;
-        ctx.fillRect(x + 10, y + 6, 3, 2);
+        ctx.fillRect(x + 20, y + 12, 6, 4);
         break;
 
-      case 'q': // Heavy Squat Station & Lat Pulldown
+      case 'q': // 32×32 Dual-Tower Cable Crossover & Squat Station
         ctx.fillStyle = C.rubber2;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.metalDk;
-        ctx.fillRect(x + 1, y, 3, TS);
-        ctx.fillRect(x + 12, y, 3, TS);
+        ctx.fillRect(x + 2, y, 6, TS);
+        ctx.fillRect(x + 24, y, 6, TS);
         ctx.fillStyle = C.metalLt;
-        ctx.fillRect(x + 2, y + 4, 12, 2);
+        ctx.fillRect(x + 4, y + 8, 24, 4); // Pull-up bar bridge
         ctx.fillStyle = C.fblk;
-        ctx.fillRect(x + 4, y + 5, 8, 1);
-        // Weight plates on sides
-        ctx.fillStyle = C.red;
-        ctx.fillRect(x + 0, y + 2, 2, 6);
-        ctx.fillRect(x + 14, y + 2, 2, 6);
+        ctx.fillRect(x + 8, y + 10, 16, 2);
+        // Calibrated Bumper Plates on Sides
+        ctx.fillStyle = C.plateRed;
+        ctx.fillRect(x, y + 6, 4, 12);
+        ctx.fillStyle = C.plateBlue;
+        ctx.fillRect(x + 28, y + 6, 4, 12);
         break;
 
-      case 'n': // Heavy Bench Press with Lifter Station
+      case 'n': // 32×32 Heavy Bench Press with Lifter Station
         ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = '#21252d';
-        ctx.fillRect(x + 2, y + 4, 12, 6);
+        ctx.fillRect(x + 4, y + 8, 24, 12);
         ctx.fillStyle = C.metalLt;
-        ctx.fillRect(x + 3, y + 10, 3, 4);
-        ctx.fillRect(x + 10, y + 10, 3, 4);
+        ctx.fillRect(x + 6, y + 20, 6, 8);
+        ctx.fillRect(x + 20, y + 20, 6, 8);
+        break;
+
+      case 'K': // 32×32 Chalk Pedestal Stand & Bowl
+        ctx.fillStyle = C.wood1;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 12, y + 14, 8, 14);
+        ctx.fillStyle = C.fblk2;
+        ctx.fillRect(x + 8, y + 8, 16, 8);
+        ctx.fillStyle = C.white;
+        ctx.fillRect(x + 10, y + 6, 12, 4); // White gym chalk
+        break;
+
+      case 'C': // 32×32 Wall-Mounted Glowing 7-Segment Digital Clock
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.fblk;
+        ctx.fillRect(x + 4, y + 6, 24, 14);
+        ctx.strokeStyle = C.metalDk;
+        ctx.strokeRect(x + 4, y + 6, 24, 14);
+        ctx.fillStyle = C.red;
+        ctx.font = '7px "Press Start 2P", monospace';
+        ctx.fillText('08:42', x + 6, y + 16);
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 25, TS, 7);
+        break;
+
+      case 'A': // 32×32 Trophy & Powerlifting Award Showcase
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#2a2622';
+        ctx.fillRect(x + 4, y + 4, 24, 18);
+        ctx.strokeStyle = C.fy;
+        ctx.strokeRect(x + 4, y + 4, 24, 18);
+        // Gold Trophy Cup
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 12, y + 8, 8, 6);
+        ctx.fillRect(x + 14, y + 14, 4, 4);
+        ctx.fillRect(x + 10, y + 18, 12, 2);
+        // Specular Sparkle
+        if (frame % 30 < 10) {
+          ctx.fillStyle = C.white;
+          ctx.fillRect(x + 13, y + 9, 2, 2);
+        }
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 25, TS, 7);
         break;
 
       default:
@@ -678,188 +768,207 @@ window.FitwayGame = (() => {
     }
   }
 
-  /* ═══ 16-BIT CHARACTER SPRITE RENDERING ══════════════════ */
+  /* ═══ 32×48 HIGH-DEFINITION CHARACTER SPRITE RENDERING ═══ */
   function drawSprite(id, x, y, dir, walkFrame, exercising) {
-    // Lifter on Bench Animation (Reference Style)
+    // Lifter on Bench Press Animation
     if (id === 'lifter_bench') {
       g.fillStyle = C.shadow;
-      g.fillRect(x - 2, y + 18, 20, 4);
+      g.fillRect(x - 4, y + 36, 40, 8);
       g.fillStyle = '#e0b080';
-      g.fillRect(x + 3, y + 8, 10, 5);
+      g.fillRect(x + 6, y + 16, 20, 10);
       g.fillStyle = C.red;
-      g.fillRect(x + 5, y + 8, 6, 5);
-      // Smooth Barbell Press Motion
-      const barY = y + 4 + Math.sin(frame * 0.12) * 3.5;
+      g.fillRect(x + 10, y + 16, 12, 10);
+      // Smooth Olympic Barbell Motion
+      const barY = y + 8 + Math.sin(frame * 0.12) * 7;
       g.fillStyle = C.metalHi;
-      g.fillRect(x - 3, barY, 22, 2);
+      g.fillRect(x - 6, barY, 44, 4);
+      g.fillStyle = C.plateRed;
+      g.fillRect(x - 10, barY - 4, 6, 12);
+      g.fillRect(x + 36, barY - 4, 6, 12);
+      return;
+    }
+
+    // Boxer on Heavy Bag Animation
+    if (id === 'boxer') {
+      const punchOff = Math.sin(frame * 0.2) * 6;
+      g.fillStyle = C.shadow;
+      g.fillRect(x + 4, y + 38, 20, 6);
+      g.fillStyle = '#1e88e5';
+      g.fillRect(x + 6, y + 16, 16, 14);
+      g.fillStyle = '#e0b080';
+      g.fillRect(x + 8, y + 4, 12, 12);
       g.fillStyle = C.red;
-      g.fillRect(x - 5, barY - 2, 3, 6);
-      g.fillRect(x + 18, barY - 2, 3, 6);
+      g.fillRect(x + 18 + punchOff, y + 18, 8, 8); // Red boxing glove punching
       return;
     }
 
     const ch = CHARS.find(c => c.id === id);
     if (!ch) { drawGenericNPC(id, x, y, dir, walkFrame, exercising); return; }
     const cl = ch.col;
-    const bw = ch.build === 'broad' ? 14 : (ch.build === 'stocky' ? 13 : 11);
-    const bx = x + (16 - bw) / 2;
-    const legOff = (walkFrame === 1) ? 1.2 : (walkFrame === 3) ? -1.2 : 0;
-    const breath = Math.sin(frame * 0.08) * 0.5;
+    const bw = ch.build === 'broad' ? 26 : (ch.build === 'stocky' ? 24 : 20);
+    const bx = x + (32 - bw) / 2;
+    const legOff = (walkFrame === 1) ? 2.5 : (walkFrame === 3) ? -2.5 : 0;
+    const breath = Math.sin(frame * 0.08) * 1.0;
 
-    // Real-Time Drop Shadow
+    // Real-Time Smooth Drop Shadow
     g.fillStyle = C.shadow;
     g.beginPath();
-    g.ellipse(x + 8, y + 21, bw * 0.6, 2.5, 0, 0, Math.PI * 2);
+    g.ellipse(x + 16, y + 42, bw * 0.65, 5, 0, 0, Math.PI * 2);
     g.fill();
 
-    // Shoes
+    // Shoes with Soles
     g.fillStyle = cl.shoes;
-    g.fillRect(bx + 1, y + 19 + legOff, 4, 2);
-    g.fillRect(bx + bw - 5, y + 19 - legOff, 4, 2);
+    g.fillRect(bx + 2, y + 38 + legOff, 8, 4);
+    g.fillRect(bx + bw - 10, y + 38 - legOff, 8, 4);
+    g.fillStyle = C.white;
+    g.fillRect(bx + 2, y + 41 + legOff, 8, 1);
+    g.fillRect(bx + bw - 10, y + 41 - legOff, 8, 1);
 
-    // Pants with shading
+    // Pants & Joggers with Shading
     g.fillStyle = cl.pants;
-    g.fillRect(bx + 1, y + 15 + legOff, 4, 4);
-    g.fillRect(bx + bw - 5, y + 15 - legOff, 4, 4);
+    g.fillRect(bx + 2, y + 30 + legOff, 8, 8);
+    g.fillRect(bx + bw - 10, y + 30 - legOff, 8, 8);
 
-    // Shirt & Torso with Breathing Bounce
+    // Shirt & Torso with Muscle Definition & Bounce
     g.fillStyle = cl.shirt;
-    g.fillRect(bx, y + 8 + breath, bw, 7);
+    g.fillRect(bx, y + 16 + breath, bw, 14);
     g.fillStyle = cl.shirtDk;
-    g.fillRect(bx, y + 13 + breath, bw, 2);
+    g.fillRect(bx, y + 26 + breath, bw, 4);
 
     // Arms & Hands
     g.fillStyle = cl.skin;
-    if (dir === 'left') g.fillRect(bx - 2, y + 9 + breath, 3, 5);
-    else if (dir === 'right') g.fillRect(bx + bw - 1, y + 9 + breath, 3, 5);
-    else {
-      g.fillRect(bx - 1, y + 9 + breath, 2, 5);
-      g.fillRect(bx + bw - 1, y + 9 + breath, 2, 5);
+    if (dir === 'left') {
+      g.fillRect(bx - 4, y + 18 + breath, 6, 10);
+    } else if (dir === 'right') {
+      g.fillRect(bx + bw - 2, y + 18 + breath, 6, 10);
+    } else {
+      g.fillRect(bx - 2, y + 18 + breath, 4, 10);
+      g.fillRect(bx + bw - 2, y + 18 + breath, 4, 10);
     }
 
     // Neck & Head
-    g.fillRect(bx + 3, y + 6 + breath, bw - 6, 2);
-    const hw = bw - 2, hx = bx + 1;
-    g.fillRect(hx, y + 2 + breath, hw, 5);
+    g.fillRect(bx + 6, y + 12 + breath, bw - 12, 4);
+    const hw = bw - 4, hx = bx + 2;
+    g.fillRect(hx, y + 4 + breath, hw, 10);
 
-    // Hair Style
+    // Hair Details
     g.fillStyle = cl.hair;
-    g.fillRect(hx - 1, y + breath, hw + 2, dir === 'up' ? 4 : 3);
-    g.fillRect(hx, y - 1 + breath, hw, 2);
+    g.fillRect(hx - 2, y + breath, hw + 4, dir === 'up' ? 8 : 6);
+    g.fillRect(hx, y - 2 + breath, hw, 4);
 
-    // Eyes & Expressions
+    // Eyes & Expressive Face
     if (dir === 'down') {
       g.fillStyle = '#0f1115';
-      g.fillRect(hx + 2, y + 4 + breath, 2, 1);
-      g.fillRect(hx + hw - 4, y + 4 + breath, 2, 1);
+      g.fillRect(hx + 4, y + 8 + breath, 4, 2);
+      g.fillRect(hx + hw - 8, y + 8 + breath, 4, 2);
       g.fillStyle = '#9e6140';
-      g.fillRect(hx + 3, y + 6 + breath, hw - 6, 1);
+      g.fillRect(hx + 6, y + 12 + breath, hw - 12, 2);
     } else if (dir === 'left') {
       g.fillStyle = '#0f1115';
-      g.fillRect(hx + 1, y + 4 + breath, 2, 1);
+      g.fillRect(hx + 2, y + 8 + breath, 4, 2);
     } else if (dir === 'right') {
       g.fillStyle = '#0f1115';
-      g.fillRect(hx + hw - 3, y + 4 + breath, 2, 1);
+      g.fillRect(hx + hw - 6, y + 8 + breath, 4, 2);
     }
 
     // Accessories
     if (cl.acc === 'glasses' && dir !== 'up') {
       g.fillStyle = C.cyan;
-      g.fillRect(hx + 1, y + 3 + breath, hw - 2, 2);
+      g.fillRect(hx + 2, y + 6 + breath, hw - 4, 4);
       g.fillStyle = '#263238';
-      g.fillRect(hx, y + 3 + breath, 1, 2);
-      g.fillRect(hx + hw - 1, y + 3 + breath, 1, 2);
+      g.fillRect(hx, y + 6 + breath, 2, 4);
+      g.fillRect(hx + hw - 2, y + 6 + breath, 2, 4);
     }
     if (cl.acc === 'headband') {
       g.fillStyle = C.red;
-      g.fillRect(hx - 1, y + 1 + breath, hw + 2, 2);
+      g.fillRect(hx - 2, y + 2 + breath, hw + 4, 4);
     }
     if (id === 'sukh') {
       g.fillStyle = C.fyDk;
-      g.fillRect(bx + 2, y + 8 + breath, bw - 4, 2);
+      g.fillRect(bx + 4, y + 16 + breath, bw - 8, 4);
     }
   }
 
   function drawGenericNPC(type, x, y, dir, wf, exercising) {
-    const legOff = (wf === 1) ? 1.2 : (wf === 3) ? -1.2 : 0;
+    const legOff = (wf === 1) ? 2.5 : (wf === 3) ? -2.5 : 0;
     g.fillStyle = C.shadow;
     g.beginPath();
-    g.ellipse(x + 8, y + 21, 6, 2, 0, 0, Math.PI * 2);
+    g.ellipse(x + 16, y + 42, 12, 4, 0, 0, Math.PI * 2);
     g.fill();
 
     g.fillStyle = '#263238';
-    g.fillRect(x + 4, y + 15 + legOff, 3, 4);
-    g.fillRect(x + 9, y + 15 - legOff, 3, 4);
+    g.fillRect(x + 8, y + 30 + legOff, 6, 8);
+    g.fillRect(x + 18, y + 30 - legOff, 6, 8);
     g.fillStyle = type === 'member_f' ? '#ab47bc' : '#e53935';
-    g.fillRect(x + 3, y + 8, 10, 7);
+    g.fillRect(x + 6, y + 16, 20, 14);
     g.fillStyle = '#f8d0b0';
-    g.fillRect(x + 4, y + 2, 8, 5);
+    g.fillRect(x + 8, y + 4, 16, 10);
     g.fillStyle = '#0f1115';
-    g.fillRect(x + 3, y, 10, 3);
+    g.fillRect(x + 6, y, 20, 6);
   }
 
-  /* ═══ 72×72 HIGH-DETAIL CHARACTER PORTRAITS ═══════════════ */
+  /* ═══ 96×96 STREET FIGHTER II CHARACTER BUSTS ═════════════ */
   function drawPortrait(charId, px, py, size) {
     const ch = CHARS.find(c => c.id === charId);
     if (!ch) return;
     const cl = ch.col;
-    const s = size || 64;
-    const u = s / 64;
+    const s = size || 96;
+    const u = s / 96;
 
     // Glassmorphic Card Background
     g.fillStyle = C.uiGlass;
     g.fillRect(px, py, s, s);
     g.strokeStyle = C.uiGlassBorder;
-    g.lineWidth = 2;
+    g.lineWidth = 3;
     g.strokeRect(px, py, s, s);
     g.lineWidth = 1;
 
-    // Shoulders with Clothing Folds
-    const bw = ch.build === 'broad' ? 52 : (ch.build === 'stocky' ? 46 : 42);
+    // Shoulders with Fabric Shading
+    const bw = ch.build === 'broad' ? 78 : (ch.build === 'stocky' ? 70 : 64);
     const bx = px + (s - bw * u) / 2;
     g.fillStyle = cl.shirt;
-    g.fillRect(bx, py + 42 * u, bw * u, 22 * u);
+    g.fillRect(bx, py + 62 * u, bw * u, 34 * u);
     g.fillStyle = cl.shirtDk;
-    g.fillRect(bx, py + 54 * u, bw * u, 10 * u);
+    g.fillRect(bx, py + 80 * u, bw * u, 16 * u);
 
-    // Neck & Collar
+    // Muscular Neck & Traps
     g.fillStyle = cl.skin;
-    g.fillRect(px + 24 * u, py + 36 * u, 16 * u, 10 * u);
+    g.fillRect(px + 36 * u, py + 54 * u, 24 * u, 15 * u);
 
     // Head Base
-    g.fillRect(px + 14 * u, py + 12 * u, 36 * u, 28 * u);
+    g.fillRect(px + 22 * u, py + 18 * u, 52 * u, 42 * u);
 
-    // Hair Details
+    // Detailed Hair Styling
     g.fillStyle = cl.hair;
-    g.fillRect(px + 10 * u, py + 4 * u, 44 * u, 14 * u);
-    g.fillRect(px + 12 * u, py + 2 * u, 40 * u, 8 * u);
+    g.fillRect(px + 16 * u, py + 6 * u, 64 * u, 22 * u);
+    g.fillRect(px + 20 * u, py + 2 * u, 56 * u, 12 * u);
 
-    // Expressive Eyes with Highlights
+    // Expressive Eyes with Shading & Pupils
     g.fillStyle = C.white;
-    g.fillRect(px + 20 * u, py + 22 * u, 10 * u, 6 * u);
-    g.fillRect(px + 34 * u, py + 22 * u, 10 * u, 6 * u);
+    g.fillRect(px + 30 * u, py + 34 * u, 14 * u, 8 * u);
+    g.fillRect(px + 52 * u, py + 34 * u, 14 * u, 8 * u);
     g.fillStyle = '#0f1115';
-    g.fillRect(px + 24 * u, py + 23 * u, 5 * u, 4 * u);
-    g.fillRect(px + 38 * u, py + 23 * u, 5 * u, 4 * u);
+    g.fillRect(px + 36 * u, py + 35 * u, 7 * u, 6 * u);
+    g.fillRect(px + 58 * u, py + 35 * u, 7 * u, 6 * u);
     g.fillStyle = C.cyan;
-    g.fillRect(px + 26 * u, py + 24 * u, 2 * u, 2 * u);
-    g.fillRect(px + 40 * u, py + 24 * u, 2 * u, 2 * u);
+    g.fillRect(px + 39 * u, py + 37 * u, 3 * u, 3 * u);
+    g.fillRect(px + 61 * u, py + 37 * u, 3 * u, 3 * u);
 
     // Accessories
     if (cl.acc === 'glasses') {
       g.fillStyle = C.cyan;
-      g.fillRect(px + 16 * u, py + 20 * u, 14 * u, 9 * u);
-      g.fillRect(px + 34 * u, py + 20 * u, 14 * u, 9 * u);
+      g.fillRect(px + 24 * u, py + 30 * u, 22 * u, 14 * u);
+      g.fillRect(px + 50 * u, py + 30 * u, 22 * u, 14 * u);
       g.fillStyle = '#263238';
-      g.fillRect(px + 30 * u, py + 22 * u, 4 * u, 2 * u);
+      g.fillRect(px + 46 * u, py + 33 * u, 6 * u, 3 * u);
     }
     if (cl.acc === 'headband') {
       g.fillStyle = C.red;
-      g.fillRect(px + 10 * u, py + 8 * u, 44 * u, 5 * u);
+      g.fillRect(px + 16 * u, py + 12 * u, 64 * u, 8 * u);
     }
     if (charId === 'sukh') {
       g.fillStyle = C.fyDk;
-      g.fillRect(px + 20 * u, py + 42 * u, 24 * u, 5 * u);
+      g.fillRect(px + 30 * u, py + 62 * u, 36 * u, 8 * u);
     }
   }
 
@@ -907,8 +1016,8 @@ window.FitwayGame = (() => {
   }
 
   function canWalkTo(px, py) {
-    const footL = px + 2, footR = px + 14;
-    const footT = py + 14, footB = py + 21;
+    const footL = px + 4, footR = px + 28;
+    const footT = py + 28, footB = py + 42;
 
     const tl = curRoom.map[Math.floor(footT / TS)]?.[Math.floor(footL / TS)] || 'W';
     const tr = curRoom.map[Math.floor(footT / TS)]?.[Math.floor(footR / TS)] || 'W';
@@ -920,14 +1029,14 @@ window.FitwayGame = (() => {
     for (const npc of npcs) {
       if (npc.sprite === 'lifter_bench') continue;
       const nx = npc.px, ny = npc.py;
-      if (px + 14 > nx + 2 && px + 2 < nx + 14 && py + 21 > ny + 14 && py + 14 < ny + 21) return false;
+      if (px + 28 > nx + 4 && px + 4 < nx + 28 && py + 42 > ny + 28 && py + 28 < ny + 42) return false;
     }
     return true;
   }
 
   function checkExits() {
-    const col = Math.floor((pl.x + 8) / TS);
-    const row = Math.floor((pl.y + 16) / TS);
+    const col = Math.floor((pl.x + 16) / TS);
+    const row = Math.floor((pl.y + 32) / TS);
     const tile = curRoom.map[row]?.[col];
 
     if (!curRoom.exits) return;
@@ -994,8 +1103,8 @@ window.FitwayGame = (() => {
   }
 
   function checkInteraction() {
-    let tx = Math.floor((pl.x + 8) / TS);
-    let ty = Math.floor((pl.y + 16) / TS);
+    let tx = Math.floor((pl.x + 16) / TS);
+    let ty = Math.floor((pl.y + 32) / TS);
     if (pl.dir === 'up') ty--;
     else if (pl.dir === 'down') ty++;
     else if (pl.dir === 'left') tx--;
@@ -1107,17 +1216,17 @@ window.FitwayGame = (() => {
 
   /* ═══ ATMOSPHERIC LIGHTING & PARTICLES ════════════════════ */
   function renderAtmosphere() {
-    // Volumetric Sunbeams through top windows
-    const grad = g.createLinearGradient(0, 0, 180, H);
+    // Volumetric Multi-Ray Sunbeams
+    const grad = g.createLinearGradient(0, 0, 360, H);
     grad.addColorStop(0, C.sunbeamCore);
     grad.addColorStop(0.5, C.sunbeam);
     grad.addColorStop(1, 'rgba(255, 245, 210, 0)');
     g.fillStyle = grad;
     g.beginPath();
-    g.moveTo(20, 0);
-    g.lineTo(120, 0);
-    g.lineTo(240, H);
-    g.lineTo(60, H);
+    g.moveTo(40, 0);
+    g.lineTo(240, 0);
+    g.lineTo(480, H);
+    g.lineTo(120, H);
     g.closePath();
     g.fill();
 
@@ -1127,13 +1236,13 @@ window.FitwayGame = (() => {
     g.beginPath();
     for (let i = 0; i < 4; i++) {
       const a = fanAngle + (i * Math.PI / 2);
-      g.moveTo(W / 2, H / 2 - 10);
-      g.lineTo(W / 2 + Math.cos(a) * 45, H / 2 - 10 + Math.sin(a) * 20);
-      g.lineTo(W / 2 + Math.cos(a + 0.2) * 45, H / 2 - 10 + Math.sin(a + 0.2) * 20);
+      g.moveTo(W / 2, H / 2 - 20);
+      g.lineTo(W / 2 + Math.cos(a) * 90, H / 2 - 20 + Math.sin(a) * 40);
+      g.lineTo(W / 2 + Math.cos(a + 0.2) * 90, H / 2 - 20 + Math.sin(a + 0.2) * 40);
     }
     g.fill();
 
-    // Floating Dust Motes
+    // Floating Dust & Chalk Motes
     motes.forEach(m => {
       m.x += m.vx;
       m.y += m.vy;
@@ -1141,7 +1250,7 @@ window.FitwayGame = (() => {
       if (m.x < 0) m.x = W;
       if (m.x > W) m.x = 0;
 
-      g.fillStyle = `rgba(255, 240, 200, ${m.alpha * 0.6})`;
+      g.fillStyle = `rgba(255, 240, 200, ${m.alpha * 0.65})`;
       g.fillRect(m.x, m.y, m.sz, m.sz);
     });
   }
@@ -1154,45 +1263,47 @@ window.FitwayGame = (() => {
 
     // Subtle background grid
     g.fillStyle = '#141720';
-    for (let y = 0; y < H; y += 8) g.fillRect(0, y, W, 1);
+    for (let y = 0; y < H; y += 16) g.fillRect(0, y, W, 2);
 
     g.textAlign = 'center';
-    g.font = '8px "Press Start 2P", monospace';
+    g.font = '14px "Press Start 2P", monospace';
     g.fillStyle = C.fy;
-    g.fillText('FITWAY PRESENTS', W / 2, 38);
+    g.fillText('FITWAY PRESENTS', W / 2, 70);
 
-    g.font = '16px "Press Start 2P", monospace';
+    g.font = '28px "Press Start 2P", monospace';
     g.fillStyle = C.white;
-    g.fillText('IRON RUN', W / 2, 65);
+    g.fillText('IRON RUN', W / 2, 120);
 
-    g.font = '6px "Press Start 2P", monospace';
+    g.font = '10px "Press Start 2P", monospace';
     g.fillStyle = C.cyan;
-    g.fillText('SECTOR 67, MOHALI — 16-BIT GYM RPG', W / 2, 82);
+    g.fillText('SECTOR 67, MOHALI — HD 32-BIT GYM RPG', W / 2, 155);
 
     // Modern Gym Glass Facade Graphic
     g.fillStyle = '#1a1d26';
-    g.fillRect(36, 95, 184, 65);
+    g.fillRect(72, 180, 368, 130);
     g.strokeStyle = C.fy;
-    g.strokeRect(36, 95, 184, 65);
+    g.lineWidth = 3;
+    g.strokeRect(72, 180, 368, 130);
+    g.lineWidth = 1;
 
     g.fillStyle = C.fy;
-    g.fillRect(75, 102, 106, 14);
+    g.fillRect(150, 194, 212, 26);
     g.fillStyle = C.fblk;
-    g.font = '7px "Press Start 2P", monospace';
-    g.fillText('FITWAY GYM', W / 2, 112);
+    g.font = '12px "Press Start 2P", monospace';
+    g.fillText('FITWAY GYM', W / 2, 212);
 
     // Menu Options
     const opts = ['START GAME', 'CHAPTER SELECT', 'CHARACTER SELECT', 'FREE ROAM'];
     opts.forEach((opt, i) => {
       const isSel = i === selectedMenuIndex;
       g.fillStyle = isSel ? C.fy : C.uiMuted;
-      g.font = '7px "Press Start 2P", monospace';
-      g.fillText((isSel ? '► ' : '  ') + opt, W / 2, 138 + i * 14);
+      g.font = '11px "Press Start 2P", monospace';
+      g.fillText((isSel ? '► ' : '  ') + opt, W / 2, 260 + i * 26);
     });
 
-    g.font = '5px "Press Start 2P", monospace';
+    g.font = '9px "Press Start 2P", monospace';
     g.fillStyle = '#606878';
-    g.fillText('USE D-PAD ▲ ▼ • PRESS [A] TO SELECT', W / 2, 212);
+    g.fillText('USE D-PAD ▲ ▼ • PRESS [A] TO SELECT', W / 2, 420);
     g.textAlign = 'left';
   }
 
@@ -1201,33 +1312,35 @@ window.FitwayGame = (() => {
     g.fillRect(0, 0, W, H);
 
     g.textAlign = 'center';
-    g.font = '8px "Press Start 2P", monospace';
+    g.font = '14px "Press Start 2P", monospace';
     g.fillStyle = C.fy;
-    g.fillText('FITWAY — CHAPTER SELECT', W / 2, 22);
+    g.fillText('FITWAY — CHAPTER SELECT', W / 2, 40);
 
     CHAPTERS.forEach((ch, i) => {
       const isSel = i === chapterSelectIndex;
-      const y = 45 + i * 40;
+      const y = 80 + i * 78;
 
       g.fillStyle = isSel ? C.uiGlass : '#12141c';
-      g.fillRect(16, y, W - 32, 34);
+      g.fillRect(32, y, W - 64, 66);
       g.strokeStyle = isSel ? C.fy : '#282c38';
-      g.strokeRect(16, y, W - 32, 34);
+      g.lineWidth = 2;
+      g.strokeRect(32, y, W - 64, 66);
+      g.lineWidth = 1;
 
       g.textAlign = 'left';
-      g.font = '7px "Press Start 2P", monospace';
+      g.font = '12px "Press Start 2P", monospace';
       g.fillStyle = isSel ? C.fy : C.white;
-      g.fillText((isSel ? '► ' : '  ') + `CH ${ch.num}: ${ch.title}`, 24, y + 13);
+      g.fillText((isSel ? '► ' : '  ') + `CH ${ch.num}: ${ch.title}`, 48, y + 26);
 
-      g.font = '5px "Press Start 2P", monospace';
+      g.font = '9px "Press Start 2P", monospace';
       g.fillStyle = C.uiMuted;
-      g.fillText(ch.desc, 30, y + 25);
+      g.fillText(ch.desc, 60, y + 50);
     });
 
     g.textAlign = 'center';
-    g.font = '6px "Press Start 2P", monospace';
+    g.font = '10px "Press Start 2P", monospace';
     g.fillStyle = C.fy;
-    g.fillText('▲ ▼ CHOOSE CHAPTER • [A] PLAY', W / 2, 212);
+    g.fillText('▲ ▼ CHOOSE CHAPTER • [A] PLAY', W / 2, 420);
     g.textAlign = 'left';
   }
 
@@ -1236,46 +1349,46 @@ window.FitwayGame = (() => {
     g.fillRect(0, 0, W, H);
 
     g.textAlign = 'center';
-    g.font = '8px "Press Start 2P", monospace';
+    g.font = '14px "Press Start 2P", monospace';
     g.fillStyle = C.fy;
-    g.fillText('FITWAY — CHOOSE YOUR MEMBER', W / 2, 14);
+    g.fillText('FITWAY — CHOOSE YOUR MEMBER', W / 2, 28);
 
-    drawPortrait(selChar.id, 12, 24, 60);
+    drawPortrait(selChar.id, 24, 48, 110);
 
-    const ix = 80;
+    const ix = 150;
     g.textAlign = 'left';
-    g.font = '9px "Press Start 2P", monospace';
+    g.font = '16px "Press Start 2P", monospace';
     g.fillStyle = C.uiText;
-    g.fillText(selChar.name, ix, 32);
+    g.fillText(selChar.name, ix, 64);
 
-    g.font = '6px "Press Start 2P", monospace';
+    g.font = '10px "Press Start 2P", monospace';
     g.fillStyle = C.fy;
-    g.fillText(selChar.title, ix, 42);
+    g.fillText(selChar.title, ix, 84);
 
     g.fillStyle = C.uiMuted;
-    g.font = '5px "Press Start 2P", monospace';
-    selChar.quote.split('\n').forEach((ql, i) => g.fillText(ql, ix, 54 + i * 8));
+    g.font = '9px "Press Start 2P", monospace';
+    selChar.quote.split('\n').forEach((ql, i) => g.fillText(ql, ix, 108 + i * 16));
 
     STAT_NAMES.forEach((sn, i) => {
-      const sx = (i < 3) ? ix : ix + 80;
-      const syi = 78 + (i % 3) * 10;
+      const sx = (i < 3) ? ix : ix + 160;
+      const syi = 155 + (i % 3) * 20;
       g.fillStyle = '#808890';
-      g.font = '6px "Press Start 2P", monospace';
+      g.font = '10px "Press Start 2P", monospace';
       g.fillText(sn, sx, syi);
       for (let p = 0; p < 5; p++) {
         g.fillStyle = p < selChar.stats[i] ? C.fy : '#2a2a3a';
-        g.fillRect(sx + 28 + p * 7, syi - 5, 5, 5);
+        g.fillRect(sx + 55 + p * 14, syi - 10, 10, 10);
       }
     });
 
     g.fillStyle = C.white;
-    g.font = '6px "Press Start 2P", monospace';
-    g.fillText('WEAPON: ' + selChar.weapon, ix, 114);
+    g.font = '10px "Press Start 2P", monospace';
+    g.fillText('WEAPON: ' + selChar.weapon, ix, 226);
     g.fillStyle = '#00e676';
-    g.fillText('SPECIAL: ' + selChar.special, ix, 124);
+    g.fillText('SPECIAL: ' + selChar.special, ix, 246);
 
     // Roster Row
-    const rosterY = 142, boxSize = 28, gap = 8;
+    const rosterY = 275, boxSize = 56, gap = 16;
     const totalW = CHARS.length * boxSize + (CHARS.length - 1) * gap;
     const startX = (W - totalW) / 2;
 
@@ -1284,20 +1397,20 @@ window.FitwayGame = (() => {
       const selected = i === charIdx;
       if (selected) {
         g.fillStyle = C.fy;
-        g.fillRect(bx - 2, rosterY - 2, boxSize + 4, boxSize + 4);
+        g.fillRect(bx - 3, rosterY - 3, boxSize + 6, boxSize + 6);
       }
       drawPortrait(ch.id, bx, rosterY, boxSize);
       g.fillStyle = selected ? C.fy : '#606070';
-      g.font = '5px "Press Start 2P", monospace';
+      g.font = '9px "Press Start 2P", monospace';
       g.textAlign = 'center';
-      g.fillText(ch.name, bx + boxSize / 2, rosterY + boxSize + 8);
+      g.fillText(ch.name, bx + boxSize / 2, rosterY + boxSize + 16);
       g.textAlign = 'left';
     });
 
     g.textAlign = 'center';
-    g.font = '7px "Press Start 2P", monospace';
+    g.font = '11px "Press Start 2P", monospace';
     g.fillStyle = C.uiText;
-    g.fillText('◄ D-PAD ►     [A] SELECT', W / 2, 202);
+    g.fillText('◄ D-PAD ►     [A] SELECT', W / 2, 410);
     g.textAlign = 'left';
   }
 
@@ -1305,50 +1418,51 @@ window.FitwayGame = (() => {
     if (state !== 'explore' || dlg.active) return;
 
     // Glassmorphic Top-Left Gauges
-    g.fillStyle = 'rgba(15,17,23,0.85)';
-    g.fillRect(3, 3, 84, 26);
+    g.fillStyle = 'rgba(15,17,23,0.88)';
+    g.fillRect(6, 6, 168, 52);
     g.strokeStyle = '#3a3f50';
-    g.strokeRect(3, 3, 84, 26);
+    g.strokeRect(6, 6, 168, 52);
 
     // Health Gauge
     g.fillStyle = '#f03a3a';
-    g.fillRect(6, 6, 46, 5);
+    g.fillRect(12, 12, 92, 10);
     g.fillStyle = C.white;
-    g.font = '5px "Press Start 2P", monospace';
-    g.fillText('HP 100', 56, 11);
+    g.font = '8px "Press Start 2P", monospace';
+    g.fillText('HP 100', 110, 21);
 
     // Energy Gauge
     g.fillStyle = '#00b0ff';
-    g.fillRect(6, 13, 38, 5);
-    g.fillText('EN 85', 56, 18);
+    g.fillRect(12, 26, 76, 10);
+    g.fillText('EN 85', 110, 35);
 
     // Stamina Gauge
     g.fillStyle = '#00e676';
-    g.fillRect(6, 20, 46, 5);
-    g.fillText('ST 100', 56, 25);
+    g.fillRect(12, 40, 92, 10);
+    g.fillText('ST 100', 110, 49);
 
     // Top-Right Sector 67 Clock
-    g.fillStyle = 'rgba(15,17,23,0.85)';
-    g.fillRect(W - 88, 3, 85, 26);
+    g.fillStyle = 'rgba(15,17,23,0.88)';
+    g.fillRect(W - 176, 6, 170, 52);
     g.strokeStyle = '#3a3f50';
-    g.strokeRect(W - 88, 3, 85, 26);
+    g.strokeRect(W - 176, 6, 170, 52);
 
     g.fillStyle = C.fy;
-    g.font = '5px "Press Start 2P", monospace';
-    g.fillText(`CH ${chapter}: ${CHAPTERS[chapter - 1]?.title.slice(0, 8)}`, W - 85, 11);
+    g.font = '9px "Press Start 2P", monospace';
+    g.fillText(`CH ${chapter}: ${CHAPTERS[chapter - 1]?.title.slice(0, 10)}`, W - 170, 22);
     g.fillStyle = C.uiMuted;
-    g.fillText('Mon. 1  10:30am', W - 85, 18);
-    g.fillText('Sector 67, Mohali', W - 85, 25);
+    g.font = '8px "Press Start 2P", monospace';
+    g.fillText('Mon. 1  10:30am', W - 170, 36);
+    g.fillText('Sector 67, Mohali', W - 170, 49);
 
     // Floating Interaction Prompt
-    g.fillStyle = 'rgba(15,17,23,0.85)';
-    g.fillRect(20, H - 18, W - 40, 16);
+    g.fillStyle = 'rgba(15,17,23,0.88)';
+    g.fillRect(40, H - 36, W - 80, 32);
     g.strokeStyle = C.fy;
-    g.strokeRect(20, H - 18, W - 40, 16);
+    g.strokeRect(40, H - 36, W - 80, 32);
     g.fillStyle = C.fy;
-    g.font = '5px "Press Start 2P", monospace';
+    g.font = '9px "Press Start 2P", monospace';
     g.textAlign = 'center';
-    g.fillText(`[A] TALK / ACTION  •  [B] SPRINT  •  ⚡ OVERRIDE READY`, W / 2, H - 7);
+    g.fillText(`[A] TALK / ACTION  •  [B] SPRINT  •  ⚡ OVERRIDE READY`, W / 2, H - 15);
     g.textAlign = 'left';
   }
 
@@ -1357,35 +1471,35 @@ window.FitwayGame = (() => {
     const line = dlg.lines[dlg.idx];
 
     g.fillStyle = C.uiGlass;
-    g.fillRect(0, H - 56, W, 56);
+    g.fillRect(0, H - 110, W, 110);
     g.fillStyle = C.uiBorder;
-    g.fillRect(0, H - 56, W, 2);
-    g.fillRect(0, H - 2, W, 2);
+    g.fillRect(0, H - 110, W, 4);
+    g.fillRect(0, H - 4, W, 4);
 
     const speakerChar = CHARS.find(ch => ch.name === line.s);
     if (speakerChar) {
-      drawPortrait(speakerChar.id, 4, H - 52, 34);
+      drawPortrait(speakerChar.id, 8, H - 102, 68);
     } else {
       g.fillStyle = C.fblk2;
-      g.fillRect(4, H - 52, 34, 34);
+      g.fillRect(8, H - 102, 68, 68);
       g.strokeStyle = C.metalDk;
-      g.strokeRect(4, H - 52, 34, 34);
+      g.strokeRect(8, H - 102, 68, 68);
     }
 
     if (line.s) {
       g.fillStyle = C.fy;
-      g.font = '7px "Press Start 2P", monospace';
-      g.fillText(line.s, 44, H - 43);
+      g.font = '12px "Press Start 2P", monospace';
+      g.fillText(line.s, 86, H - 85);
     }
 
     g.fillStyle = C.uiText;
-    g.font = '6px "Press Start 2P", monospace';
+    g.font = '10px "Press Start 2P", monospace';
     const visibleText = line.t.substring(0, dlg.charPos);
-    visibleText.split('\n').forEach((tl, i) => g.fillText(tl, 44, H - 31 + i * 11));
+    visibleText.split('\n').forEach((tl, i) => g.fillText(tl, 86, H - 62 + i * 20));
 
     if (dlg.charPos >= line.t.length && Math.floor(frame / 16) % 2 === 0) {
       g.fillStyle = C.fy;
-      g.fillText('▼', W - 14, H - 8);
+      g.fillText('▼', W - 28, H - 16);
     }
   }
 
@@ -1394,35 +1508,38 @@ window.FitwayGame = (() => {
     g.fillRect(0, 0, W, H);
 
     g.fillStyle = C.uiGlass;
-    g.fillRect(20, 25, W - 40, 170);
+    g.fillRect(40, 50, W - 80, 340);
     g.strokeStyle = C.uiBorder;
-    g.strokeRect(20, 25, W - 40, 170);
+    g.lineWidth = 3;
+    g.strokeRect(40, 50, W - 80, 340);
+    g.lineWidth = 1;
 
     g.textAlign = 'center';
-    g.font = '8px "Press Start 2P", monospace';
+    g.font = '14px "Press Start 2P", monospace';
     g.fillStyle = C.fy;
-    g.fillText(chl.title, W / 2, 45);
+    g.fillText(chl.title, W / 2, 90);
 
-    g.font = '7px "Press Start 2P", monospace';
+    g.font = '12px "Press Start 2P", monospace';
     g.fillStyle = C.white;
-    g.fillText(chl.name, W / 2, 65);
+    g.fillText(chl.name, W / 2, 130);
     g.fillStyle = C.uiMuted;
-    g.fillText(`COACH: ${chl.trainer}`, W / 2, 78);
+    g.font = '10px "Press Start 2P", monospace';
+    g.fillText(`COACH: ${chl.trainer}`, W / 2, 155);
 
     const pad = n => String(n).padStart(2, '0');
-    g.font = '22px "Press Start 2P", monospace';
+    g.font = '40px "Press Start 2P", monospace';
     g.fillStyle = '#00e676';
-    g.fillText(`${pad(chl.current)} / ${pad(chl.target)}`, W / 2, 120);
+    g.fillText(`${pad(chl.current)} / ${pad(chl.target)}`, W / 2, 230);
 
     g.fillStyle = C.metalDk;
-    g.fillRect(40, 140, W - 80, 8);
+    g.fillRect(80, 270, W - 160, 16);
     g.fillStyle = C.fy;
-    g.fillRect(40, 140, (W - 80) * (chl.current / chl.target), 8);
+    g.fillRect(80, 270, (W - 160) * (chl.current / chl.target), 16);
 
     if (Math.floor(frame / 14) % 2 === 0) {
-      g.font = '8px "Press Start 2P", monospace';
+      g.font = '14px "Press Start 2P", monospace';
       g.fillStyle = C.fy;
-      g.fillText('TAP [A] TO REP!', W / 2, 175);
+      g.fillText('TAP [A] TO REP!', W / 2, 340);
     }
     g.textAlign = 'left';
   }
@@ -1432,22 +1549,22 @@ window.FitwayGame = (() => {
     g.fillRect(0, 0, W, H);
 
     g.textAlign = 'center';
-    g.font = '9px "Press Start 2P", monospace';
+    g.font = '16px "Press Start 2P", monospace';
     g.fillStyle = '#f03a3a';
-    g.fillText('CARDIO EMERGENCY OVERLOAD!', W / 2, 40);
+    g.fillText('CARDIO EMERGENCY OVERLOAD!', W / 2, 80);
 
-    g.font = '6px "Press Start 2P", monospace';
+    g.font = '11px "Press Start 2P", monospace';
     g.fillStyle = C.white;
-    g.fillText('SHUT DOWN MALFUNCTIONING TREADMILLS', W / 2, 58);
+    g.fillText('SHUT DOWN MALFUNCTIONING TREADMILLS', W / 2, 115);
 
-    g.font = '18px "Press Start 2P", monospace';
+    g.font = '32px "Press Start 2P", monospace';
     g.fillStyle = C.fy;
-    g.fillText(`REBOOTED: ${minigame.score} / ${minigame.total}`, W / 2, 110);
+    g.fillText(`REBOOTED: ${minigame.score} / ${minigame.total}`, W / 2, 210);
 
     if (Math.floor(frame / 12) % 2 === 0) {
-      g.font = '8px "Press Start 2P", monospace';
+      g.font = '14px "Press Start 2P", monospace';
       g.fillStyle = '#00e676';
-      g.fillText('TAP [A] TO OVERRIDE', W / 2, 160);
+      g.fillText('TAP [A] TO OVERRIDE', W / 2, 310);
     }
     g.textAlign = 'left';
   }
@@ -1458,31 +1575,33 @@ window.FitwayGame = (() => {
     g.fillRect(0, 0, W, H);
 
     g.textAlign = 'center';
-    g.font = '9px "Press Start 2P", monospace';
+    g.font = '16px "Press Start 2P", monospace';
     g.fillStyle = C.fy;
-    g.fillText('EQUIPMENT UNLOCKED!', W / 2, 45);
+    g.fillText('EQUIPMENT UNLOCKED!', W / 2, 90);
 
     g.fillStyle = C.uiGlass;
-    g.fillRect(30, 60, W - 60, 95);
+    g.fillRect(60, 120, W - 120, 190);
     g.strokeStyle = C.fy;
-    g.strokeRect(30, 60, W - 60, 95);
+    g.lineWidth = 3;
+    g.strokeRect(60, 120, W - 120, 190);
+    g.lineWidth = 1;
+
+    g.font = '18px "Press Start 2P", monospace';
+    g.fillStyle = C.white;
+    g.fillText(unlockAnim.title, W / 2, 170);
+
+    g.font = '13px "Press Start 2P", monospace';
+    g.fillStyle = '#00e676';
+    g.fillText(unlockAnim.name, W / 2, 210);
 
     g.font = '10px "Press Start 2P", monospace';
-    g.fillStyle = C.white;
-    g.fillText(unlockAnim.title, W / 2, 85);
-
-    g.font = '7px "Press Start 2P", monospace';
-    g.fillStyle = '#00e676';
-    g.fillText(unlockAnim.name, W / 2, 105);
-
-    g.font = '5px "Press Start 2P", monospace';
     g.fillStyle = C.uiMuted;
-    g.fillText(unlockAnim.desc, W / 2, 128);
+    g.fillText(unlockAnim.desc, W / 2, 255);
 
     if (unlockAnim.timer > 30 && Math.floor(frame / 16) % 2 === 0) {
-      g.font = '7px "Press Start 2P", monospace';
+      g.font = '12px "Press Start 2P", monospace';
       g.fillStyle = C.white;
-      g.fillText('PRESS [A] TO CONTINUE', W / 2, 185);
+      g.fillText('PRESS [A] TO CONTINUE', W / 2, 360);
     }
     g.textAlign = 'left';
   }
@@ -1492,30 +1611,30 @@ window.FitwayGame = (() => {
     g.fillRect(0, 0, W, H);
 
     g.textAlign = 'center';
-    g.font = '10px "Press Start 2P", monospace';
+    g.font = '18px "Press Start 2P", monospace';
     g.fillStyle = C.fy;
-    g.fillText('FITWAY: THE END', W / 2, 35);
+    g.fillText('FITWAY: THE END', W / 2, 70);
 
-    const yOff = 65;
-    g.font = '6px "Press Start 2P", monospace';
+    const yOff = 130;
+    g.font = '11px "Press Start 2P", monospace';
     g.fillStyle = C.fy;
     g.fillText('SUKH — OWNER / FOUNDER', W / 2, yOff);
     g.fillStyle = C.white;
-    g.fillText('GAGAN — TECHNIQUE POLICE', W / 2, yOff + 16);
+    g.fillText('GAGAN — TECHNIQUE POLICE', W / 2, yOff + 30);
     g.fillStyle = C.fy;
-    g.fillText('SHUBHAM — SPEED & CARDIO DEMON', W / 2, yOff + 32);
+    g.fillText('SHUBHAM — SPEED & CARDIO DEMON', W / 2, yOff + 60);
     g.fillStyle = C.white;
-    g.fillText('RAKESH — VETERAN FORM PURIST', W / 2, yOff + 48);
+    g.fillText('RAKESH — VETERAN FORM PURIST', W / 2, yOff + 90);
     g.fillStyle = '#00e676';
-    g.fillText('HERMAN — SOFTWARE / HARDWARE / IT', W / 2, yOff + 64);
+    g.fillText('HERMAN — SOFTWARE / HARDWARE / IT', W / 2, yOff + 120);
 
     g.fillStyle = C.fy;
-    g.font = '8px "Press Start 2P", monospace';
-    g.fillText('“KAL PHIR AA JAANA.”', W / 2, 175);
+    g.font = '14px "Press Start 2P", monospace';
+    g.fillText('“KAL PHIR AA JAANA.”', W / 2, 340);
 
     g.fillStyle = C.white;
-    g.font = '6px "Press Start 2P", monospace';
-    g.fillText('PRESS [A] FOR FREE ROAM GYM', W / 2, 205);
+    g.font = '11px "Press Start 2P", monospace';
+    g.fillText('PRESS [A] FOR FREE ROAM GYM', W / 2, 400);
     g.textAlign = 'left';
   }
 
@@ -1613,7 +1732,7 @@ window.FitwayGame = (() => {
         if (canWalkTo(pl.x, ny)) pl.y = ny;
 
         pl.x = Math.max(0, Math.min(W - TS, pl.x));
-        pl.y = Math.max(0, Math.min(H - 22, pl.y));
+        pl.y = Math.max(0, Math.min(H - 44, pl.y));
 
         if (pl.moving) {
           pl.walkT++;
@@ -1650,7 +1769,7 @@ window.FitwayGame = (() => {
       case 'chaos_minigame':
         if (aEdge) {
           minigame.score++;
-          Audio8.sfx('blip');
+          Audio8.sfx('override_beep');
           if (minigame.score >= minigame.total) {
             minigame.active = false;
             if (minigame.onDone) minigame.onDone();
@@ -1715,10 +1834,10 @@ window.FitwayGame = (() => {
         entities.sort((a, b) => a.y - b.y);
         entities.forEach(e => e.draw());
 
-        // Dynamic Lighting & Sunbeams Layer
+        // Dynamic Volumetric Lighting & Atmospheric Particles
         renderAtmosphere();
 
-        // High-Tech HUD Layer
+        // High-Tech Glassmorphic HUD
         renderHUD();
 
         if (state === 'dialogue') renderDialogue();

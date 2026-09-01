@@ -10,7 +10,7 @@
   const g = cv.getContext('2d', { alpha: false });
   g.imageSmoothingEnabled = false;
 
-  const W = 256, H = 224;
+  const W = 512, H = 448;
 
   /* ══ CARTRIDGE CATALOG ═════════════════════════════════════ */
   const CATALOG = [
