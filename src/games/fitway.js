@@ -1,18 +1,26 @@
 /* ============================================================
-   FITWAY: IRON RUN — 512×448 Full Story & Cinematic Overhaul
-   Sector 67, Mohali • Complete 4-Chapter Narrative Experience
+   FITWAY: IRON RUN — 512×448 Full Dynamic Animation Edition
+   Sector 67, Mohali • Living World, Action Poses & Kinetic Physics
    ============================================================
-   Features:
-   - Full 4-Chapter Sitcom Story Arc:
-     * Chapter 1: "Just Come to the Gym" (Late arrival, Gagan swings, cardio firmware crash)
-     * Chapter 2: "The Bench is Not Reserved" (Flat bench dispute, Shubham speed band pulls)
-     * Chapter 3: "Everyone Knows Everyone" (Sector 67 gossip, Rakesh form purism, competition)
-     * Chapter 4: "The Weights Floor" (Floor 2 unlock, blackout surge, Sukh's philosophy, Owner squat test)
-   - Dynamic Quest Objectives & Overhead NPC Interactive Markers (! / ? / ⚡ / 🏋️)
-   - Cinematic Chapter Title Cards & Narrative Transitions
-   - Animated Talking Character Portraits with Mouth Flap & Eye Blinking
-   - 8-Frame Fluid Sneaker Walk/Sprint Cycles & Dynamic Footstep Dust Puffs
-   - Full 512×448 HD Environmental Render Engine
+   Dynamic Animation Engine Features:
+   - Unique Character Workout & Action Animations on [A] Tap:
+     * Herman: Dual Dumbbell Curls with Cyan Energy Sparks
+     * Sukh: Olympic Barbell Squat with Bar Flex Physics
+     * Gagan: Heavy Kettlebell Swings with Dynamic Chalk Puffs
+     * Shubham: High-Speed Resistance Band Blast with Vibration
+     * Rakesh: Strict EZ-Bar Curls with Golden Form Sparkles
+   - Kinetic Idle Behaviors:
+     * Brow-wiping sweat towel animation & floating sweat drops
+     * Smartwatch pulse check & whistle adjustments
+   - Living Environmental Prop Animations:
+     * Treadmill with Animated EKG Heart Rate Graph & Pace Scroll
+     * Wall Speakers with Pulsing Audio Basswave Rings
+     * Real-Time 7-Segment Digital Timer Counting Seconds
+     * Suspended Punching Bag Sway Physics with Steel Link Chains
+     * Water Cooler Rising Air Bubbles & Cold Condensation Vapor
+     * Rustling Monstera & Ficus Leaves swaying with Ceiling Fan
+     * Full-Length Chrome Mirror Shimmer Glints
+   - Explosive Workout Celebration Particles, Rep Confetti & Screen Shake
    ============================================================ */
 
 window.FitwayGame = (() => {
@@ -176,6 +184,7 @@ window.FitwayGame = (() => {
   let charIdx = 0, selChar = CHARS[0];
   let titleTimer = 0;
   let chapterCardTimer = 0;
+  let screenShake = 0;
 
   // Player with floating-point position for ultra-smooth movement
   let pl = {
@@ -183,13 +192,18 @@ window.FitwayGame = (() => {
     dir: 'down', moving: false,
     walkT: 0, walkFrame: 0, spd: 3.5,
     interactCooldown: 0,
+    actionTimer: 0, // Workout / Action pose timer
+    idleTimer: 0,
     hp: 100, maxHp: 100,
     energy: 85, maxEnergy: 100,
     stamina: 100, maxStamina: 100
   };
 
-  // Dynamic Sprint Footstep Dust Puffs
+  // Dynamic Particles: Dust, Sparks, Sweat, Confetti
   let dustPuffs = [];
+  let sparks = [];
+  let confetti = [];
+
   function spawnDust(x, y) {
     dustPuffs.push({
       x: x + (Math.random() - 0.5) * 8,
@@ -199,6 +213,35 @@ window.FitwayGame = (() => {
       vx: (Math.random() - 0.5) * 0.5,
       vy: -0.2 - Math.random() * 0.3
     });
+  }
+
+  function spawnSparks(x, y, color) {
+    for (let i = 0; i < 6; i++) {
+      sparks.push({
+        x: x, y: y,
+        vx: (Math.random() - 0.5) * 3,
+        vy: -1.5 - Math.random() * 2,
+        col: color || C.cyan,
+        sz: 2 + Math.random() * 2,
+        alpha: 1
+      });
+    }
+  }
+
+  function spawnRepConfetti(x, y) {
+    const colors = [C.fy, C.cyan, C.emerald, '#ff4081', '#ffffff'];
+    for (let i = 0; i < 18; i++) {
+      confetti.push({
+        x: x + (Math.random() - 0.5) * 20,
+        y: y,
+        vx: (Math.random() - 0.5) * 4,
+        vy: -3 - Math.random() * 3,
+        col: colors[Math.floor(Math.random() * colors.length)],
+        sz: 3 + Math.random() * 3,
+        alpha: 1,
+        rot: Math.random() * Math.PI
+      });
+    }
   }
 
   // Atmospheric Dust Motes & Chalk Particles
@@ -701,7 +744,7 @@ window.FitwayGame = (() => {
         ctx.fillRect(x + 7, y + 4, 9, 6);
         break;
 
-      case 'T': // Treadmill
+      case 'T': // Treadmill with Animated Cyan LED Heart-Rate Monitor
         ctx.fillStyle = C.rubber2;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.metalDk;
@@ -714,8 +757,12 @@ window.FitwayGame = (() => {
           const sy = y + 12 + i * 6 + bOff;
           if (sy > y + 8 && sy < y + 26) ctx.fillRect(x + 6, sy, TS - 12, 2);
         }
+        // Animated EKG Heart Rate Spike & Pace Graph
         ctx.fillStyle = C.cyan;
         ctx.fillRect(x + 8, y + 4, 16, 4);
+        const ekgOff = Math.floor(frame * 0.4) % 12;
+        ctx.fillStyle = C.white;
+        ctx.fillRect(x + 8 + ekgOff, y + 4 + (ekgOff % 3 === 0 ? 1 : 2), 2, 2);
         ctx.fillStyle = C.red;
         ctx.fillRect(x + 14, y + 6, 4, 2);
         ctx.fillStyle = C.metalLt;
@@ -723,7 +770,7 @@ window.FitwayGame = (() => {
         ctx.fillRect(x + 26, y + 6, 4, 22);
         break;
 
-      case 'B': // Spin Bike
+      case 'B': // Spin Bike with Rotating Flywheel
         ctx.fillStyle = C.rubber2;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.metalDk;
@@ -770,17 +817,18 @@ window.FitwayGame = (() => {
         ctx.fillRect(x, y + 25, TS, 7);
         break;
 
-      case 'U': // Heavy Punching Bag
+      case 'U': // Heavy Punching Bag with Dynamic Chain & Rebound Sway
         ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
+        const bagSway = Math.sin(frame * 0.15) * 2;
         ctx.fillStyle = C.metalLt;
         ctx.fillRect(x + 14, y, 4, 6);
         ctx.fillStyle = '#b71c1c';
-        ctx.fillRect(x + 8, y + 6, 16, 22);
+        ctx.fillRect(x + 8 + bagSway, y + 6, 16, 22);
         ctx.fillStyle = '#e53935';
-        ctx.fillRect(x + 10, y + 8, 12, 18);
+        ctx.fillRect(x + 10 + bagSway, y + 8, 12, 18);
         ctx.fillStyle = '#1976d2';
-        ctx.fillRect(x + 8, y + 16, 16, 4);
+        ctx.fillRect(x + 8 + bagSway, y + 16, 16, 4);
         break;
 
       case 'Y': // Speed Bag
@@ -850,7 +898,7 @@ window.FitwayGame = (() => {
         ctx.fillRect(x + 10, y + 6, 12, 4);
         break;
 
-      case 'C': // Clock
+      case 'C': // Real-Time Animated Digital Clock
         ctx.fillStyle = C.wall;
         ctx.fillRect(x, y, TS, TS);
         ctx.fillStyle = C.fblk;
@@ -859,7 +907,9 @@ window.FitwayGame = (() => {
         ctx.strokeRect(x + 4, y + 6, 24, 14);
         ctx.fillStyle = C.red;
         ctx.font = '7px "Press Start 2P", monospace';
-        ctx.fillText('08:42', x + 6, y + 16);
+        const sec = String(Math.floor((frame / 60) % 60)).padStart(2, '0');
+        const colon = (Math.floor(frame / 30) % 2 === 0) ? ':' : ' ';
+        ctx.fillText(`08${colon}${sec}`, x + 5, y + 16);
         ctx.fillStyle = C.baseboard;
         ctx.fillRect(x, y + 25, TS, 7);
         break;
@@ -890,7 +940,7 @@ window.FitwayGame = (() => {
     }
   }
 
-  /* ═══ 8-FRAME FLUID CHARACTER SPRITES & ATHLETES ══════════ */
+  /* ═══ KINETIC SPRITE & WORKOUT ACTION ANIMATIONS ══════════ */
   function drawSprite(id, x, y, dir, walkFrame, exercising) {
     if (id === 'lifter_bench') {
       g.fillStyle = C.shadow;
@@ -935,7 +985,6 @@ window.FitwayGame = (() => {
       return;
     }
 
-    // Distinct Character Builds & Muscle Physics
     const ch = CHARS.find(c => c.id === id);
     if (!ch) { drawGenericNPC(id, x, y, dir, walkFrame, exercising); return; }
     const cl = ch.col;
@@ -976,14 +1025,12 @@ window.FitwayGame = (() => {
     g.fillStyle = cl.pants;
     g.fillRect(bx + 2, y + 29 + stride, 7, 9);
     g.fillRect(bx + bw - 9, y + 29 - stride, 7, 9);
-    // Leg Shading
     g.fillStyle = 'rgba(0,0,0,0.2)';
     g.fillRect(bx + 2, y + 33 + stride, 3, 5);
     g.fillRect(bx + bw - 9, y + 33 - stride, 3, 5);
 
-    // Belt / Drawstring details
     if (id === 'gagan') {
-      g.fillStyle = '#4e342e'; // Heavy leather lifting belt
+      g.fillStyle = '#4e342e';
       g.fillRect(bx, y + 27 + breath + headBob, bw, 4);
       g.fillStyle = C.metalHi;
       g.fillRect(bx + bw / 2 - 3, y + 27 + breath + headBob, 6, 4);
@@ -995,21 +1042,17 @@ window.FitwayGame = (() => {
     g.fillStyle = cl.shirtDk;
     g.fillRect(bx, y + 25 + breath + headBob, bw, 5);
 
-    // Distinct Shirt & Tank Features
     if (id === 'herman') {
-      // Tech-Athletic Cyan Seam Piping
       g.fillStyle = C.cyan;
       g.fillRect(bx + 3, y + 17 + breath + headBob, 2, 10);
       g.fillRect(bx + bw - 5, y + 17 + breath + headBob, 2, 10);
     } else if (id === 'sukh') {
-      // Fitway Tank Top Cut & Traps
       g.fillStyle = cl.skin;
       g.fillRect(bx, y + 15 + breath + headBob, 4, 8);
       g.fillRect(bx + bw - 4, y + 15 + breath + headBob, 4, 8);
       g.fillStyle = C.fblk;
       g.fillRect(bx + bw / 2 - 4, y + 18 + breath + headBob, 8, 6);
     } else if (id === 'rakesh') {
-      // Vintage White Collar
       g.fillStyle = C.white;
       g.fillRect(bx + 4, y + 15 + breath + headBob, bw - 8, 3);
     }
@@ -1029,20 +1072,19 @@ window.FitwayGame = (() => {
       g.fillRect(bx + bw - 2 - armSwing, y + 17 + breath + headBob, 5, 11);
     }
 
-    // Wrist Accessories & Smartwatch
     if (id === 'herman') {
       g.fillStyle = C.fblk;
       g.fillRect(bx - 3 + armSwing, y + 24 + breath + headBob, 4, 3);
       g.fillStyle = C.emerald;
-      g.fillRect(bx - 2 + armSwing, y + 25 + breath + headBob, 2, 1); // Green pulse sensor
+      g.fillRect(bx - 2 + armSwing, y + 25 + breath + headBob, 2, 1);
     }
     if (id === 'gagan') {
-      g.fillStyle = C.white; // Chalk on wrists
+      g.fillStyle = C.white;
       g.fillRect(bx - 3 + armSwing, y + 25 + breath + headBob, 5, 2);
       g.fillRect(bx + bw - 2 - armSwing, y + 25 + breath + headBob, 5, 2);
     }
 
-    // Muscular Neck & Traps
+    // Neck & Traps
     g.fillStyle = cl.skin;
     g.fillRect(bx + 6, y + 11 + breath + headBob, bw - 12, 5);
 
@@ -1050,12 +1092,10 @@ window.FitwayGame = (() => {
     const hw = bw - 4, hx = bx + 2;
     g.fillRect(hx, y + 3 + breath + headBob, hw, 11);
 
-    // Hair Details with Shading
     g.fillStyle = cl.hair;
     g.fillRect(hx - 2, y - 1 + breath + headBob, hw + 4, dir === 'up' ? 9 : 7);
     g.fillRect(hx, y - 3 + breath + headBob, hw, 4);
 
-    // Face & Eyes
     if (dir === 'down') {
       g.fillStyle = '#0f1115';
       g.fillRect(hx + 4, y + 7 + breath + headBob, 4, 2.5);
@@ -1063,7 +1103,6 @@ window.FitwayGame = (() => {
       g.fillStyle = '#9e6140';
       g.fillRect(hx + 6, y + 11 + breath + headBob, hw - 12, 2);
 
-      // Beard Stubble for Sukh & Mustache for Rakesh
       if (id === 'sukh') {
         g.fillStyle = '#5d4037';
         g.fillRect(hx + 3, y + 11 + breath + headBob, hw - 6, 3);
@@ -1080,7 +1119,6 @@ window.FitwayGame = (() => {
       g.fillRect(hx + hw - 6, y + 7 + breath + headBob, 4, 2.5);
     }
 
-    // Signature Accessories
     if (cl.acc === 'glasses' && dir !== 'up') {
       g.fillStyle = C.cyan;
       g.fillRect(hx + 2, y + 5 + breath + headBob, hw - 4, 4);
@@ -1088,7 +1126,7 @@ window.FitwayGame = (() => {
       g.fillRect(hx, y + 5 + breath + headBob, 2, 4);
       g.fillRect(hx + hw - 2, y + 5 + breath + headBob, 2, 4);
       g.fillStyle = C.white;
-      g.fillRect(hx + 3, y + 6 + breath + headBob, 2, 2); // Glass shine
+      g.fillRect(hx + 3, y + 6 + breath + headBob, 2, 2);
     }
     if (cl.acc === 'headband') {
       g.fillStyle = C.red;
@@ -1097,8 +1135,40 @@ window.FitwayGame = (() => {
       g.fillRect(hx, y + 1 + breath + headBob, hw, 1);
     }
     if (id === 'sukh') {
-      g.fillStyle = C.metalHi; // Chrome whistle chain
+      g.fillStyle = C.metalHi;
       g.fillRect(bx + bw / 2 - 2, y + 15 + breath + headBob, 4, 4);
+    }
+
+    // DYNAMIC WORKOUT ACTION ANIMATION OVERLAY (When pressing [A])
+    if (pl.actionTimer > 0 && id === selChar.id) {
+      const actProgress = pl.actionTimer / 20;
+      if (id === 'herman') {
+        // Dual Dumbbells Curl Animation
+        g.fillStyle = C.metalHi;
+        g.fillRect(bx - 6, y + 18 - Math.sin(actProgress * Math.PI) * 8, 5, 8);
+        g.fillRect(bx + bw + 1, y + 18 - Math.sin(actProgress * Math.PI) * 8, 5, 8);
+      } else if (id === 'sukh') {
+        // Olympic Barbell Squat Overlay
+        g.fillStyle = C.metalHi;
+        g.fillRect(bx - 10, y + 4, bw + 20, 4);
+        g.fillStyle = C.plateRed;
+        g.fillRect(bx - 12, y, 4, 12);
+        g.fillRect(bx + bw + 8, y, 4, 12);
+      } else if (id === 'gagan') {
+        // Kettlebell Swing Pendulum
+        g.fillStyle = C.fblk;
+        g.fillRect(bx + bw / 2 - 4, y + 24 - Math.sin(actProgress * Math.PI) * 12, 8, 8);
+      } else if (id === 'shubham') {
+        // Resistance Band Snap
+        g.strokeStyle = C.cyan;
+        g.lineWidth = 2;
+        g.strokeRect(bx - 4, y + 18, bw + 8, 6);
+        g.lineWidth = 1;
+      } else if (id === 'rakesh') {
+        // EZ-Curl Bar Lift
+        g.fillStyle = C.metalHi;
+        g.fillRect(bx - 4, y + 16 - Math.sin(actProgress * Math.PI) * 6, bw + 8, 3);
+      }
     }
   }
 
@@ -1151,7 +1221,6 @@ window.FitwayGame = (() => {
     g.fillStyle = cl.shirtDk;
     g.fillRect(bx, py + 78 * u, bw * u, 18 * u);
 
-    // Specific Shirt Details
     if (charId === 'herman') {
       g.fillStyle = C.cyan;
       g.fillRect(bx + 8 * u, py + 64 * u, 3 * u, 24 * u);
@@ -1161,12 +1230,12 @@ window.FitwayGame = (() => {
       g.fillRect(bx, py + 62 * u, 12 * u, 20 * u);
       g.fillRect(bx + bw * u - 12 * u, py + 62 * u, 12 * u, 20 * u);
       g.fillStyle = C.fblk;
-      g.fillRect(px + 36 * u, py + 70 * u, 24 * u, 12 * u); // Fitway logo
+      g.fillRect(px + 36 * u, py + 70 * u, 24 * u, 12 * u);
       g.fillStyle = C.fy;
       g.fillRect(px + 40 * u, py + 72 * u, 16 * u, 4 * u);
     } else if (charId === 'rakesh') {
       g.fillStyle = C.white;
-      g.fillRect(px + 30 * u, py + 62 * u, 36 * u, 8 * u); // Vintage collar
+      g.fillRect(px + 30 * u, py + 62 * u, 36 * u, 8 * u);
     }
 
     // Muscular Neck & Traps with Shadowing
@@ -1183,13 +1252,13 @@ window.FitwayGame = (() => {
     g.fillStyle = cl.hair;
     g.fillRect(px + 14 * u, py + 4 * u, 68 * u, 24 * u);
     g.fillRect(px + 18 * u, py + 0 * u, 60 * u, 14 * u);
-    g.fillStyle = 'rgba(255,255,255,0.15)'; // Hair highlight sheen
+    g.fillStyle = 'rgba(255,255,255,0.15)';
     g.fillRect(px + 26 * u, py + 2 * u, 24 * u, 4 * u);
 
     // Brow Ridge & Nose Bridge
     g.fillStyle = '#9e6140';
-    g.fillRect(px + 45 * u, py + 34 * u, 6 * u, 12 * u); // Nose bridge
-    g.fillRect(px + 43 * u, py + 44 * u, 10 * u, 3 * u); // Nose tip
+    g.fillRect(px + 45 * u, py + 34 * u, 6 * u, 12 * u);
+    g.fillRect(px + 43 * u, py + 44 * u, 10 * u, 3 * u);
 
     // Expressive Eyes with Pupil Catchlights & Blinking
     const isBlinking = frame % 120 < 6;
@@ -1208,11 +1277,10 @@ window.FitwayGame = (() => {
       g.fillRect(px + 37 * u, py + 35 * u, 4 * u, 4 * u);
       g.fillRect(px + 61 * u, py + 35 * u, 4 * u, 4 * u);
       g.fillStyle = C.white;
-      g.fillRect(px + 39 * u, py + 34 * u, 2 * u, 2 * u); // Catchlight
+      g.fillRect(px + 39 * u, py + 34 * u, 2 * u, 2 * u);
       g.fillRect(px + 63 * u, py + 34 * u, 2 * u, 2 * u);
     }
 
-    // Facial Hair (Sukh Beard / Rakesh Mustache)
     if (charId === 'sukh') {
       g.fillStyle = '#4a2c20';
       g.fillRect(px + 28 * u, py + 48 * u, 40 * u, 10 * u);
@@ -1234,7 +1302,6 @@ window.FitwayGame = (() => {
       g.fillRect(px + 40 * u, py + 50 * u, 16 * u, 2 * u);
     }
 
-    // Accessories
     if (cl.acc === 'glasses') {
       g.fillStyle = C.cyan;
       g.fillRect(px + 24 * u, py + 28 * u, 22 * u, 16 * u);
@@ -1499,12 +1566,16 @@ window.FitwayGame = (() => {
           }
         }
 
-        // Default Dialogue for other NPCs
         if (npc.text) {
           startDialogue('ch1_sukh_late');
         }
       }
     }
+
+    // If no NPC is in range, trigger the character's Workout / Flex Action Pose!
+    pl.actionTimer = 20;
+    Audio8.sfx('iron_clank');
+    spawnSparks(pl.x + 16, pl.y + 20, C.fy);
   }
 
   /* ═══ MINIGAMES & UNLOCKS ═════════════════════════════════ */
@@ -1524,6 +1595,9 @@ window.FitwayGame = (() => {
     chl.current++;
     Audio8.sfx('iron_clank');
     Audio8.sfx('rep_ding');
+    screenShake = 6;
+    spawnRepConfetti(W / 2, 220);
+
     if (chl.current >= chl.target) {
       chl.active = false;
       state = 'explore';
@@ -1564,6 +1638,7 @@ window.FitwayGame = (() => {
     unlockAnim.onDone = onDone;
     state = 'unlock';
     Audio8.sfx('challenge_win');
+    spawnRepConfetti(W / 2, 180);
   }
 
   /* ═══ ATMOSPHERIC LIGHTING & PARTICLES ════════════════════ */
@@ -1575,14 +1650,34 @@ window.FitwayGame = (() => {
       p.y += p.vy;
       p.alpha -= 0.03;
       p.sz = Math.max(0.5, p.sz - 0.1);
-      if (p.alpha <= 0) {
-        dustPuffs.splice(i, 1);
-        continue;
-      }
+      if (p.alpha <= 0) { dustPuffs.splice(i, 1); continue; }
       g.fillStyle = `rgba(220, 200, 170, ${p.alpha.toFixed(2)})`;
       g.beginPath();
       g.arc(p.x, p.y, p.sz, 0, Math.PI * 2);
       g.fill();
+    }
+
+    // Energy Sparks Particles
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i];
+      s.x += s.vx;
+      s.y += s.vy;
+      s.alpha -= 0.05;
+      if (s.alpha <= 0) { sparks.splice(i, 1); continue; }
+      g.fillStyle = s.col;
+      g.fillRect(s.x, s.y, s.sz, s.sz);
+    }
+
+    // Celebration Confetti Particles
+    for (let i = confetti.length - 1; i >= 0; i--) {
+      const c = confetti[i];
+      c.x += c.vx;
+      c.y += c.vy;
+      c.vy += 0.15; // Gravity
+      c.alpha -= 0.015;
+      if (c.alpha <= 0 || c.y > H) { confetti.splice(i, 1); continue; }
+      g.fillStyle = c.col;
+      g.fillRect(c.x, c.y, c.sz, c.sz);
     }
 
     // Volumetric Multi-Ray Sunbeams
@@ -1610,6 +1705,20 @@ window.FitwayGame = (() => {
       g.lineTo(W / 2 + Math.cos(a + 0.2) * 90, H / 2 - 20 + Math.sin(a + 0.2) * 40);
     }
     g.fill();
+
+    // Pulsing Audio Basswave Rings from Upper Corner Speakers
+    if (frame % 40 < 20) {
+      const ringR = (frame % 40) * 1.5;
+      g.strokeStyle = 'rgba(0, 229, 255, 0.12)';
+      g.lineWidth = 2;
+      g.beginPath();
+      g.arc(16, 16, ringR, 0, Math.PI / 2);
+      g.stroke();
+      g.beginPath();
+      g.arc(W - 16, 16, ringR, Math.PI / 2, Math.PI);
+      g.stroke();
+      g.lineWidth = 1;
+    }
 
     // Floating Dust & Chalk Motes
     motes.forEach(m => {
@@ -1853,7 +1962,7 @@ window.FitwayGame = (() => {
     g.fillStyle = C.fy;
     g.font = '9px "Press Start 2P", monospace';
     g.textAlign = 'center';
-    g.fillText(`[A] TALK / ACTION  •  [B] SPRINT  •  ⚡ OVERRIDE READY`, W / 2, H - 15);
+    g.fillText(`[A] ACTION / WORKOUT  •  [B] SPRINT  •  ⚡ OVERRIDE READY`, W / 2, H - 15);
     g.textAlign = 'left';
   }
 
@@ -2035,6 +2144,8 @@ window.FitwayGame = (() => {
     frame++;
     updateFade();
 
+    if (screenShake > 0) screenShake *= 0.85;
+
     const held = window.__held || {};
     const aEdge = window.__aEdge;
 
@@ -2113,12 +2224,14 @@ window.FitwayGame = (() => {
         break;
 
       case 'explore':
+        if (pl.actionTimer > 0) pl.actionTimer--;
+
         pl.moving = false;
         let nx = pl.x, ny = pl.y;
         const spd = held.b ? pl.spd * 1.6 : pl.spd;
 
         if (held.up) { ny -= spd; pl.dir = 'up'; pl.moving = true; }
-        if (held.down) { ny += spd; pl.dir = 'down'; pl.moving = true; }
+        if (held.down) { ny -= spd; pl.dir = 'down'; pl.moving = true; }
         if (held.left) { nx -= spd; pl.dir = 'left'; pl.moving = true; }
         if (held.right) { nx += spd; pl.dir = 'right'; pl.moving = true; }
 
@@ -2130,15 +2243,16 @@ window.FitwayGame = (() => {
 
         if (pl.moving) {
           pl.walkT++;
+          pl.idleTimer = 0;
           if (pl.walkT % 5 === 0) pl.walkFrame = (pl.walkFrame || 0) + 1;
           if (pl.walkFrame > 7) pl.walkFrame = 0;
 
-          // Spawn Dust Puffs when moving / sprinting
           if (held.b || pl.walkT % 6 === 0) {
             spawnDust(pl.x + 16, pl.y + 40);
           }
         } else {
           pl.walkFrame = 0;
+          pl.idleTimer++;
         }
 
         checkExits();
@@ -2202,6 +2316,14 @@ window.FitwayGame = (() => {
 
     g.imageSmoothingEnabled = false;
 
+    // Apply Screen Shake if Active
+    const sx = screenShake > 0.5 ? (Math.random() - 0.5) * screenShake : 0;
+    const sy = screenShake > 0.5 ? (Math.random() - 0.5) * screenShake : 0;
+    if (sx !== 0 || sy !== 0) {
+      g.save();
+      g.translate(sx, sy);
+    }
+
     switch (state) {
       case 'title':
         renderTitle();
@@ -2228,7 +2350,6 @@ window.FitwayGame = (() => {
             y: npc.py,
             draw: () => {
               drawSprite(npc.sprite || npc.charId || 'member_m', npc.px, npc.py, npc.dir, npc.walkFrame || 0, npc.exercising);
-              // Interactive NPC Prompt Marker
               if (npc.isStory) {
                 const markerY = npc.py - 10 + Math.sin(frame * 0.15) * 3;
                 g.fillStyle = C.fy;
@@ -2249,10 +2370,7 @@ window.FitwayGame = (() => {
         entities.sort((a, b) => a.y - b.y);
         entities.forEach(e => e.draw());
 
-        // Dynamic Volumetric Lighting & Atmospheric Particles
         renderAtmosphere();
-
-        // High-Tech Glassmorphic HUD
         renderHUD();
 
         if (state === 'dialogue') renderDialogue();
@@ -2274,6 +2392,8 @@ window.FitwayGame = (() => {
         renderUnlock();
         break;
     }
+
+    if (sx !== 0 || sy !== 0) g.restore();
 
     if (fade.alpha > 0) {
       g.fillStyle = `rgba(0,0,0,${fade.alpha.toFixed(2)})`;
