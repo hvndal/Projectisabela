@@ -40,29 +40,29 @@
       }
     },
     {
-      id: 'plumber',
-      title: "HERMAN'S SUPER PLUMBER",
-      subtitle: 'COIN CASTLE RUSH',
-      cartLabel: 'SUPER HERMAN',
-      genre: 'PLATFORMER',
-      year: '1985',
-      players: '1 PLAYER',
-      difficulty: 'ARCADE',
-      color: '#d82800',
-      darkColor: '#5a1200',
-      engine: window.PlumberGame,
-      desc: 'Authentic 8-bit Mario-style side-scrolling platformer. Stomp Goombas, smash [?] question blocks for coins & stars, hop over warp pipes, and grab the castle flagpole!',
-      controls: 'RUN: Left/Right • JUMP: A/Space (Hold for high jump) • SPRINT: Hold B/Shift',
+      id: 'fitway',
+      title: 'FITWAY: IRON RUN',
+      subtitle: 'A FITNESS ARCADE ADVENTURE',
+      cartLabel: 'FITWAY',
+      genre: 'ACTION / FITNESS ARCADE',
+      year: '1991',
+      players: '1 PLAYER (5 HEROES)',
+      difficulty: 'INTENSE WORKOUT',
+      color: '#ffd000',
+      darkColor: '#000000',
+      engine: window.FitwayGame,
+      desc: 'Play as Sukh (Owner), Gagan, Shubham, Rakesh, or Herman (Tech Guy)! Explore the multi-floor Fitway gym, ride moving treadmills, smash weights, pump real workout reps, and defeat The Sedentary King!',
+      controls: 'MOVE: WASD/Arrows • JUMP: A/Space • ATTACK: B/Shift • SPECIAL: Up • REPS: A/Tap',
       manual: {
-        story: 'Herman the Plumber must dash across the 8-bit Mushroom Kingdom to reclaim the Golden Coins and conquer the Castle Flagpole before time runs out!',
+        story: 'Fitway Gym is secretly an 8-bit arcade battleground! The Sedentary King of Inactivity has set up his lazy throne inside. Choose your trainer, complete real fitness challenges to power your character, and reclaim the gym!',
         howToPlay: [
-          '<b>RUN</b>: Arrow Left/Right or A/D keys',
-          '<b>JUMP</b>: Press A (Space / Z / Up) — hold longer for higher leaps',
-          '<b>SPRINT / DASH</b>: Hold B (Shift / X) while running',
-          'Hit <b>[?] blocks</b> from below for coins and Star power-ups',
-          'Stomp on Goombas and kick Koopa shells to clear your path!'
+          '<b>CHOOSE HERO</b>: Sukh (Barbell), Gagan (Kettlebell), Shubham (Band), Rakesh (EZ Bar), Herman (Dual Dumbbells)',
+          '<b>MOVE / JUMP</b>: Arrows/WASD & A button (Space)',
+          '<b>ATTACK</b>: B button (Shift / X) to swing gym weapons',
+          '<b>WORKOUT CHECKPOINTS</b>: Pump reps (squats, curls, swings, pulls) to charge your Special!',
+          '<b>SPECIAL ABILITY</b>: Press Up when meter is 100% to unleash screen-clearing finishers!'
         ],
-        tips: 'Collect 100 coins for an extra life! Star power grants 10 seconds of invincibility!'
+        tips: 'Hydrate in the Zone 6 recovery room to restore full HP! Break foam blocks for Fitway Tokens!'
       }
     },
     {
@@ -114,11 +114,36 @@
         ],
         tips: 'Defeat the Command Mothership on Wave 3 for a massive 5,000 point score bonus!'
       }
+    },
+    {
+      id: 'plumber',
+      title: "HERMAN'S SUPER PLUMBER",
+      subtitle: 'COIN CASTLE RUSH',
+      cartLabel: 'SUPER HERMAN',
+      genre: 'PLATFORMER',
+      year: '1985',
+      players: '1 PLAYER',
+      difficulty: 'ARCADE',
+      color: '#d82800',
+      darkColor: '#5a1200',
+      engine: window.PlumberGame,
+      desc: 'Authentic 8-bit Mario-style side-scrolling platformer. Stomp Goombas, smash [?] question blocks for coins & stars, hop over warp pipes, and grab the castle flagpole!',
+      controls: 'RUN: Left/Right • JUMP: A/Space • SPRINT: Hold B/Shift',
+      manual: {
+        story: 'Herman the Plumber must dash across the 8-bit Mushroom Kingdom to reclaim the Golden Coins and conquer the Castle Flagpole before time runs out!',
+        howToPlay: [
+          '<b>RUN</b>: Arrow Left/Right or A/D keys',
+          '<b>JUMP</b>: Press A (Space / Z / Up) — hold longer for higher leaps',
+          '<b>SPRINT / DASH</b>: Hold B (Shift / X) while running',
+          'Hit <b>[?] blocks</b> from below for coins and Star power-ups'
+        ],
+        tips: 'Collect 100 coins for an extra life! Star power grants 10 seconds of invincibility!'
+      }
     }
   ];
 
   let selectedCartIndex = 0;
-  let activeCartridge = null; // null = Launcher / Cart Select Menu
+  let activeCartridge = null;
   let frame = 0;
 
   /* ══ UNIVERSAL INPUT STATE ════════════════════════════════ */
@@ -178,10 +203,10 @@
 
     function setDirs(u, d, l, r) {
       window.__held.up = u; window.__held.down = d; window.__held.left = l; window.__held.right = r;
-      arrow.up.classList.toggle('held', u);
-      arrow.down.classList.toggle('held', d);
-      arrow.left.classList.toggle('held', l);
-      arrow.right.classList.toggle('held', r);
+      if (arrow.up) arrow.up.classList.toggle('held', u);
+      if (arrow.down) arrow.down.classList.toggle('held', d);
+      if (arrow.left) arrow.left.classList.toggle('held', l);
+      if (arrow.right) arrow.right.classList.toggle('held', r);
       const sig = [u, d, l, r].join('');
       if (sig !== lastSig) {
         if (u || d || l || r) buzz(7);
@@ -257,7 +282,7 @@
       e.preventDefault();
       Audio8.init();
       window.__aEdge = true;
-      if (activeCartridge && activeCartridge.engine.onAction) {
+      if (activeCartridge && activeCartridge.engine && activeCartridge.engine.onAction) {
         activeCartridge.engine.onAction();
       }
     });
@@ -291,7 +316,6 @@
     updateGalleryActive(cart.id);
     refreshConsoleHUD();
 
-    // Scroll smoothly to console screen
     const consoleShell = document.querySelector('.console-shell');
     if (consoleShell) {
       consoleShell.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -307,14 +331,12 @@
     updateCartridgeLabel(null);
     refreshConsoleHUD();
 
-    // Scroll to cartridge selection rack
     const rack = document.getElementById('cart-rack');
     if (rack) rack.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function updateCartridgeLabel(cart) {
     const titleEl = document.querySelector('.cart-title');
-    const labelHeader = document.querySelector('.cart-label');
     const scrawlEl = document.querySelector('.cart-scrawl');
 
     if (!cart) {
@@ -356,7 +378,7 @@
     });
   }
 
-  /* ══ LAUNCHER MENU RENDERER (When no cartridge is running) ══ */
+  /* ══ LAUNCHER MENU RENDERER ════════════════════════════════ */
   let launcherAnim = 0;
 
   function renderLauncher() {
@@ -364,13 +386,11 @@
     g.fillStyle = '#1c0e24';
     g.fillRect(0, 0, W, H);
 
-    // Grid scanlines
-    g.fillStyle = '#2c1539';
     for (let y = 0; y < H; y += 8) {
+      g.fillStyle = '#2c1539';
       g.fillRect(0, y, W, 1);
     }
 
-    // Floating pixel stars
     for (let i = 0; i < 20; i++) {
       const sx = (i * 37 + launcherAnim * 0.4) % W;
       const sy = (i * 53 + Math.sin(launcherAnim * 0.03 + i) * 12) % (H - 40);
@@ -378,7 +398,6 @@
       g.fillRect(sx, sy, 2, 2);
     }
 
-    // Top Hermanify Banner
     Dialogue.panel(g, 12, 14, W - 24, 48);
     g.font = '12px "Press Start 2P", monospace';
     g.fillStyle = '#ff5fa2';
@@ -391,18 +410,15 @@
     g.fillStyle = '#ffffff';
     g.fillText('CHOOSE A GAME CARTRIDGE', W / 2, 52);
 
-    // Cartridge Selector Box
     const cart = CATALOG[selectedCartIndex];
     Dialogue.panel(g, 16, 70, W - 32, 100);
 
-    // Selected Cartridge Header
     g.fillStyle = cart.color;
     g.fillRect(20, 74, W - 40, 16);
-    g.fillStyle = '#ffffff';
+    g.fillStyle = '#000000';
     g.font = '8px "Press Start 2P", monospace';
     g.fillText(cart.cartLabel, W / 2, 79);
 
-    // Cartridge Details
     g.textAlign = 'left';
     g.fillStyle = '#ffe04f';
     g.font = '7px "Press Start 2P", monospace';
@@ -410,7 +426,6 @@
     g.fillText(`YEAR : ${cart.year}  ★  ${cart.difficulty}`, 24, 110);
 
     g.fillStyle = '#ffffff';
-    // Multi-line short desc
     const words = cart.desc.split(' ');
     let line = '', lineY = 126;
     for (let w = 0; w < words.length; w++) {
@@ -426,7 +441,6 @@
     }
     if (line && lineY <= 156) g.fillText(line, 24, lineY);
 
-    // Navigation arrows & Start prompt
     g.textAlign = 'center';
     const pulse = Math.floor(launcherAnim / 20) % 2 === 0;
     if (pulse) {
@@ -441,7 +455,6 @@
       g.fillText('PRESS A / SPACE TO PLAY', W / 2, 202);
     }
 
-    // Input handling for Launcher Menu
     if (window.__held.left && !window.__held._lastL) {
       selectedCartIndex = (selectedCartIndex - 1 + CATALOG.length) % CATALOG.length;
       Audio8.sfx('menu');
@@ -500,25 +513,25 @@
         </div>
       `;
       buildIsabelaIcons();
-    } else if (activeCartridge.id === 'plumber') {
-      const h = window.PlumberGame.getHUD();
+    } else if (activeCartridge.id === 'fitway') {
+      const h = window.FitwayGame.getHUD();
       hudContainer.innerHTML = `
         <div class="hud-cell">
-          <span class="hud-label">MARIO SCORE</span>
-          <span class="hud-count">${String(h.score).padStart(6, '0')}</span>
+          <span class="hud-label">TRAINER</span>
+          <span class="hud-count">🏋️ ${h.char}</span>
         </div>
         <div class="hud-cell">
-          <span class="hud-label">COINS</span>
-          <span class="hud-count">🪙 x${String(h.coins).padStart(2, '0')}</span>
+          <span class="hud-label">REPS PUMPED</span>
+          <span class="hud-count">💪 ${h.reps} REPS</span>
         </div>
         <div class="hud-cell">
-          <span class="hud-label">LIVES</span>
-          <span class="hud-count">❤️ x${h.lives}</span>
+          <span class="hud-label">STREAK &amp; XP</span>
+          <span class="hud-count">🔥 ${h.streak}d • ${h.xp} XP</span>
         </div>
         <div class="hud-cell hud-cell--wide">
-          <span class="hud-label">WORLD / TIME</span>
-          <p class="hud-quest">WORLD ${h.world} • TIME ${h.time}s</p>
-          <span class="hud-place">COURSE 1-1: CASTLE RUN</span>
+          <span class="hud-label">FITWAY GYM MISSION</span>
+          <p class="hud-quest">EXPLORE THE GYM &bull; POWER UP WITH FITNESS &bull; DEFEAT BOSS</p>
+          <span class="hud-place">FLOOR 1: FITWAY MAIN HQ</span>
         </div>
       `;
     } else if (activeCartridge.id === 'tank') {
@@ -563,6 +576,27 @@
           <span class="hud-place">DEEP SPACE DEFENSE</span>
         </div>
       `;
+    } else if (activeCartridge.id === 'plumber') {
+      const h = window.PlumberGame.getHUD();
+      hudContainer.innerHTML = `
+        <div class="hud-cell">
+          <span class="hud-label">MARIO SCORE</span>
+          <span class="hud-count">${String(h.score).padStart(6, '0')}</span>
+        </div>
+        <div class="hud-cell">
+          <span class="hud-label">COINS</span>
+          <span class="hud-count">🪙 x${String(h.coins).padStart(2, '0')}</span>
+        </div>
+        <div class="hud-cell">
+          <span class="hud-label">LIVES</span>
+          <span class="hud-count">❤️ x${h.lives}</span>
+        </div>
+        <div class="hud-cell hud-cell--wide">
+          <span class="hud-label">WORLD / TIME</span>
+          <p class="hud-quest">WORLD ${h.world} • TIME ${h.time}s</p>
+          <span class="hud-place">COURSE 1-1: CASTLE RUN</span>
+        </div>
+      `;
     }
   }
 
@@ -599,7 +633,7 @@
     requestAnimationFrame(mainLoop);
   }
 
-  /* ══ SOUND & CONTROL BUTTONS ═══════════════════════════════ */
+  /* ══ BUTTONS & CONTROLS ════════════════════════════════════ */
   const soundBtn = document.getElementById('btn-sound');
   let shownStatus = 'blocked';
 
@@ -677,7 +711,6 @@
     document.addEventListener('webkitfullscreenchange', syncFs);
   }
 
-  /* ══ CRT FILTER SWITCHER ═══════════════════════════════════ */
   function initCrtSwitcher() {
     const crtButtons = document.querySelectorAll('[data-crt-mode]');
     crtButtons.forEach(btn => {
@@ -691,7 +724,6 @@
     });
   }
 
-  /* ══ RETRO SOUNDBOARD ══════════════════════════════════════ */
   function initSoundboard() {
     document.querySelectorAll('[data-sfx]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -704,7 +736,6 @@
     });
   }
 
-  /* ══ CARTRIDGE RACK CLICK HANDLERS ═════════════════════════ */
   function initCartridgeRack() {
     document.querySelectorAll('.btn-play-cart').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -722,7 +753,6 @@
     });
   }
 
-  /* ══ BOOT HERMANIFY ════════════════════════════════════════ */
   function boot() {
     bindTouch();
     syncSound();
@@ -730,7 +760,7 @@
     initSoundboard();
     initCartridgeRack();
 
-    // Default start with Isabela's game or launcher
+    // Default start with Isabela or Fitway
     loadCartridge('isabela');
 
     requestAnimationFrame(mainLoop);

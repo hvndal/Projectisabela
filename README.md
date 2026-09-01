@@ -13,11 +13,27 @@ The beloved top-down adventure quest!
 - 9 hand-crafted areas, dialogue trees, hidden secrets, and the slightly angry strawberry boss.
 - Gather 7 hearts, 5 stars, and 3 magical flowers to restore the kingdom.
 
-### 2. Cartridge 02: Herman's Super Plumber (Coin Castle Rush)
-Classic 8-bit Super Mario-style side-scrolling platformer:
-- Run, jump, and sprint across the Mushroom Kingdom.
-- Hit `[?]` Mystery blocks for coins and Super Star invincibility power-ups.
-- Smash brick blocks, stomp on Goombas, kick Koopa shells, and conquer the castle flagpole with victory fanfare!
+### 2. Cartridge 02: FITWAY: IRON RUN (A Fitness Arcade Adventure)
+A completely original, mobile-first retro arcade fitness game set inside **Fitway Gym**!
+- **"What if Fitway Gym was secretly an arcade game?"**
+- **5 Playable Fitway Team Members**:
+  - **Sukh (The Owner)**: Armed with an Olympic Barbell. *Special*: Owner's Smash earthquake shockwave. *Challenge*: 10 Barbell Squats.
+  - **Gagan (The Power Trainer)**: Armed with a Giant Kettlebell. *Special*: Kettle Crush cyclone throw. *Challenge*: 15 Kettlebell Swings.
+  - **Shubham (The Conditioning Trainer)**: Armed with a High-Tension Resistance Band. *Special*: Band Blast full-screen snap. *Challenge*: 20 Band Pulls.
+  - **Rakesh (The Old-School Trainer)**: Armed with an EZ-Curl Bar. *Special*: Old School Mode iron defense aura. *Challenge*: 10 EZ-Bar Curls.
+  - **Herman (Software Developer & Hardware Engineer)**: Built the gym's connected systems and automation. Armed with Dual Dumbbells. *Special*: Debug Mode overclocked multi-split bouncing dumbbells. *Challenge*: 10 Dumbbell Curls.
+- **The Living Gym World Levels**:
+  - Exterior & Early Morning Sunrise
+  - Fitway Reception Desk (NPCs, water cooler, tutorial foam blocks)
+  - Cardio Floor (moving treadmill conveyor belts, rogue bikes, treadmill bots)
+  - Interactive Fitness Checkpoints with real-time rep counter (`07 / 10`)
+  - Vertical Stairwell Climb
+  - Strength Floor (squat racks, cable machines, weight plates, dumbbell golems)
+  - Functional Training & Boxing Area (plyo boxes, heavy punching bags)
+  - Locker & Recovery Lounge (HP replenishment safe room)
+  - Performance Lab & Herman's Secret Systems Terminal Room
+  - Boss Arena: **The Sedentary King of Inactivity** (Couch throne, cushion projectiles, boss fitness shield breaks, and character finishers!)
+- **Daily Streak Progression**: 🔥 Duolingo-like workout streak counter, XP leveling, and Fitway Token collectibles!
 
 ### 3. Cartridge 03: Cyber Tank 1989 (Hermanify Base Defense)
 NES Battle City-style armored combat:
@@ -37,8 +53,10 @@ Vertical arcade space shooter (Galaga / Space Invaders style):
 
 ```
 MOVE / RUN        Arrow keys / WASD / On-screen Touch D-pad
-ACTION / TALK     SPACE / ENTER / Z / A Button
-SPRINT / SPRINT   Hold SHIFT / X / B Button
+JUMP              SPACE / ENTER / Z / A Button
+ATTACK            B Button / SHIFT / X
+WORKOUT REPS      Tap A Button / Tap Screen
+SPECIAL ABILITY   UP Key (when Special Meter is 100%)
 EJECT CARTRIDGE   Click "⏏ EJECT / SELECT GAME"
 FULLSCREEN        Toggle fullscreen mode
 ```
@@ -47,13 +65,13 @@ FULLSCREEN        Toggle fullscreen mode
 
 ## 🔊 8-Bit Mario Soundboard & Chiptune Synth
 
-`src/audio.js` synthesizes all sound in real time using the Web Audio API (square pulse waves, triangle basslines, white noise percussion, and frequency ramp pitch glides):
-- **Mario Coin Ding**: Dual square wave chime (B5 → E6)
-- **Mario Jump**: Frequency pitch slide up (C4 → F5)
+`src/audio.js` synthesizes all sound in real time using the Web Audio API:
+- **Mario Coin Ding**: Dual square wave chime (`B5` → `E6`)
+- **Mario Jump Boing**: Smooth pitch glide (`C4` → `F5`)
 - **1-Up Jingle & Flagpole Fanfare**
 - **Goomba Stomp, Brick Smash, and Pipe Warp**
+- **Workout Set Complete Jingle**
 - **Tank Cannon & Space Laser Blasts**
-- **Interactive Retro Soundboard** on the front page to play live 8-bit sounds!
 
 ---
 
@@ -67,28 +85,4 @@ Switch between 4 visual display modes on the front page:
 
 ---
 
-## 📁 Project Architecture
-
-```
-index.html            Hermanify Arcade front page & console shell
-assets/style.css      Arcade styling, cartridge cards, CRT shaders, soundboard
-assets/fonts/         Press Start 2P & VT323 pixel fonts (self-hosted)
-assets/preview.png    Social link preview card
-
-src/
-├── config.js         Game text, dialogues, and quests configuration
-├── sprites.js        Pixel art tilemaps and character sprites
-├── maps.js           9-screen world map layout for Isabela's Quest
-├── audio.js          Chiptune audio synthesizer & Mario-style SFX engine
-├── dialogue.js       Typewriter retro dialogue window
-├── games/
-│   ├── isabela.js    Isabela Adventure RPG Cartridge Engine
-│   ├── plumber.js    Herman's Super Plumber Platformer Cartridge Engine
-│   ├── tank.js       Cyber Tank 1989 Battle City Cartridge Engine
-│   └── space.js      Star Guardian 8-Bit Space Shooter Cartridge Engine
-└── game.js           Master Hermanify Console & Cartridge Hub Router
-```
-
----
-
-Crafted for Isabela ♥ by Herman
+Crafted with ♥ by Herman
