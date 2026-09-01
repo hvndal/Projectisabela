@@ -360,61 +360,68 @@ body.fs-on .screen-controls,
 }
 .dbtn {
   position: absolute;
-  background: rgba(18, 22, 30, 0.72);
+  background: rgba(18, 22, 30, 0.82);
   border: 2px solid var(--fy);
   color: var(--fy);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1;
-  border-radius: 6px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
   touch-action: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px; height: 38px;
+  width: 40px; height: 40px;
   padding: 0;
   pointer-events: auto;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: transform 0.06s ease, background 0.08s ease, box-shadow 0.08s ease;
+  user-select: none;
+  -webkit-user-select: none;
 }
-.dbtn--up    { left: 38px; top: 0; }
-.dbtn--down  { left: 38px; top: 76px; }
-.dbtn--left  { left: 0;    top: 38px; }
-.dbtn--right { left: 76px; top: 38px; }
+.dbtn--up    { left: 40px; top: 0; }
+.dbtn--down  { left: 40px; top: 80px; }
+.dbtn--left  { left: 0;    top: 40px; }
+.dbtn--right { left: 80px; top: 40px; }
 .dpad-center {
-  position: absolute; left: 38px; top: 38px; width: 38px; height: 38px;
-  background: rgba(255, 208, 0, 0.12);
+  position: absolute; left: 40px; top: 40px; width: 40px; height: 40px;
+  background: rgba(255, 208, 0, 0.15);
   border: 1px dashed var(--fy);
   border-radius: 4px;
   pointer-events: none;
 }
-.dbtn.held {
+.dbtn:active, .dbtn.held {
   background: var(--fy);
   color: #000;
-  transform: scale(0.92);
+  transform: scale(0.90) translateY(2px);
+  box-shadow: 0 0 18px var(--fyGlow), inset 0 2px 4px rgba(0,0,0,0.4);
 }
 
 .abuttons {
   position: relative;
-  width: 120px; height: 100px;
+  width: 124px; height: 104px;
 }
 .rbtn {
   position: absolute;
-  background: rgba(18, 22, 30, 0.75);
+  background: rgba(18, 22, 30, 0.85);
   border: 2px solid var(--fy);
   color: var(--fy);
   font-family: 'Press Start 2P', monospace;
-  font-size: 13px;
+  font-size: 14px;
   border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2);
   touch-action: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px; height: 48px;
+  width: 50px; height: 50px;
   pointer-events: auto;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: transform 0.06s ease, background 0.08s ease, box-shadow 0.08s ease;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .rbtn--a {
   right: 0; top: 4px;
@@ -422,14 +429,21 @@ body.fs-on .screen-controls,
   color: var(--emerald);
 }
 .rbtn--b {
-  right: 58px; top: 34px;
+  right: 60px; top: 36px;
   border-color: var(--cyan);
   color: var(--cyan);
 }
-.rbtn.held {
-  background: var(--fy);
+.rbtn--a:active, .rbtn--a.held {
+  background: var(--emerald);
   color: #000;
-  transform: scale(0.92);
+  transform: scale(0.90) translateY(2px);
+  box-shadow: 0 0 20px rgba(0, 230, 118, 0.7), inset 0 2px 4px rgba(0,0,0,0.4);
+}
+.rbtn--b:active, .rbtn--b.held {
+  background: var(--cyan);
+  color: #000;
+  transform: scale(0.90) translateY(2px);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.7), inset 0 2px 4px rgba(0,0,0,0.4);
 }
 
 /* ══ CONSOLE FOOT CONTROLS ════════════════════════════════ */

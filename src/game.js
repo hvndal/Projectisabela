@@ -158,6 +158,17 @@
     ShiftLeft: 'b', ShiftRight: 'b', KeyX: 'b', KeyK: 'b',
   };
 
+  function syncVisualButtons() {
+    document.querySelectorAll('.dbtn').forEach(b => {
+      const d = b.dataset.dir;
+      if (d) b.classList.toggle('held', !!window.__held[d]);
+    });
+    document.querySelectorAll('.rbtn').forEach(b => {
+      const btn = b.dataset.btn;
+      if (btn) b.classList.toggle('held', !!window.__held[btn]);
+    });
+  }
+
   addEventListener('keydown', (e) => {
     const k = KEYMAP[e.code];
     if (!k) return;
@@ -169,6 +180,7 @@
     }
     keys[e.code] = true;
     window.__held[k] = true;
+    syncVisualButtons();
     Audio8.init();
   }, { passive: false });
 
@@ -178,11 +190,13 @@
     e.preventDefault();
     keys[e.code] = false;
     window.__held[k] = Object.keys(KEYMAP).some(code => KEYMAP[code] === k && keys[code]);
+    syncVisualButtons();
   }, { passive: false });
 
   addEventListener('blur', () => {
     for (const c in keys) keys[c] = false;
     for (const d in window.__held) window.__held[d] = false;
+    syncVisualButtons();
   });
 
   /* ══ TOUCH CONTROLS ════════════════════════════════════════ */
