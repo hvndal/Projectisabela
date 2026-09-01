@@ -35,7 +35,7 @@ window.FitwayGame = (() => {
     rubber1: '#262932', rubber2: '#1c1e26', rubber3: '#323644', rubberBorder: '#ffd000',
     turfBlue: '#154878', turfBlueLt: '#2062a0', turfLine: '#ffffff',
     carpetRed: '#8f242e', carpetRedLt: '#b83240', platformWood: '#d7a15c',
-    wall: '#ede5d8', wallDk: '#cfc0ad', wallTop: '#786856', baseboard: '#442d1b', baseboardHi: '#6b492f',
+    wall: '#2b3140', wallDk: '#222735', wallTop: '#161a24', baseboard: '#101319', baseboardHi: '#3d465a',
     fy: '#ffd000', fyDk: '#cc9900', fyLt: '#ffe766', fyGlow: 'rgba(255, 208, 0, 0.5)',
     fblk: '#0d0f14', fblk2: '#161922', fblk3: '#222634',
     metal: '#949ea8', metalDk: '#505862', metalLt: '#c8d4e0', metalHi: '#f2f7fc',
@@ -492,24 +492,122 @@ window.FitwayGame = (() => {
   };
 
   /* ═══ 32×32 HIGH-DEFINITION TILE RENDERER ════════════════ */
+  /* stable per-tile noise, so floor variation never shimmers */
+  function tileHash(a, b) {
+    let h = (a | 0) * 374761393 + (b | 0) * 668265263;
+    h = (h ^ (h >> 13)) * 1274126177;
+    return ((h ^ (h >> 16)) >>> 0) / 4294967296;
+  }
+
+  /* ── depth pass ──────────────────────────────────────────────
+     Everything used to be drawn flat into its own 32x32 cell, so
+     machines and benches melted into the floor. Once the room is
+     baked, outline every solid tile where it meets open floor, drop
+     a contact shadow beneath it and catch a warm rim on top. Costs
+     one pass at room load and gives the whole gym readable form.
+     ─────────────────────────────────────────────────────────── */
+  function addDepthPass(rc, map) {
+    const at = (r, c) => (map[r] && map[r][c]) || 'W';
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const ch = at(r, c);
+        if (isWalkable(ch)) continue;
+        const x = c * TS, y = r * TS;
+        const openBelow = isWalkable(at(r + 1, c));
+        const openAbove = isWalkable(at(r - 1, c));
+        const openLeft  = isWalkable(at(r, c - 1));
+        const openRight = isWalkable(at(r, c + 1));
+
+        if (openBelow) {                       // contact shadow on the floor
+          rc.fillStyle = 'rgba(0,0,0,0.34)';
+          rc.fillRect(x, y + TS, TS, 4);
+          rc.fillStyle = 'rgba(0,0,0,0.16)';
+          rc.fillRect(x + 1, y + TS + 4, TS - 2, 3);
+        }
+
+        rc.fillStyle = 'rgba(0,0,0,0.5)';      // silhouette edge
+        if (openAbove) rc.fillRect(x, y, TS, 1);
+        if (openLeft)  rc.fillRect(x, y, 1, TS);
+        if (openRight) rc.fillRect(x + TS - 1, y, 1, TS);
+        if (openBelow) rc.fillRect(x, y + TS - 1, TS, 1);
+
+        if (openAbove) {                       // warm rim light
+          rc.fillStyle = 'rgba(255,208,0,0.16)';
+          rc.fillRect(x, y + 1, TS, 1);
+        }
+
+        /* side walls meet the floor edge-on, so they get a vertical
+           skirting and rail -- this is what frames the room */
+        if ((ch === 'W' || ch === 'H') && (openLeft || openRight)) {
+          const ex = openLeft ? x : x + TS - 8;
+          rc.fillStyle = C.baseboard;
+          rc.fillRect(ex, y, 8, TS);
+          rc.fillStyle = C.baseboardHi;
+          rc.fillRect(openLeft ? x : x + TS - 1, y, 1, TS);
+          rc.fillStyle = C.fyDk;
+          rc.fillRect(openLeft ? x + 9 : x + TS - 11, y, 2, TS);
+          rc.globalAlpha = 0.55;
+          rc.fillStyle = C.fy;
+          rc.fillRect(openLeft ? x + 9 : x + TS - 11, y, 1, TS);
+          rc.globalAlpha = 1;
+        }
+
+        /* skirting board + Fitway gold rail, drawn once along the
+           bottom edge of a wall run rather than on every tile */
+        if ((ch === 'W' || ch === 'H') && openBelow) {
+          rc.fillStyle = C.baseboard;
+          rc.fillRect(x, y + TS - 8, TS, 8);
+          rc.fillStyle = C.baseboardHi;
+          rc.fillRect(x, y + TS - 8, TS, 1);
+          rc.fillStyle = C.fyDk;
+          rc.fillRect(x, y + TS - 11, TS, 2);
+          rc.fillStyle = C.fy;
+          rc.globalAlpha = 0.55;
+          rc.fillRect(x, y + TS - 11, TS, 1);
+          rc.globalAlpha = 1;
+        }
+      }
+    }
+  }
+
   function drawTile(ctx, ch, x, y) {
     switch (ch) {
-      case '.': // Walnut Hardwood Plank
+      case '.': { // Sprung maple gym floor
+        /* The old plank drew a hard dark bar down the same column of
+           every tile, which turned the whole floor into a rigid grid.
+           Real sprung flooring is laid in staggered courses, so the
+           butt joints here shift per row and the tone varies per
+           plank -- the floor reads as a surface, not a lattice. */
+        const tc = x / TS, tr = y / TS;
         ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
-        ctx.fillStyle = C.wood2;
-        ctx.fillRect(x, y + 8, TS, 2);
-        ctx.fillRect(x, y + 20, TS, 2);
-        ctx.fillStyle = C.wood3;
-        ctx.fillRect(x + 15, y, 2, TS);
-        ctx.fillStyle = C.wood4;
-        ctx.fillRect(x + 17, y, 2, TS);
-        ctx.fillStyle = C.woodKnot;
-        ctx.fillRect(x + 6, y + 4, 3, 2);
-        ctx.fillRect(x + 24, y + 14, 3, 2);
+
+        for (let i = 0; i < 2; i++) {
+          const py = y + i * 16;
+          const hv = tileHash(tc * 2 + i, tr);
+
+          ctx.globalAlpha = 0.22;
+          ctx.fillStyle = hv > 0.5 ? C.wood2 : C.wood4;
+          ctx.fillRect(x, py, TS, 16);
+
+          ctx.fillStyle = C.woodLine;
+          ctx.globalAlpha = 0.30;
+          ctx.fillRect(x, py + 15, TS, 1);                    // course seam
+          const joint = ((tr + i) % 2) ? 9 : 23;              // staggered joint
+          ctx.fillRect(x + joint, py, 1, 15);
+
+          ctx.globalAlpha = 0.10;                              // grain
+          ctx.fillRect(x + ((hv * 18) | 0), py + 4, 11, 1);
+          ctx.fillRect(x + ((hv * 12) | 0) + 8, py + 10, 7, 1);
+          ctx.globalAlpha = 1;
+        }
+
         ctx.fillStyle = C.woodHi;
-        ctx.fillRect(x + 2, y + 2, TS - 4, 3);
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(x, y, TS, 1);
+        ctx.globalAlpha = 1;
         break;
+      }
 
       case ',': // Vulcanized Rubber
         ctx.fillStyle = C.rubber2;
@@ -589,18 +687,33 @@ window.FitwayGame = (() => {
         ctx.fillRect(x + 18, y + 14, 4, 8);
         break;
 
-      case 'W': // Wall & Baseboard
+      case 'W': { // Continuous industrial wall
+        /* Every wall tile used to paint its own baseboard and top rail,
+           so a vertical run of them striped like window blinds. The
+           surface is seamless now; the skirting is added once, in the
+           trim pass, only where a wall actually meets the floor. */
+        const tc = x / TS, tr = y / TS;
         ctx.fillStyle = C.wall;
         ctx.fillRect(x, y, TS, TS);
-        ctx.fillStyle = C.wallDk;
-        ctx.fillRect(x, y + 22, TS, 3);
-        ctx.fillStyle = C.baseboard;
-        ctx.fillRect(x, y + 25, TS, 7);
+
+        const hv = tileHash(tc, tr);
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = hv > 0.55 ? C.wallDk : C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.globalAlpha = 0.06;                      // concrete speckle
+        ctx.fillStyle = C.white;
+        ctx.fillRect(x + ((hv * 24) | 0), y + ((hv * 811) % 26 | 0), 2, 2);
+        ctx.fillRect(x + ((hv * 611) % 26 | 0), y + ((hv * 29) | 0), 1, 1);
+        ctx.globalAlpha = 1;
+
+        ctx.fillStyle = C.wallTop;                   // panel seam
+        ctx.fillRect(x, y, 1, TS);
         ctx.fillStyle = C.baseboardHi;
-        ctx.fillRect(x, y + 25, TS, 2);
-        ctx.fillStyle = C.wallTop;
-        ctx.fillRect(x, y, TS, 4);
+        ctx.globalAlpha = 0.25;
+        ctx.fillRect(x + 1, y, 1, TS);
+        ctx.globalAlpha = 1;
         break;
+      }
 
       case 'H': // Upper Window
         ctx.fillStyle = C.wall;
@@ -629,19 +742,52 @@ window.FitwayGame = (() => {
         ctx.fillRect(x + 6, y + 16, 12, 4);
         break;
 
-      case 'M': // Mirror Wall
-        ctx.fillStyle = C.wall;
+      case 'M': { // Floor-to-ceiling mirror panel
+        /* This tile is stacked vertically down the side walls. The old
+           version drew a short mirror with a baseboard under it, so a
+           column of them came out as horizontal bands like window
+           blinds -- and in near-white, which made the edges of every
+           room glow brighter than the gym itself. A mirror reflects a
+           dark room, so this one is dark, seamless top-to-bottom, and
+           divided by vertical posts instead. */
+        const tc = x / TS, tr = y / TS;
+        ctx.fillStyle = '#20252f';
         ctx.fillRect(x, y, TS, TS);
-        ctx.fillStyle = C.mirror;
-        ctx.fillRect(x + 2, y + 2, TS - 4, 24);
-        ctx.fillStyle = C.mirrorLt;
-        const sh = (frame * 0.4) % 40;
-        if (sh < 28) ctx.fillRect(x + 2 + sh, y + 4, 4, 20);
-        ctx.fillStyle = C.mirrorHi;
-        ctx.fillRect(x + 8, y + 6, 10, 2);
-        ctx.fillStyle = C.baseboard;
-        ctx.fillRect(x, y + 25, TS, 7);
+
+        /* reflected room: a dim floor band low in the panel */
+        ctx.fillStyle = '#2b3murky';
+        ctx.fillStyle = '#2c3340';
+        ctx.fillRect(x, y, TS, 18);
+        ctx.fillStyle = '#3a4354';
+        ctx.fillRect(x, y + 18, TS, 14);
+
+        /* faint reflected shapes, stable per tile */
+        const hv = tileHash(tc, tr);
+        ctx.globalAlpha = 0.18;
+        ctx.fillStyle = C.metalLt;
+        ctx.fillRect(x + ((hv * 16) | 0) + 4, y + 8, 6, 12);
+        ctx.globalAlpha = 1;
+
+        /* vertical frame post -- reads as panel divisions when stacked */
+        ctx.fillStyle = '#12151c';
+        ctx.fillRect(x, y, 2, TS);
+        ctx.fillStyle = '#454f63';
+        ctx.fillRect(x + 2, y, 1, TS);
+
+        /* slow travelling sheen */
+        const sh = (frame * 0.35 + tr * 11) % 96;
+        if (sh < TS) {
+          ctx.globalAlpha = 0.16;
+          ctx.fillStyle = C.mirrorHi;
+          ctx.fillRect(x + sh, y, 5, TS);
+          ctx.globalAlpha = 1;
+        }
+
+        /* gold trim rail, the one Fitway accent */
+        ctx.fillStyle = C.fyDk;
+        ctx.fillRect(x, y + 21, TS, 1);
         break;
+      }
 
       case 'D': // Reception Desk
         ctx.fillStyle = C.wood1;
@@ -1508,6 +1654,7 @@ window.FitwayGame = (() => {
         drawTile(rc, ch, c * TS, r * TS);
       }
     }
+    addDepthPass(rc, curRoom.map);
 
     npcs = (curRoom.npcs || []).map(n => ({
       ...n,
@@ -1916,32 +2063,44 @@ window.FitwayGame = (() => {
 
     g.font = '10px "Press Start 2P", monospace';
     g.fillStyle = C.cyan;
-    g.fillText('SECTOR 67, MOHALI — HD 32-BIT GYM RPG', W / 2, 155);
+    /* was "HD 32-BIT" while the cartridge, the shelf and the manual
+       all said 16-BIT; and the em dash has no glyph in this face */
+    g.fillText('SECTOR 67, MOHALI - 16-BIT GYM RPG', W / 2, 155);
 
+    /* The menu box was 130px tall but held four rows starting at 260
+       with 26px spacing, so the last two were drawn at 312 and 338 --
+       past its own bottom edge at 310. Sized to its contents now. */
+    const boxY = 176, boxH = 200;
     g.fillStyle = '#1a1d26';
-    g.fillRect(72, 180, 368, 130);
+    g.fillRect(72, boxY, 368, boxH);
     g.strokeStyle = C.fy;
     g.lineWidth = 3;
-    g.strokeRect(72, 180, 368, 130);
+    g.strokeRect(72, boxY, 368, boxH);
     g.lineWidth = 1;
 
     g.fillStyle = C.fy;
-    g.fillRect(150, 194, 212, 26);
+    g.fillRect(150, boxY + 14, 212, 26);
     g.fillStyle = C.fblk;
     g.font = '12px "Press Start 2P", monospace';
-    g.fillText('FITWAY GYM', W / 2, 212);
+    g.fillText('FITWAY GYM', W / 2, boxY + 32);
 
     const opts = ['START GAME', 'CHAPTER SELECT', 'CHARACTER SELECT', 'FREE ROAM'];
+    const optTop = boxY + 74;
     opts.forEach((opt, i) => {
       const isSel = i === selectedMenuIndex;
+      const oy = optTop + i * 28;
+      if (isSel) {
+        g.fillStyle = 'rgba(255,208,0,0.12)';
+        g.fillRect(88, oy - 13, 336, 22);
+      }
       g.fillStyle = isSel ? C.fy : C.uiMuted;
       g.font = '11px "Press Start 2P", monospace';
-      g.fillText((isSel ? '► ' : '  ') + opt, W / 2, 260 + i * 26);
+      g.fillText((isSel ? '> ' : '  ') + opt, W / 2, oy);
     });
 
     g.font = '9px "Press Start 2P", monospace';
     g.fillStyle = '#606878';
-    g.fillText('USE D-PAD ▲ ▼ • PRESS [A] TO SELECT', W / 2, 420);
+    g.fillText('D-PAD UP/DOWN  -  PRESS [A] TO SELECT', W / 2, 420);
     g.textAlign = 'left';
   }
 
@@ -2078,6 +2237,48 @@ window.FitwayGame = (() => {
     g.textAlign = 'left';
   }
 
+  /* ── text fitting ────────────────────────────────────────
+     Press Start 2P is monospace with a 1em advance, so a string's
+     width is simply length x fontSize. That makes fitting exact
+     rather than guesswork -- the old build hard-sliced strings at
+     a fixed character count, which cut words in half ("JUST COME
+     TO T") and still overflowed its own box.
+     ─────────────────────────────────────────────────────────── */
+  function fitSize(text, maxW, ideal, min) {
+    let sz = ideal;
+    while (sz > min && text.length * sz > maxW) sz -= 0.5;
+    return sz;
+  }
+
+  function wrapWords(text, cols) {
+    const words = String(text).split(' ');
+    const out = [];
+    let line = '';
+    for (const w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (test.length > cols && line) { out.push(line); line = w; }
+      else line = test;
+    }
+    if (line) out.push(line);
+    return out;
+  }
+
+  /* a drawn objective marker -- Press Start 2P has no emoji, so the
+     old string literals fell back to a system font and rendered as
+     stray blobs */
+  function drawTargetPip(x, y) {
+    g.fillStyle = C.red;    g.fillRect(x, y, 7, 7);
+    g.fillStyle = C.white;  g.fillRect(x + 2, y + 2, 3, 3);
+    g.fillStyle = C.red;    g.fillRect(x + 3, y + 3, 1, 1);
+  }
+
+  function drawBoltPip(x, y) {
+    g.fillStyle = C.fy;
+    g.fillRect(x + 3, y, 2, 4);
+    g.fillRect(x + 1, y + 3, 4, 2);
+    g.fillRect(x + 2, y + 5, 2, 3);
+  }
+
   function renderHUD() {
     if (state !== 'explore' || dlg.active) return;
 
@@ -2128,15 +2329,24 @@ window.FitwayGame = (() => {
     g.strokeRect(W - 210, 6, 204, 56);
     g.lineWidth = 1;
 
+    const panelX = W - 202, panelW = 194;
+
+    const chTitle = `CH ${chapter}: ${CHAPTERS[chapter - 1]?.title || ''}`.trim();
     g.fillStyle = C.fy;
-    g.font = '9px "Press Start 2P", monospace';
-    g.fillText(`CH ${chapter}: ${CHAPTERS[chapter - 1]?.title.slice(0, 14)}`, W - 202, 20);
+    g.font = fitSize(chTitle, panelW, 9, 6) + 'px "Press Start 2P", monospace';
+    g.fillText(chTitle, panelX, 19);
+
+    const curObj = CHAPTERS[chapter - 1]?.objectives[Math.min(storyStep, (CHAPTERS[chapter - 1]?.objectives.length || 1) - 1)] || 'Explore Sector 67';
+    drawTargetPip(panelX, 26);
     g.fillStyle = C.white;
     g.font = '7px "Press Start 2P", monospace';
-    const curObj = CHAPTERS[chapter - 1]?.objectives[Math.min(storyStep, (CHAPTERS[chapter - 1]?.objectives.length || 1) - 1)] || 'Explore Sector 67';
-    g.fillText(`🎯 ${curObj.slice(0, 27)}`, W - 202, 35);
+    /* two wrapped lines instead of one truncated one */
+    const objLines = wrapWords(curObj, 24).slice(0, 2);
+    objLines.forEach((ln, i) => g.fillText(ln, panelX + 11, 32 + i * 9));
+
     g.fillStyle = C.cyan;
-    g.fillText('Sector 67, Mohali', W - 202, 50);
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillText('SECTOR 67, MOHALI', panelX, 55);
 
     // Bottom Action Prompt with Golden Neon Trim
     g.fillStyle = 'rgba(11, 13, 18, 0.92)';
@@ -2145,10 +2355,20 @@ window.FitwayGame = (() => {
     g.lineWidth = 2;
     g.strokeRect(36, H - 36, W - 72, 30);
     g.lineWidth = 1;
+    /* Sized to the box it lives in. The old line was 467px of text
+       inside a 440px frame, so "[A]" sat outside the border on the
+       left and "READY" was clipped off the right. */
+    const barX = 36, barW = W - 72;
+    const label = '[A] ACTION   [B] SPRINT   OVERRIDE';
+    const sz = fitSize(label, barW - 34, 8.5, 6);
+    g.font = sz + 'px "Press Start 2P", monospace';
+    /* measure rather than assume -- the face's advance is a shade
+       wider than its em, which nudged the bolt onto the last letter */
+    const textW = g.measureText(label).width;
+    const startX = Math.round((W - textW) / 2) + 7;
     g.fillStyle = C.fy;
-    g.font = '8.5px "Press Start 2P", monospace';
-    g.textAlign = 'center';
-    g.fillText(`[A] ACTION / WORKOUT  •  [B] SPRINT  •  ⚡ OVERRIDE READY`, W / 2, H - 17);
+    g.fillText(label, startX, H - 17);
+    drawBoltPip(startX + textW + 9, H - 24);
     g.textAlign = 'left';
   }
 

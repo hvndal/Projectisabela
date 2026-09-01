@@ -292,62 +292,54 @@
       btn.addEventListener('pointercancel', off);
     });
 
-    // Direct Screen Touch Steering for Mobile Safari & Android
-    let canvasTouchId = null, canvasTouchStart = null;
+    /* ── Tapping the screen ──────────────────────────────────
+       The old build turned the whole canvas into a joystick:
+       left half dragged the player, right half fired [A].
+       Three things were wrong with it.
+
+       1. No pointer capture, and pointerup was bound to the
+          canvas -- so lifting your thumb anywhere outside the
+          canvas never released, and the player walked off in
+          the last direction forever.
+       2. Releasing ANY pointer cleared held.a, so steering with
+          one thumb cancelled the action button under the other.
+       3. It fired on mouse events too, so on desktop a click on
+          the right of the picture pressed A, and a click-drag on
+          the left walked the character around.
+
+       Now the canvas is only ever a tap = [A]/confirm, which is
+       what menus and dialogue want. Steering belongs to the pad
+       below the screen, which cannot be lost off-edge.
+       ─────────────────────────────────────────────────────── */
+    let tapId = null;
+
     cv.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       Audio8.init();
-      const rect = cv.getBoundingClientRect();
-      const relX = (e.clientX - rect.left) / rect.width;
-      const relY = (e.clientY - rect.top) / rect.height;
-
-      if (relX < 0.5) {
-        // Left side of screen: Virtual movement steering
-        canvasTouchId = e.pointerId;
-        canvasTouchStart = { x: e.clientX, y: e.clientY };
-      } else {
-        // Right side of screen: Action [A] trigger & edge
-        window.__aEdge = true;
-        window.__held.a = true;
-        buzz(15);
-        if (activeCartridge && activeCartridge.engine && activeCartridge.engine.onAction) {
-          activeCartridge.engine.onAction();
-        }
+      if (tapId !== null) return;                 // already tracking a tap
+      tapId = e.pointerId;
+      try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+      window.__aEdge = true;
+      window.__held.a = true;
+      buzz(12);
+      if (activeCartridge && activeCartridge.engine && activeCartridge.engine.onAction) {
+        activeCartridge.engine.onAction();
       }
     });
 
-    cv.addEventListener('pointermove', (e) => {
-      if (e.pointerId !== canvasTouchId || !canvasTouchStart) return;
-      e.preventDefault();
-      const dx = e.clientX - canvasTouchStart.x;
-      const dy = e.clientY - canvasTouchStart.y;
-      const dist = Math.hypot(dx, dy);
-
-      if (dist < 10) {
-        setDirs(false, false, false, false);
-      } else {
-        const angle = Math.atan2(dy, dx);
-        const u = dy < -10;
-        const d = dy > 10;
-        const l = dx < -10;
-        const r = dx > 10;
-        setDirs(u, d, l, r);
-      }
-    });
-
-    const releaseCanvasTouch = (e) => {
-      if (e.pointerId === canvasTouchId) {
-        canvasTouchId = null;
-        canvasTouchStart = null;
-        setDirs(false, false, false, false);
-      }
+    const endTap = (e) => {
+      if (e.pointerId !== tapId) return;          // only the pointer that started it
+      tapId = null;
       window.__held.a = false;
     };
-    cv.addEventListener('pointerup', releaseCanvasTouch);
-    cv.addEventListener('pointercancel', releaseCanvasTouch);
+    cv.addEventListener('pointerup', endTap);
+    cv.addEventListener('pointercancel', endTap);
+    /* a capture is released implicitly, but be explicit if the
+       browser hands the pointer elsewhere mid-gesture */
+    cv.addEventListener('lostpointercapture', endTap);
 
     document.addEventListener('touchmove', (e) => {
-      if (e.target.closest('.screen-controls') || e.target === cv) e.preventDefault();
+      if (e.target.closest('.control-deck') || e.target === cv) e.preventDefault();
     }, { passive: false });
   }
 

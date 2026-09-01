@@ -28,6 +28,21 @@
   --shadow:      #000000;
 
   --px: 4px;
+
+  /* ── legacy aliases ──────────────────────────────────────────
+     The arcade reskin replaced :root wholesale but left ~35 rules
+     still calling the old pink names, so those declarations were
+     invalid and silently dropped -- which is why the cartridge
+     title rendered unstyled. Mapped onto the gold/carbon palette
+     rather than chased through every rule.
+     ─────────────────────────────────────────────────────────── */
+  --pink-deep:  #ffd000;   /* was the accent  -> Fitway gold      */
+  --pink:       #ffd000;
+  --pink-soft:  #6b5200;   /* was a tint      -> dark gold        */
+  --pink-ink:   #8a94a6;   /* used as BOTH muted text and border  */
+  --uiMuted:    #8a94a6;
+  --gold:       #ffd000;
+  --mario-red:  #d82800;
 }
 
 * { box-sizing: border-box; }
@@ -205,9 +220,9 @@ body[data-crt="scanlines"] .crt-scan {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(13px, 3.4vw, 24px);
   line-height: 1.55;
-  color: var(--pink-deep);
+  color: var(--fy);
   margin: 0;
-  text-shadow: 2px 2px 0 #fff, 4px 4px 0 var(--pink-soft);
+  text-shadow: 2px 2px 0 #000, 4px 4px 0 rgba(255,208,0,0.25);
   display: flex; flex-direction: column; align-items: center; gap: .35em;
 }
 .cart-amp {
@@ -330,120 +345,113 @@ body[data-crt="scanlines"] .crt-scan {
 }
 
 /* ══ IN-SCREEN VIRTUAL ARCADE CONTROLS (SAFARI / ANDROID / FULLSCREEN) ═════ */
-.screen-controls {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 100;
+/* ══ ARCADE CONTROL DECK ══════════════════════════════════
+   Below the screen, never over it. The old build absolutely
+   positioned these across the canvas, which buried the status
+   bar and covered the play area.
+   ════════════════════════════════════════════════════════ */
+.control-deck {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-end;
-  padding: 8px 10px;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, #1a1e2a 0%, #12151d 100%);
+  border: var(--px) solid var(--carbon-border);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.04), 0 6px 18px rgba(0,0,0,0.5);
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
-body.touch-on .screen-controls,
-body.fs-on .screen-controls,
-.console-shell:fullscreen .screen-controls {
-  display: flex !important;
+
+/* the moulded plate between the pad and the buttons */
+.deck-plate {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+  padding: 0 8px;
+}
+.deck-brand {
+  display: block;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(10px, 2.4vw, 16px);
+  color: var(--fy);
+  text-shadow: 2px 2px 0 #000;
+  letter-spacing: .12em;
+}
+.deck-model {
+  display: block;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #5d6577;
+  margin-top: 7px;
+  letter-spacing: .18em;
+  white-space: nowrap;
+}
+.deck-brand { white-space: nowrap; }
+/* on a narrow phone the plate is the first thing that can go */
+@media (max-width: 430px) {
+  .deck-model { display: none; }
+  .deck-plate { padding: 0 2px; }
 }
 
-.dpad, .abuttons {
-  pointer-events: auto;
-}
-
+/* ---- D-pad: one continuous touch surface ---- */
 .dpad {
   position: relative;
-  width: 114px; height: 114px;
+  width: 150px; height: 150px;
+  flex: none;
   touch-action: none;
 }
-.dbtn {
+.dbtn { pointer-events: none; }
+
+.dbtn, .rbtn {
   position: absolute;
-  background: rgba(18, 22, 30, 0.82);
-  border: 2px solid var(--fy);
+  background: #262b38;
+  border: 3px solid #0a0c12;
   color: var(--fy);
-  font-size: 16px;
+  font-size: 19px;
   line-height: 1;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+  box-shadow: 0 3px 0 #0a0c12, inset 0 2px 0 rgba(255,255,255,0.07);
   touch-action: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px; height: 40px;
   padding: 0;
-  pointer-events: auto;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: transform 0.06s ease, background 0.08s ease, box-shadow 0.08s ease;
-  user-select: none;
-  -webkit-user-select: none;
 }
-.dbtn--up    { left: 40px; top: 0; }
-.dbtn--down  { left: 40px; top: 80px; }
-.dbtn--left  { left: 0;    top: 40px; }
-.dbtn--right { left: 80px; top: 40px; }
+.dbtn { width: 50px; height: 50px; }
+.dbtn--up    { left: 50px; top: 0; }
+.dbtn--down  { left: 50px; top: 100px; }
+.dbtn--left  { left: 0;    top: 50px; }
+.dbtn--right { left: 100px; top: 50px; }
 .dpad-center {
-  position: absolute; left: 40px; top: 40px; width: 40px; height: 40px;
-  background: rgba(255, 208, 0, 0.15);
-  border: 1px dashed var(--fy);
-  border-radius: 4px;
+  position: absolute; left: 50px; top: 50px; width: 50px; height: 50px;
+  background: #323847;
+  border: 3px solid #0a0c12;
   pointer-events: none;
+  will-change: transform;
 }
-.dbtn:active, .dbtn.held {
+.dbtn.held, .rbtn.held {
   background: var(--fy);
   color: #000;
-  transform: scale(0.90) translateY(2px);
-  box-shadow: 0 0 18px var(--fyGlow), inset 0 2px 4px rgba(0,0,0,0.4);
+  box-shadow: inset 0 3px 0 rgba(0,0,0,0.25);
+  transform: translateY(2px);
 }
 
-.abuttons {
-  position: relative;
-  width: 124px; height: 104px;
-}
+.abuttons { position: relative; width: 152px; height: 116px; flex: none; }
 .rbtn {
-  position: absolute;
-  background: rgba(18, 22, 30, 0.85);
-  border: 2px solid var(--fy);
-  color: var(--fy);
-  font-family: 'Press Start 2P', monospace;
-  font-size: 14px;
+  width: 66px; height: 66px;
   border-radius: 50%;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2);
-  touch-action: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px; height: 50px;
-  pointer-events: auto;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: transform 0.06s ease, background 0.08s ease, box-shadow 0.08s ease;
-  user-select: none;
-  -webkit-user-select: none;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
 }
-.rbtn--a {
-  right: 0; top: 4px;
-  border-color: var(--emerald);
-  color: var(--emerald);
-}
-.rbtn--b {
-  right: 60px; top: 36px;
-  border-color: var(--cyan);
-  color: var(--cyan);
-}
-.rbtn--a:active, .rbtn--a.held {
-  background: var(--emerald);
-  color: #000;
-  transform: scale(0.90) translateY(2px);
-  box-shadow: 0 0 20px rgba(0, 230, 118, 0.7), inset 0 2px 4px rgba(0,0,0,0.4);
-}
-.rbtn--b:active, .rbtn--b.held {
-  background: var(--cyan);
-  color: #000;
-  transform: scale(0.90) translateY(2px);
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.7), inset 0 2px 4px rgba(0,0,0,0.4);
+.rbtn--a { right: 0;   top: 6px;  border-color: #00838f; color: var(--cyan); }
+.rbtn--b { right: 76px; top: 40px; border-color: #7a5a00; }
+.rbtn--a.held { background: var(--cyan); color: #000; }
+.rbtn::after {
+  content: attr(data-caption);
+  position: absolute; left: 50%; transform: translateX(-50%); bottom: -14px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #6d7689;
+  letter-spacing: .06em;
 }
 
 /* ══ CONSOLE FOOT CONTROLS ════════════════════════════════ */
@@ -534,9 +542,15 @@ body.fs-on .screen-controls,
   display: flex;
   justify-content: space-between;
   align-items: center;
+  /* "CART 01 - FEATURED" plus the "16-BIT GYM RPG" badge measure
+     ~254px of pixel type inside a ~230px card. With no wrapping the
+     two simply printed on top of each other. */
+  flex-wrap: wrap;
+  gap: 6px 8px;
   color: #fff;
   border-bottom: var(--px) solid var(--pink-ink);
 }
+.cart-num, .cart-badge { min-width: 0; overflow-wrap: anywhere; }
 .cart-num {
   font-family: 'Press Start 2P', monospace;
   font-size: 8px;
@@ -560,8 +574,9 @@ body.fs-on .screen-controls,
   font-family: 'Press Start 2P', monospace;
   font-size: 11px;
   color: var(--pink-deep);
-  margin: 0 0 4px;
-  line-height: 1.4;
+  margin: 0 0 6px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 .cart-card-sub {
   font-family: 'Press Start 2P', monospace;
@@ -569,6 +584,8 @@ body.fs-on .screen-controls,
   color: var(--pink-ink);
   opacity: .75;
   margin: 0 0 10px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 .cart-card-desc {
   font-size: 17px;
@@ -580,6 +597,8 @@ body.fs-on .screen-controls,
 .cart-meta {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 8px;
   font-family: 'Press Start 2P', monospace;
   font-size: 7px;
   color: var(--pink-ink);
@@ -616,13 +635,14 @@ body.fs-on .screen-controls,
   gap: 10px;
 }
 .sfx-btn {
-  background: #fff;
+  /* was #fff with near-white text -- completely unreadable */
+  background: #1e222e;
   border: var(--px) solid var(--pink-ink);
   box-shadow: var(--px) var(--px) 0 var(--pink-soft);
   padding: 10px 8px;
   font-family: 'Press Start 2P', monospace;
   font-size: 8px;
-  color: var(--pink-ink);
+  color: var(--fy);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -631,7 +651,7 @@ body.fs-on .screen-controls,
   transition: transform 0.05s ease;
 }
 .sfx-btn span { font-size: 18px; line-height: 1; }
-.sfx-btn:hover { background: var(--pink-soft); }
+.sfx-btn:hover { background: #2c3240; color: #fff; }
 .sfx-btn:active, .sfx-btn.pop {
   transform: translate(var(--px), var(--px));
   box-shadow: none;
