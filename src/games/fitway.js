@@ -895,6 +895,15 @@ window.FitwayGame = (() => {
 
     initMotes();
     Audio8.sfx('stairs');
+
+    // Dynamic Slice-of-Life Atmosphere Soundtracks
+    if (roomId === 'street') {
+      Audio8.music('sector67_morning');
+    } else if (roomId === 'weights') {
+      Audio8.music('weights_floor');
+    } else {
+      Audio8.music('fitway_groove');
+    }
   }
 
   function canWalkTo(px, py) {
@@ -964,7 +973,7 @@ window.FitwayGame = (() => {
     dlg.timer = 0;
     dlg.onDone = onDone || null;
     state = 'dialogue';
-    Audio8.sfx('select');
+    Audio8.sfx('dialogue_blip');
   }
 
   function advanceDialogue() {
@@ -976,7 +985,7 @@ window.FitwayGame = (() => {
     dlg.idx++;
     dlg.charPos = 0;
     dlg.timer = 0;
-    Audio8.sfx('blip');
+    Audio8.sfx('dialogue_blip');
     if (dlg.idx >= dlg.lines.length) {
       dlg.active = false;
       state = 'explore';
@@ -1055,16 +1064,19 @@ window.FitwayGame = (() => {
     chl.current = 0;
     chl.onDone = onDone;
     state = 'challenge';
-    Audio8.sfx('powerup');
+    Audio8.sfx('whistle');
+    Audio8.music('workout_pump');
   }
 
   function doRep() {
     chl.current++;
-    Audio8.sfx('coin');
+    Audio8.sfx('iron_clank');
+    Audio8.sfx('rep_ding');
     if (chl.current >= chl.target) {
       chl.active = false;
       state = 'explore';
-      Audio8.sfx('fanfare');
+      Audio8.sfx('challenge_win');
+      Audio8.music('fitway_groove');
       if (chl.onDone) chl.onDone();
     }
   }
@@ -1079,7 +1091,7 @@ window.FitwayGame = (() => {
       });
     };
     state = 'chaos_minigame';
-    Audio8.sfx('boom');
+    Audio8.sfx('override_beep');
   }
 
   function showUnlock(title, name, desc, onDone) {
@@ -1090,7 +1102,7 @@ window.FitwayGame = (() => {
     unlockAnim.desc = desc;
     unlockAnim.onDone = onDone;
     state = 'unlock';
-    Audio8.sfx('stage_clear');
+    Audio8.sfx('challenge_win');
   }
 
   /* ═══ ATMOSPHERIC LIGHTING & PARTICLES ════════════════════ */
@@ -1583,7 +1595,7 @@ window.FitwayGame = (() => {
           state = 'explore';
           loadRoom('main_gym');
           Audio8.sfx('cartridge');
-          Audio8.music('mario');
+          Audio8.music('fitway_groove');
         }
         break;
 
