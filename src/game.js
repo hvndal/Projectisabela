@@ -44,25 +44,25 @@
       title: 'FITWAY: IRON RUN',
       subtitle: 'A FITNESS ARCADE ADVENTURE',
       cartLabel: 'FITWAY',
-      genre: 'ACTION / FITNESS ARCADE',
-      year: '1991',
+      genre: 'RPG / FITNESS ADVENTURE',
+      year: '1994',
       players: '1 PLAYER (5 HEROES)',
-      difficulty: 'INTENSE WORKOUT',
+      difficulty: 'BUILD 01 — VERTICAL SLICE',
       color: '#ffd000',
       darkColor: '#000000',
       engine: window.FitwayGame,
-      desc: 'Play as Sukh (Owner), Gagan, Shubham, Rakesh, or Herman (Tech Guy)! Explore the multi-floor Fitway gym, ride moving treadmills, smash weights, pump real workout reps, and defeat The Sedentary King!',
-      controls: 'MOVE: WASD/Arrows • JUMP: A/Space • ATTACK: B/Shift • SPECIAL: Up • REPS: A/Tap',
+      desc: 'Explore Fitway Gym as a 16-bit top-down RPG! Choose from 5 heroes — Sukh, Gagan, Shubham, Rakesh, or Herman. Navigate the gym, talk to trainers, complete real workout challenges, and unlock equipment abilities!',
+      controls: 'MOVE: D-Pad/WASD • INTERACT: A/Space • SPRINT: Hold B/Shift',
       manual: {
-        story: 'Fitway Gym is secretly an 8-bit arcade battleground! The Sedentary King of Inactivity has set up his lazy throne inside. Choose your trainer, complete real fitness challenges to power your character, and reclaim the gym!',
+        story: 'You walk through the doors of Fitway Gym for the first time. Sukh, the owner, sizes you up at reception. Gagan, the power trainer, blocks the cardio floor. Prove yourself through real fitness challenges to earn your place in the gym.',
         howToPlay: [
-          '<b>CHOOSE HERO</b>: Sukh (Barbell), Gagan (Kettlebell), Shubham (Band), Rakesh (EZ Bar), Herman (Dual Dumbbells)',
-          '<b>MOVE / JUMP</b>: Arrows/WASD & A button (Space)',
-          '<b>ATTACK</b>: B button (Shift / X) to swing gym weapons',
-          '<b>WORKOUT CHECKPOINTS</b>: Pump reps (squats, curls, swings, pulls) to charge your Special!',
-          '<b>SPECIAL ABILITY</b>: Press Up when meter is 100% to unleash screen-clearing finishers!'
+          '<b>CHOOSE HERO</b>: Street Fighter-style character select — Sukh, Gagan, Shubham, Rakesh, or Herman',
+          '<b>EXPLORE</b>: Walk through the gym rooms — Reception, Hallway, Cardio Floor',
+          '<b>TALK</b>: Press A near NPCs to interact and trigger dialogue',
+          '<b>WORKOUT CHALLENGES</b>: Complete rep-based fitness challenges to progress',
+          '<b>UNLOCK</b>: Earn equipment abilities by proving yourself to trainers'
         ],
-        tips: 'Hydrate in the Zone 6 recovery room to restore full HP! Break foam blocks for Fitway Tokens!'
+        tips: 'Talk to everyone! Explore every corner of the gym. The weights floor on Floor 2 is waiting...'
       }
     },
     {
@@ -521,17 +521,17 @@
           <span class="hud-count">🏋️ ${h.char}</span>
         </div>
         <div class="hud-cell">
-          <span class="hud-label">REPS PUMPED</span>
-          <span class="hud-count">💪 ${h.reps} REPS</span>
+          <span class="hud-label">LOCATION</span>
+          <span class="hud-count">📍 ${h.room}</span>
         </div>
         <div class="hud-cell">
-          <span class="hud-label">STREAK &amp; XP</span>
-          <span class="hud-count">🔥 ${h.streak}d • ${h.xp} XP</span>
+          <span class="hud-label">EQUIPPED</span>
+          <span class="hud-count">⚔️ ${h.equipped}</span>
         </div>
         <div class="hud-cell hud-cell--wide">
-          <span class="hud-label">FITWAY GYM MISSION</span>
-          <p class="hud-quest">EXPLORE THE GYM &bull; POWER UP WITH FITNESS &bull; DEFEAT BOSS</p>
-          <span class="hud-place">FLOOR 1: FITWAY MAIN HQ</span>
+          <span class="hud-label">FITWAY GYM — BUILD 01</span>
+          <p class="hud-quest">EXPLORE THE GYM &bull; MEET THE TRAINERS &bull; PROVE YOURSELF</p>
+          <span class="hud-place">FLOOR 1: FITWAY RECEPTION &rarr; CARDIO</span>
         </div>
       `;
     } else if (activeCartridge.id === 'tank') {

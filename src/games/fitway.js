@@ -1,1334 +1,2062 @@
 /* ============================================================
-   fitway.js  --  FITWAY: IRON RUN (A Fitness Arcade Adventure)
-   ------------------------------------------------------------
-   Highly polished, fully playable mobile-first retro arcade game
-   set inside Fitway Gym.
-   Features 5 playable team members (Sukh, Gagan, Shubham,
-   Rakesh, Herman), living gym world, character-driven humor,
-   interactive workout checkpoints, moving gym mechanics,
-   boss fight against The Sedentary King, and streak progression!
+   FITWAY: IRON RUN — Chapter 1 to 4 Complete Sitcom Adventure
+   Sector 67, Mohali • 16-Bit Top-Down Gym RPG & Arcade Hub
+   ============================================================
+   NOT a platformer. NOT Mario.
+   Features:
+   - Full 4-Chapter Story ("Just Come To The Gym" to "The Weights Floor")
+   - Street Fighter-style Character Select & Roster (5 Heroes)
+   - Pokémon-style dense, interconnected gym exploration
+   - Sector 67 Mohali Street, Reception, Hallway, Cardio, Functional, Weights Floor
+   - Machine Override ability, Equipment Unlocks, Minigames, Boss Challenge
+   - Sitcom ensemble banter, End Credits, Free Roam mode
    ============================================================ */
 
 window.FitwayGame = (() => {
-  const W = 256, H = 224;
+  'use strict';
+  const W = 256, H = 224, TS = 16, COLS = 16, ROWS = 14;
+  let g = null, frame = 0;
 
-  let g = null;
-  let running = false;
-  let frame = 0;
+  /* ═══ PALETTE ════════════════════════════════════════════ */
+  const C = {
+    wood: '#c89868', woodDk: '#a87848', woodLt: '#d8a878', woodLine: '#b08050',
+    rubber: '#2d303a', rubberLt: '#3d404e', rubberDk: '#1f2128',
+    matGreen: '#2e7d32', matBlue: '#1565c0', matRed: '#c62828',
+    wall: '#f0e8dc', wallDk: '#d8cbbe', baseboard: '#5c4028', wallTop: '#8c7b6c',
+    fy: '#ffd000', fyDk: '#c8a000', fyLt: '#ffe566', fblk: '#141414',
+    metal: '#889098', metalDk: '#586068', metalLt: '#b8c0c8',
+    mirror: '#b8d8f0', mirrorLt: '#d8ecfc', mirrorHi: '#f0f8ff',
+    glass: '#a0cce8',
+    brick: '#a85038', brickDk: '#803828',
+    red: '#e53935', green: '#43a047', blue: '#1e88e5', purple: '#8e24aa', orange: '#fb8c00',
+    skin1: '#f8d0b0', skin2: '#e0b080', skin3: '#c89060', skin4: '#a06840',
+    uiBg: '#120e24', uiBg2: '#1e1838', uiBorder: '#ffd000', uiText: '#f5f5f5',
+    uiDark: '#080610', uiMuted: '#9e9eb0',
+    hpBar: '#e53935', stBar: '#1e88e5', xpBar: '#ffd000',
+    black: '#000000', white: '#ffffff', shadow: 'rgba(0,0,0,0.25)',
+    streetGray: '#484c54', streetDk: '#32363e', curb: '#8a909a', grass: '#4a7c38'
+  };
 
-  /* ══ STATE & PROGRESSION ═══════════════════════════════════ */
-  let gameState = 'intro'; // 'intro' | 'char_select' | 'play' | 'checkpoint' | 'boss_break' | 'win' | 'gameover'
-  let score = 0, xp = 0, playerLevel = 1, fitwayTokens = 0;
-  let totalRepsCompleted = 0, dailyStreak = 12;
-  let cameraX = 0, cameraY = 0;
-
-  // Characters definition
-  const CHARACTERS = [
-    {
-      id: 'sukh',
-      name: 'SUKH',
-      title: 'THE OWNER',
-      role: 'Owner & Founder of Fitway Gym',
-      bio: 'Confident, experienced, and energetic. Knows every excuse for skipping leg day and accepts none of them.',
-      weapon: 'OLYMPIC BARBELL',
-      stats: { power: 5, speed: 2, range: 3, defense: 5, tech: 4 },
-      specialName: "OWNER'S SMASH",
-      specialDesc: 'Overhead barbell ground slam creating a massive shockwave across the floor.',
-      challengeName: 'BARBELL SQUATS',
-      challengeTarget: 10,
-      color: '#ffd000',
-      darkColor: '#1a1a1a',
-      accentColor: '#d3216b'
-    },
-    {
-      id: 'gagan',
-      name: 'GAGAN',
-      title: 'THE POWER TRAINER',
-      role: 'Personal Trainer & Strength Coach',
-      bio: 'Competitive, high-energy powerhouse always pushing everyone for one more rep.',
-      weapon: 'GIANT KETTLEBELL',
-      stats: { power: 5, speed: 2, range: 3, defense: 4, tech: 3 },
-      specialName: 'KETTLE CRUSH',
-      specialDesc: 'Cyclone kettlebell spin followed by a rebounding wall-bounce throw.',
-      challengeName: 'KETTLEBELL SWINGS',
-      challengeTarget: 15,
-      color: '#ff5fa2',
-      darkColor: '#7a0f42',
-      accentColor: '#ffe04f'
-    },
-    {
-      id: 'shubham',
-      name: 'SHUBHAM',
-      title: 'THE CONDITIONING TRAINER',
-      role: 'Conditioning & Functional Specialist',
-      bio: 'Fast, focused, agile. Makes grueling conditioning workouts look completely effortless.',
-      weapon: 'RESISTANCE BAND',
-      stats: { power: 3, speed: 5, range: 5, defense: 2, tech: 5 },
-      specialName: 'BAND BLAST',
-      specialDesc: 'Full-screen elastic snap sweeping all obstacles and launching energy orbs.',
-      challengeName: 'RESISTANCE BAND REPS',
-      challengeTarget: 20,
-      color: '#8fe3c8',
-      darkColor: '#105040',
-      accentColor: '#ffffff'
-    },
-    {
-      id: 'rakesh',
-      name: 'RAKESH',
-      title: 'THE OLD-SCHOOL TRAINER',
-      role: 'Veteran Trainer & Form Purist',
-      bio: 'Calm, legendary, old-school master who believes in showing up and putting in real work.',
-      weapon: 'SOLID EZ-CURL BAR',
-      stats: { power: 4, speed: 3, range: 3, defense: 4, tech: 4 },
-      specialName: 'OLD SCHOOL MODE',
-      specialDesc: 'Golden iron aura granting immense defense, hyper-armor, and doubled strike power.',
-      challengeName: 'EZ-BAR CURLS',
-      challengeTarget: 10,
-      color: '#ffd2b8',
-      darkColor: '#4a2511',
-      accentColor: '#ffe04f'
-    },
+  /* ═══ CHARACTERS ═════════════════════════════════════════ */
+  const CHARS = [
     {
       id: 'herman',
       name: 'HERMAN',
       title: 'SOFTWARE & HARDWARE ENGINEER',
-      role: 'Tech & Connected Systems Architect',
-      bio: 'Built Fitway’s connected machines, sensors, and automation. Now fighting gym monsters with dual dumbbells.',
+      subtitle: 'APPARENTLY IT SUPPORT',
+      quote: '"The machine isn\'t broken.\n Your firmware is."',
       weapon: 'DUAL DUMBBELLS',
-      stats: { power: 3, speed: 5, range: 4, defense: 2, tech: 5 },
-      specialName: 'DEBUG MODE',
-      specialDesc: 'System overclock: high-speed multi-split dumbbells bouncing off all surfaces.',
-      challengeName: 'DUMBBELL CURLS',
-      challengeTarget: 10,
-      color: '#00e8d8',
-      darkColor: '#003344',
-      accentColor: '#ffe04f'
+      special: 'MACHINE OVERRIDE / DEBUG',
+      challenge: 'DUMBBELL CURLS',
+      reps: 10,
+      stats: [3, 5, 2, 5, 4],
+      col: { hair: '#2a1a10', skin: '#f8d0b0', shirt: '#546e7a', shirtDk: '#37474f', pants: '#263238', shoes: '#1a1a1a', acc: 'glasses' },
+      build: 'lean'
+    },
+    {
+      id: 'sukh',
+      name: 'SUKH',
+      title: 'THE OWNER & FOUNDER',
+      subtitle: 'FINAL TESTER OF FITWAY',
+      quote: '"I built this gym. You think\n I can\'t handle a barbell?"',
+      weapon: 'OLYMPIC BARBELL',
+      special: "OWNER'S AUTHORITY",
+      challenge: 'BARBELL SQUATS',
+      reps: 10,
+      stats: [5, 2, 5, 4, 3],
+      col: { hair: '#141414', skin: '#e0b080', shirt: '#ffd000', shirtDk: '#c8a000', pants: '#1a1a1a', shoes: '#212121', acc: 'whistle' },
+      build: 'broad'
+    },
+    {
+      id: 'gagan',
+      name: 'GAGAN',
+      title: 'POWER TRAINER',
+      subtitle: 'TECHNIQUE POLICE',
+      quote: '"Back straight. No rushing.\n One more rep. Always."',
+      weapon: 'GIANT KETTLEBELL',
+      special: 'KETTLE CRUSH',
+      challenge: 'KETTLEBELL SWINGS',
+      reps: 15,
+      stats: [5, 2, 4, 3, 3],
+      col: { hair: '#141414', skin: '#c89060', shirt: '#1a1a1a', shirtDk: '#0a0a0a', pants: '#37474f', shoes: '#1a1a1a', acc: 'headband' },
+      build: 'athletic'
+    },
+    {
+      id: 'shubham',
+      name: 'SHUBHAM',
+      title: 'CONDITIONING TRAINER',
+      subtitle: 'SPEED & AGILITY DEMON',
+      quote: '"Speed is everything.\n Never. Stop. Moving."',
+      weapon: 'RESISTANCE BAND',
+      special: 'BAND BLAST',
+      challenge: 'BAND PULLS',
+      reps: 20,
+      stats: [3, 5, 2, 5, 5],
+      col: { hair: '#141414', skin: '#e0b080', shirt: '#1e88e5', shirtDk: '#1565c0', pants: '#263238', shoes: '#0d47a1', acc: 'band' },
+      build: 'lean'
+    },
+    {
+      id: 'rakesh',
+      name: 'RAKESH',
+      title: 'OLD-SCHOOL TRAINER',
+      subtitle: 'VETERAN FORM PURIST',
+      quote: '"Good form. Always good form.\n No shortcuts in 20 years."',
+      weapon: 'EZ-CURL BAR',
+      special: 'OLD SCHOOL POWER',
+      challenge: 'EZ-BAR CURLS',
+      reps: 10,
+      stats: [4, 3, 4, 4, 3],
+      col: { hair: '#757575', skin: '#c89060', shirt: '#43a047', shirtDk: '#2e7d32', pants: '#2e7d32', shoes: '#3e2723', acc: 'stripe' },
+      build: 'stocky'
     }
   ];
+  const STAT_NAMES = ['POW', 'SPD', 'DEF', 'TEC', 'RNG'];
 
-  let selectedCharIndex = 0;
-  let selectedChar = CHARACTERS[0];
+  /* ═══ GAME STATE ═════════════════════════════════════════ */
+  let state = 'title'; // title | char_select | chapter_select | explore | dialogue | challenge | chaos_minigame | team_challenge | unlock | chapter_end | credits | free_roam_prompt
+  let chapter = 1;
+  let charIdx = 0, selChar = CHARS[0];
+  let titleTimer = 0;
+  let mode = 'story'; // 'story' | 'free_roam'
 
-  // Player in-game entity
-  let player = {
-    x: 40, y: 150,
-    vx: 0, vy: 0,
-    w: 16, h: 22,
-    hp: 100, maxHp: 100,
-    grounded: false,
-    facing: 'right',
-    state: 'idle', // 'idle' | 'run' | 'jump' | 'attack' | 'special' | 'hit'
-    attackTimer: 0,
-    specialCharge: 100, // 0 - 100
-    isSpecialActive: false,
-    specialDuration: 0,
-    invulTimer: 0,
-    combo: 0,
-    animTick: 0,
-    animFrame: 0
+  // Player
+  let pl = {
+    x: 0, y: 0, dir: 'down', moving: false,
+    walkT: 0, walkFrame: 0, spd: 1.8,
+    interactCooldown: 0,
+    dust: []
   };
 
-  // World objects
-  let platforms = [];
-  let treadmills = [];
-  let enemies = [];
-  let projectiles = [];
-  let particles = [];
-  let floatingTexts = [];
-  let gymNPCs = [];
-  let tokens = [];
-  let checkpoints = [];
-  let boss = null;
+  // Current Room
+  let curRoom = null, curRoomId = null;
+  let roomBgCanvas = null;
 
-  // Active workout checkpoint modal state
-  let workout = {
+  // Unlocks & Inventory
+  let unlocks = {
+    machineOverride: false,
+    resistanceBand: false,
+    ezCurlBar: false,
+    olympicBarbell: false,
+    dualDumbbells: true
+  };
+
+  // Progression Flags
+  let storyProgress = {
+    ch1_talkedSukh: false,
+    ch1_talkedGagan: false,
+    ch1_gaganChallengeDone: false,
+    ch1_machineExamined: false,
+    ch1_chaosCleared: false,
+    ch1_stairsChecked: false,
+    ch1_sukhReported: false,
+
+    ch2_morningSukh: false,
+    ch2_gaganBench: false,
+    ch2_benchResolved: false,
+    ch2_shubhamMet: false,
+    ch2_shubhamChallengeDone: false,
+    ch2_groupBanterDone: false,
+
+    ch3_gossipHeard: false,
+    ch3_rakeshMet: false,
+    ch3_competitionDone: false,
+    ch3_glitchInvestigated: false,
+    ch3_gaganTalkDone: false,
+    ch3_stairsUnlocked: false,
+
+    ch4_weightsEntered: false,
+    ch4_blackoutSurge: false,
+    ch4_terminalHacked: false,
+    ch4_sukhConfronted: false,
+    ch4_teamChallengeDone: false,
+    ch4_sukhBossDone: false,
+    ch4_sitcomEndingDone: false,
+  };
+
+  // Dialogue Engine
+  let dlg = {
     active: false,
-    title: '',
-    exercise: '',
+    lines: [],
+    idx: 0,
+    charPos: 0,
+    timer: 0,
+    speaker: '',
+    portrait: null,
+    onDone: null
+  };
+
+  // Rep Challenge Engine
+  let chl = {
+    active: false,
+    title: 'FITNESS CHECKPOINT',
+    name: '',
+    trainer: '',
     target: 10,
     current: 0,
-    rewardXp: 100,
-    onComplete: null
+    meter: 0,
+    sweetSpot: [40, 70],
+    tempoDir: 1,
+    onDone: null
   };
 
-  // Screen effects
-  let screenShake = 0;
-  let screenFlash = 0;
-  let introTimer = 0;
+  // Chaos Mini-game (Chapter 1 treadmill overload / Chapter 4 terminal reboot)
+  let minigame = {
+    active: false,
+    type: 'chaos', // 'chaos' | 'team' | 'terminal'
+    timer: 0,
+    targets: [],
+    score: 0,
+    total: 4,
+    onDone: null
+  };
 
-  /* ══ INITIALIZATION ════════════════════════════════════════ */
-  function initGameWorld() {
-    platforms = [];
-    treadmills = [];
-    enemies = [];
-    projectiles = [];
-    particles = [];
-    floatingTexts = [];
-    gymNPCs = [];
-    tokens = [];
-    checkpoints = [];
-    boss = null;
+  // Unlock Display
+  let unlockAnim = {
+    active: false,
+    timer: 0,
+    title: '',
+    name: '',
+    desc: '',
+    icon: '⚡',
+    onDone: null
+  };
 
-    cameraX = 0;
-    cameraY = 0;
-    player.x = 40;
-    player.y = 150;
-    player.vx = 0;
-    player.vy = 0;
-    player.hp = 100;
-    player.specialCharge = 0;
-    player.isSpecialActive = false;
+  // Chapter Transition Card
+  let chCard = {
+    active: false,
+    title: '',
+    subtitle: '',
+    quote: '',
+    timer: 0,
+    onDone: null
+  };
 
-    // ── ZONE 1: EXTERIOR & RECEPTION (x: 0 - 600) ───────────
-    // Solid floor
-    platforms.push({ x: 0, y: 180, w: 600, h: 44, type: 'floor_reception' });
+  // Fade
+  let fade = { alpha: 0, dir: 0, cb: null };
 
-    // Tutorial foam block stack at x: 260
-    platforms.push({ x: 260, y: 156, w: 24, h: 24, type: 'foam_blocks', breakable: true, hp: 1 });
+  // Room NPCs & Interactive Objects
+  let npcs = [];
+  let objects = [];
+  let particles = [];
 
-    // Fitway Reception Desk at x: 180
-    platforms.push({ x: 170, y: 148, w: 48, h: 32, type: 'reception_desk' });
+  /* ═══ TILE DEFINITIONS & MAPS ═════════════════════════════ */
+  // Tile key:
+  // . = wood floor, , = rubber floor, g = grass, s = street/pavement, c = curb
+  // W = wall, M = mirror wall, P = poster wall, V = TV wall, C = clock, H = window
+  // F = Fitway sign, D = desk, L = locker, p = plant, w = water cooler, n = bench
+  // T = treadmill, B = bike, k = kettlebell, q = squat rack, b = barbell bench
+  // d = dumbbell rack, m = exercise mat, X = locked door, S = stairs, E = elevator
+  // O = interactive terminal/machine override, > < ^ v = room exits
+  const WALKABLE = '._, mgs><^vEO';
+  function isWalkable(ch) { return WALKABLE.includes(ch); }
 
-    // Water Cooler at x: 340
-    platforms.push({ x: 340, y: 152, w: 16, h: 28, type: 'water_cooler' });
+  const ROOMS = {
+    street: {
+      name: 'SECTOR 67, MOHALI — FITWAY EXTERIOR',
+      map: [
+        'ssssssssssssssss',
+        'ssssssssssssssss',
+        'gggggggggggggggg',
+        'WWWWFFFFFFFFWWWW',
+        'W.H..H..H..H..HW',
+        'W..............W',
+        'W..............W',
+        'W..............W',
+        'cccccccc..cccccc',
+        'ssssssss..ssssss',
+        'ssssssss..ssssss',
+        'ssssssssssssssss',
+        'ssssssssssssssss',
+        'ssssssssssssssss'
+      ],
+      spawn: { x: 7 * TS, y: 11 * TS },
+      exits: [
+        { row: 4, col1: 6, col2: 9, room: 'reception', sx: 7, sy: 12 }
+      ],
+      npcs: [
+        { id: 'street_passer', tx: 3, ty: 12, dir: 'right', sprite: 'member_m', name: 'MOHALI RESIDENT', text: 'Sector 67 is peaceful today. Best time to hit Fitway.' }
+      ]
+    },
+    reception: {
+      name: 'FITWAY RECEPTION — GROUND FLOOR',
+      map: [
+        'WPdFFFFFFdPWWCMW',
+        'W..............W',
+        'W.DD.........p.W',
+        'W.DD.........p.M',
+        'W..............M',
+        'W..............W',
+        'W..........LL..W',
+        'W..........LL.>.',
+        'W.............>.',
+        'W..............W',
+        'W......nn....w.W',
+        'W..............W',
+        'W..............W',
+        'WWWWWW..WWWWWWWW'
+      ],
+      spawn: { x: 7 * TS, y: 12 * TS },
+      exits: [
+        { chars: '>', room: 'hallway', sx: 1, sy: 6 },
+        { row: 13, col1: 6, col2: 7, room: 'street', sx: 7, sy: 5 }
+      ],
+      npcs: [
+        { id: 'sukh_reception', charId: 'sukh', tx: 4, ty: 3, dir: 'down', isStory: true, name: 'SUKH' },
+        { id: 'member_kiosk', tx: 10, ty: 5, dir: 'left', sprite: 'member_f', name: 'REGULAR MEMBER', text: 'Checked in on the Fitway app! Ready for cardio.' }
+      ]
+    },
+    hallway: {
+      name: 'HALLWAY & STAIRWELL',
+      map: [
+        'WWPWWWWWWWPWWWWW',
+        '<..............W',
+        '<..............W',
+        'W..............W',
+        'W.....WWWW.....W',
+        'W.....SSSS.....W',
+        'W.....XXXX.....W',
+        'W..............W',
+        'W..........w...W',
+        'W..p...........W',
+        'W.............>.',
+        'W.............>.',
+        'W..............W',
+        'WWWWWWWWWWWWWWWW'
+      ],
+      spawn: { x: 1 * TS, y: 6 * TS },
+      exits: [
+        { chars: '<', room: 'reception', sx: 13, sy: 7 },
+        { chars: '>', room: 'cardio', sx: 1, sy: 6 },
+        { chars: 'S', room: 'weights', sx: 7, sy: 12, condition: 'stairsUnlocked' }
+      ],
+      npcs: [
+        { id: 'hallway_talker', tx: 3, ty: 9, dir: 'right', sprite: 'member_m', name: 'FITWAY REGULAR', text: 'Upstairs is the weights floor. Sukh keeps it locked for serious lifters.' }
+      ]
+    },
+    cardio: {
+      name: 'CARDIO & CONDITIONING FLOOR',
+      map: [
+        'WMMVVWWWWWMMMMMW',
+        'W..............W',
+        'W.TT.TT.TT....W',
+        'W.TT.TT.TT....W',
+        'W..............W',
+        'W..BB..BB....d.W',
+        'W..BB..BB....d.W',
+        'W..............W',
+        'W..............W',
+        'W..........kk..W',
+        'W..........kk..>',
+        'W..............>',
+        '<..............W',
+        'WWWWWWWWWWWWWWWW'
+      ],
+      spawn: { x: 1 * TS, y: 6 * TS },
+      exits: [
+        { chars: '<', room: 'hallway', sx: 13, sy: 10 },
+        { chars: '>', room: 'functional', sx: 1, sy: 6 }
+      ],
+      npcs: [
+        { id: 'gagan_cardio', charId: 'gagan', tx: 9, ty: 8, dir: 'down', isStory: true, name: 'GAGAN' },
+        { id: 'treadmill_runner1', tx: 2, ty: 2, dir: 'down', sprite: 'member_m', exercising: true, name: 'CARDIO RUNNER' },
+        { id: 'treadmill_runner2', tx: 5, ty: 2, dir: 'down', sprite: 'member_f', exercising: true, name: 'RUNNER SIMRAN' },
+        { id: 'bike_rider', tx: 3, ty: 5, dir: 'up', sprite: 'member_m', exercising: true, name: 'SPIN MEMBER' }
+      ]
+    },
+    functional: {
+      name: 'FUNCTIONAL TRAINING & AGILITY ZONE',
+      map: [
+        'WMMWWWWWWWWWWWMM',
+        'W..............W',
+        'W.mmmm.mmmm....W',
+        'W.mmmm.mmmm....W',
+        'W..............W',
+        'W.kk....kk...d.W',
+        'W.kk....kk...d.W',
+        'W..............W',
+        'W..nn..nn..cc..W',
+        'W..nn..nn..cc..W',
+        'W..............W',
+        '<..............W',
+        '<..............W',
+        'WWWWWWWWWWWWWWWW'
+      ],
+      spawn: { x: 1 * TS, y: 6 * TS },
+      exits: [
+        { chars: '<', room: 'cardio', sx: 13, sy: 10 }
+      ],
+      npcs: [
+        { id: 'shubham_func', charId: 'shubham', tx: 6, ty: 4, dir: 'down', isStory: true, name: 'SHUBHAM' },
+        { id: 'rakesh_func', charId: 'rakesh', tx: 11, ty: 8, dir: 'left', isStory: true, name: 'RAKESH' }
+      ]
+    },
+    weights: {
+      name: 'FLOOR 2: THE WEIGHTS FLOOR',
+      map: [
+        'WMMWWWWFFFFFFWMM',
+        'W..............W',
+        'W.qq..qq..qq...W',
+        'W.qq..qq..qq...W',
+        'W..............W',
+        'W.bb..bb..bb.d.W',
+        'W.bb..bb..bb.d.W',
+        'W..............W',
+        'W..dd..dd..dd..W',
+        'W..dd..dd..dd..W',
+        'W..............W',
+        'W..............W',
+        'W.....SSSS.....W',
+        'WWWWWWWWWWWWWWWW'
+      ],
+      spawn: { x: 7 * TS, y: 11 * TS },
+      exits: [
+        { chars: 'S', room: 'hallway', sx: 7, sy: 7 }
+      ],
+      npcs: [
+        { id: 'sukh_weights', charId: 'sukh', tx: 7, ty: 4, dir: 'down', isStory: true, name: 'SUKH' },
+        { id: 'gagan_weights', charId: 'gagan', tx: 3, ty: 7, dir: 'right', isStory: true, name: 'GAGAN' },
+        { id: 'shubham_weights', charId: 'shubham', tx: 11, ty: 7, dir: 'left', isStory: true, name: 'SHUBHAM' },
+        { id: 'rakesh_weights', charId: 'rakesh', tx: 12, ty: 3, dir: 'left', isStory: true, name: 'RAKESH' }
+      ]
+    }
+  };
 
-    // Gym NPCs in Reception
-    gymNPCs.push({ x: 185, y: 132, name: 'RECEPTIONIST', msg: 'Morning! Welcome to Fitway!' });
-    gymNPCs.push({ x: 420, y: 158, name: 'MEMBER', msg: "Let's get it today!" });
+  /* ═══ COMPREHENSIVE STORY SCRIPTS (CHAPTERS 1-4) ═════════ */
+  const DIALOGUES = {
+    // ── CHAPTER 1 ──
+    ch1_street_intro: [
+      { s: 'HERMAN', t: 'Sector 67, Mohali.\nAnother regular morning at Fitway.' },
+      { s: 'HERMAN', t: "Just here for a workout.\nNothing complicated." }
+    ],
+    ch1_sukh_late: [
+      { s: 'SUKH', t: 'Late.' },
+      { s: 'HERMAN', t: "I'm here." },
+      { s: 'SUKH', t: 'Late.' },
+      { s: 'HERMAN', t: 'Late for what?' },
+      { s: 'SUKH', t: 'Gym.' },
+      { s: 'HERMAN', t: "It's not even that late." },
+      { s: 'SUKH', t: "That's not the point." },
+      { s: 'HERMAN', t: 'What do you want?' },
+      { s: 'SUKH', t: 'Gagan is looking for you in Cardio.' },
+      { s: 'HERMAN', t: 'Why?' },
+      { s: 'SUKH', t: 'Go ask him.' },
+      { s: 'HERMAN', t: "You're literally telling me to\ngo find out why someone is looking for me." },
+      { s: 'SUKH', t: 'Yes.' }
+    ],
+    ch1_npc_bhai: [
+      { s: 'GYM BRO', t: "Bhai, you're using this?" },
+      { s: 'HERMAN', t: 'No.' },
+      { s: 'GYM BRO', t: 'Okay.' }
+    ],
+    ch1_npc_unplugged: [
+      { s: 'MEMBER', t: 'Ye chal nahi raha.' },
+      { s: 'HERMAN', t: 'Plugged in?' },
+      { s: 'MEMBER', t: 'Pata nahi.' },
+      { s: 'HERMAN', t: "It's unplugged." },
+      { s: 'HERMAN', t: 'Interesting.' }
+    ],
+    ch1_gagan_meet: [
+      { s: 'GAGAN', t: 'Back straight... Not like that.' },
+      { s: 'GAGAN', t: 'There you are.' },
+      { s: 'HERMAN', t: 'You were looking for me?' },
+      { s: 'GAGAN', t: 'Yes.' },
+      { s: 'HERMAN', t: 'Why?' },
+      { s: 'GAGAN', t: "You haven't trained." },
+      { s: 'HERMAN', t: 'I just came in.' },
+      { s: 'GAGAN', t: 'Exactly.' },
+      { s: 'HERMAN', t: 'Give me five minutes.' },
+      { s: 'GAGAN', t: 'You said that yesterday.' },
+      { s: 'HERMAN', t: 'Yesterday was different.' },
+      { s: 'GAGAN', t: 'How?' },
+      { s: 'HERMAN', t: "I don't remember." },
+      { s: 'GAGAN', t: "Come on. 15 Kettlebell Swings.\nLet's see your form." }
+    ],
+    ch1_gagan_advice: [
+      { s: 'GAGAN', t: "Don't rush." },
+      { s: 'GAGAN', t: "I literally just said don't rush." },
+      { s: 'HERMAN', t: 'I was testing it.' },
+      { s: 'GAGAN', t: 'Sure.' }
+    ],
+    ch1_gagan_pass: [
+      { s: 'GAGAN', t: 'Better.' },
+      { s: 'HERMAN', t: "That's it?" },
+      { s: 'GAGAN', t: 'What do you want?' },
+      { s: 'HERMAN', t: 'Something dramatic.' },
+      { s: 'GAGAN', t: "It's a gym." }
+    ],
+    ch1_treadmill_beep: [
+      { s: null, t: 'BEEP. BEEP. BEEP.' },
+      { s: 'SUKH', t: 'What happened?' },
+      { s: 'GAGAN', t: "It's doing that again." },
+      { s: 'SUKH', t: 'Again?' },
+      { s: 'GAGAN', t: 'Again.' },
+      { s: 'HERMAN', t: 'No.' },
+      { s: 'SUKH', t: "I didn't say anything." },
+      { s: 'HERMAN', t: 'You looked at me.' },
+      { s: 'SUKH', t: 'You know computers.' },
+      { s: 'HERMAN', t: "It's a treadmill." },
+      { s: 'SUKH', t: 'Computer inside.' },
+      { s: 'HERMAN', t: "That doesn't mean—" },
+      { s: 'SUKH', t: 'Fix it.' }
+    ],
+    ch1_investigate: [
+      { s: 'HERMAN', t: 'Speed is set to 45 km/h.\nWho did this?' },
+      { s: 'GAGAN', t: 'Not me.' },
+      { s: 'SUKH', t: 'You sure?' },
+      { s: 'GAGAN', t: 'Yes.' },
+      { s: 'MEMBER', t: 'I thought it was funny...' },
+      { s: 'HERMAN', t: 'It was plugged into the network.' },
+      { s: 'MEMBER', t: 'Oh.' },
+      { s: 'HERMAN', t: 'Yeah.' }
+    ],
+    ch1_chaos_start: [
+      { s: null, t: 'WHIRRRR! CLACK-CLACK-CLACK!' },
+      { s: 'GAGAN', t: 'What did you do?!' },
+      { s: 'HERMAN', t: 'Nothing!' },
+      { s: 'SUKH', t: 'Herman.' },
+      { s: 'HERMAN', t: 'I said nothing!' },
+      { s: null, t: 'SHUT DOWN THE OVERHEATED TREADMILLS!' }
+    ],
+    ch1_chaos_done: [
+      { s: 'HERMAN', t: 'Fixed.' },
+      { s: 'SUKH', t: "Next time don't fix it like that." },
+      { s: 'HERMAN', t: 'Okay.' }
+    ],
+    ch1_stairs_locked: [
+      { s: 'HERMAN', t: "What's upstairs?" },
+      { s: 'GAGAN', t: 'Other areas.' },
+      { s: 'HERMAN', t: "Why can't I go?" },
+      { s: 'GAGAN', t: 'Not yet.' },
+      { s: 'HERMAN', t: 'Why?' },
+      { s: 'GAGAN', t: "You're not ready." },
+      { s: 'HERMAN', t: 'For stairs?' },
+      { s: 'GAGAN', t: "For what's upstairs." }
+    ],
+    ch1_sukh_end: [
+      { s: 'HERMAN', t: 'What is upstairs?' },
+      { s: 'SUKH', t: 'Gym.' },
+      { s: 'HERMAN', t: "I know it's a gym. Why can't I go?" },
+      { s: 'SUKH', t: "Because you haven't finished downstairs." },
+      { s: 'HERMAN', t: 'Finished what?' },
+      { s: 'SUKH', t: "You'll know." }
+    ],
 
-    // Fitway Tokens in Reception
-    tokens.push({ x: 110, y: 140, collected: false });
-    tokens.push({ x: 480, y: 140, collected: false });
+    // ── CHAPTER 2 ──
+    ch2_intro: [
+      { s: 'SUKH', t: 'Morning.' },
+      { s: 'HERMAN', t: 'Morning. Everything working?' },
+      { s: 'SUKH', t: 'Why?' },
+      { s: 'HERMAN', t: 'Just asking.' },
+      { s: 'SUKH', t: "Don't touch anything." },
+      { s: 'HERMAN', t: "I wasn't going to." },
+      { s: 'SUKH', t: 'Good.' }
+    ],
+    ch2_gagan_bench_rant: [
+      { s: 'HERMAN', t: 'What happened? You look angry.' },
+      { s: 'GAGAN', t: "Someone has been using my bench." },
+      { s: 'HERMAN', t: 'Your bench? Does it have your name on it?' },
+      { s: 'GAGAN', t: '...No.' },
+      { s: 'HERMAN', t: "Then it's not your bench." },
+      { s: 'GAGAN', t: 'Do you want the challenge or not?' }
+    ],
+    ch2_bench_resolve: [
+      { s: 'MEMBER', t: 'Bro, I have 3 sets left.' },
+      { s: 'HERMAN', t: 'Gagan, alternate sets. Easy.' },
+      { s: 'GAGAN', t: "You're getting better at dealing with people." },
+      { s: 'HERMAN', t: "I don't think that's a compliment." }
+    ],
+    ch2_meet_shubham: [
+      { s: 'SHUBHAM', t: 'You must be Herman. The IT guy.' },
+      { s: 'HERMAN', t: 'Software engineer.' },
+      { s: 'SHUBHAM', t: 'Same thing. You rely on tech too much.' },
+      { s: 'SHUBHAM', t: 'No Machine Override here. Pure speed and band pulls!' },
+      { s: 'HERMAN', t: "Let's get this over with." }
+    ],
+    ch2_group_banter: [
+      { s: 'SHUBHAM', t: 'Not bad! You actually have cardio.' },
+      { s: 'GAGAN', t: 'He still almost broke the treadmills yesterday.' },
+      { s: 'HERMAN', t: 'I RESET IT.' },
+      { s: 'SUKH', t: 'The entire gym shook, Herman.' },
+      { s: 'SHUBHAM', t: 'Wait, what happened yesterday?' },
+      { s: 'HERMAN', t: 'Nothing. Absolutely nothing.' }
+    ],
+    ch2_recurring_gag: [
+      { s: null, t: 'BEEP.' },
+      { s: 'GAGAN', t: 'Herman?' },
+      { s: 'HERMAN', t: 'Not me.' }
+    ],
+    ch2_end: [
+      { s: 'SUKH', t: 'Reception.' },
+      { s: 'HERMAN', t: 'What?' },
+      { s: 'SUKH', t: "Someone's asking for you." },
+      { s: 'HERMAN', t: 'Who?' },
+      { s: 'SUKH', t: 'Go find out.' }
+    ],
 
-    // ── ZONE 2: CARDIO FLOOR (x: 600 - 1300) ────────────────
-    platforms.push({ x: 600, y: 180, w: 700, h: 44, type: 'floor_cardio' });
+    // ── CHAPTER 3 ──
+    ch3_gossip: [
+      { s: 'MEMBER', t: 'Heard you hacked the entire gym.' },
+      { s: 'HERMAN', t: 'I reset a treadmill.' },
+      { s: 'SUKH', t: 'Same thing.' },
+      { s: 'HERMAN', t: 'News travels fast in Sector 67.' }
+    ],
+    ch3_meet_rakesh: [
+      { s: 'RAKESH', t: 'So you are Herman. Special treatment from Sukh, huh?' },
+      { s: 'HERMAN', t: "I don't get special treatment. I get blamed." },
+      { s: 'RAKESH', t: 'Old-school form beats fancy tech every time.' },
+      { s: 'RAKESH', t: 'Fitway Competition! Let us see your real power.' }
+    ],
+    ch3_spectators: [
+      { s: 'GAGAN', t: 'Elbows tucked! Keep the tempo!' },
+      { s: 'SUKH', t: 'Five points to Herman for not breaking equipment.' },
+      { s: 'SHUBHAM', t: 'Go faster!' }
+    ],
+    ch3_glitch_investigate: [
+      { s: null, t: 'SPARK! ERR-404: NETWORK LOOP.' },
+      { s: 'HERMAN', t: 'Wait... this error wasn\'t a member.' },
+      { s: 'HERMAN', t: 'The machines are all talking to a legacy central server.' },
+      { s: 'SUKH', t: '...' },
+      { s: 'HERMAN', t: 'You knew about this?' },
+      { s: 'SUKH', t: "It's a gym." }
+    ],
+    ch3_gagan_warm: [
+      { s: 'GAGAN', t: "You're thinking too much." },
+      { s: 'HERMAN', t: "That's literally what I do." },
+      { s: 'GAGAN', t: "Fitway has always been like this. Different people, different styles.\nIn the end, everyone helps each other." }
+    ],
+    ch3_stairs_reveal: [
+      { s: 'HERMAN', t: 'The door to Floor 2... it\'s unlocked.' },
+      { s: 'GAGAN', t: 'Ask Sukh.' },
+      { s: 'SUKH', t: 'Finish what you started. Come tomorrow.' }
+    ],
 
-    // Treadmills (moving belt platforms)
-    treadmills.push({ x: 680, y: 156, w: 56, h: 12, speed: -1.2 }); // Reverse treadmill
-    treadmills.push({ x: 780, y: 140, w: 56, h: 12, speed: 1.6 });  // Forward boost treadmill
-    treadmills.push({ x: 920, y: 156, w: 56, h: 12, speed: -1.4 });
-    treadmills.push({ x: 1040, y: 132, w: 56, h: 12, speed: 2.0 });
+    // ── CHAPTER 4 ──
+    ch4_intro: [
+      { s: 'HERMAN', t: 'Why is everyone standing at the stairs?' },
+      { s: 'GAGAN', t: 'Nothing.' },
+      { s: 'SUKH', t: 'Go upstairs.' },
+      { s: 'HERMAN', t: "That's it?" },
+      { s: 'SUKH', t: "That's it." }
+    ],
+    ch4_weights_awe: [
+      { s: 'HERMAN', t: 'Floor 2... The Weights Floor.\nThis place is massive.' },
+      { s: 'GAGAN', t: 'First you train. Everything you learned.' }
+    ],
+    ch4_blackout: [
+      { s: null, t: 'CRACKLE! LIGHTS FLICKER! ALARMS PULSE!' },
+      { s: 'HERMAN', t: 'The whole building is overloading!' },
+      { s: 'HERMAN', t: 'The legacy controller at the main terminal!' }
+    ],
+    ch4_sukh_truth: [
+      { s: 'HERMAN', t: 'You knew the system was patched together!' },
+      { s: 'SUKH', t: 'Fitway became too complicated. Over years of growth.' },
+      { s: 'SUKH', t: 'The trainers weren\'t testing you for fun.' },
+      { s: 'SUKH', t: 'Gym sirf machines nahi hai.' },
+      { s: 'SUKH', t: 'People.' }
+    ],
+    ch4_sukh_boss: [
+      { s: 'SUKH', t: 'Good job fixing the system with the team.' },
+      { s: 'HERMAN', t: 'So we\'re done?' },
+      { s: 'SUKH', t: 'Almost.' },
+      { s: 'HERMAN', t: 'What now?' },
+      { s: 'SUKH', t: "Owner's Final Test! Barbell Squat Challenge!" },
+      { s: 'HERMAN', t: 'I almost died fixing the server!' },
+      { s: 'SUKH', t: "You're fine." }
+    ],
+    ch4_ending_sitcom: [
+      { s: 'SUKH', t: 'Good.' },
+      { s: 'HERMAN', t: 'So what happens now?' },
+      { s: 'SUKH', t: 'Nothing.' },
+      { s: 'HERMAN', t: 'Nothing?' },
+      { s: 'SUKH', t: 'Tomorrow you come again.' },
+      { s: 'HERMAN', t: 'I hate this place.' },
+      { s: 'GAGAN', t: "You'll be here tomorrow." },
+      { s: 'HERMAN', t: '...Yeah.' }
+    ],
+    ch4_street_outro: [
+      { s: 'HERMAN', t: 'Sector 67, Mohali.' },
+      { s: 'HERMAN', t: 'The gym lights stay on. Everyone is still training.' },
+      { s: 'HERMAN', t: 'See you tomorrow.' }
+    ]
+  };
 
-    // Stationary Bikes / Ellipticals as upper platforms
-    platforms.push({ x: 860, y: 110, w: 36, h: 10, type: 'gym_platform' });
-    platforms.push({ x: 990, y: 95, w: 40, h: 10, type: 'gym_platform' });
+  /* ═══ TILE RENDERING ═════════════════════════════════════ */
+  function drawTile(ctx, ch, x, y) {
+    switch (ch) {
+      case '.': // Wood floor
+        ctx.fillStyle = C.wood;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.woodLine;
+        ctx.fillRect(x, y + 5, TS, 1);
+        ctx.fillRect(x, y + 11, TS, 1);
+        ctx.fillStyle = C.woodDk;
+        ctx.fillRect(x + 7, y, 1, TS);
+        ctx.fillStyle = C.woodLt;
+        ctx.fillRect(x + 8, y, 1, TS);
+        break;
+      case ',': // Rubber mat floor
+        ctx.fillStyle = C.rubber;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.rubberLt;
+        for (let i = 0; i < 4; i++) ctx.fillRect(x + i * 4 + 1, y + i * 4 + 1, 2, 2);
+        break;
+      case 'm': // Functional exercise mat
+        ctx.fillStyle = C.matBlue;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#1e88e5';
+        ctx.fillRect(x + 1, y + 1, TS - 2, TS - 2);
+        ctx.fillStyle = '#64b5f6';
+        ctx.fillRect(x + 3, y + 3, TS - 6, 1);
+        break;
+      case 's': // Street pavement
+        ctx.fillStyle = C.streetGray;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.streetDk;
+        ctx.fillRect(x, y + 7, TS, 1);
+        ctx.fillRect(x + 7, y, 1, TS);
+        break;
+      case 'c': // Curb
+        ctx.fillStyle = C.curb;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalLt;
+        ctx.fillRect(x, y, TS, 3);
+        break;
+      case 'g': // Grass
+        ctx.fillStyle = C.grass;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#689f38';
+        ctx.fillRect(x + 3, y + 4, 2, 3);
+        ctx.fillRect(x + 9, y + 8, 2, 3);
+        break;
+      case 'W': // Solid gym wall
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.wallDk;
+        ctx.fillRect(x, y + 12, TS, 1);
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 13, TS, 3);
+        ctx.fillStyle = C.wallTop;
+        ctx.fillRect(x, y, TS, 2);
+        break;
+      case 'F': // Fitway Branded Sign
+        ctx.fillStyle = C.fblk;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 1, y + 3, 14, 10);
+        ctx.fillStyle = C.fblk;
+        ctx.fillRect(x + 3, y + 5, 2, 6);
+        ctx.fillRect(x + 3, y + 5, 8, 2);
+        ctx.fillRect(x + 3, y + 8, 6, 2);
+        break;
+      case 'M': // Mirror with reflection shimmer
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.mirror;
+        ctx.fillRect(x + 1, y + 2, 14, 10);
+        ctx.fillStyle = C.mirrorLt;
+        const sh = (frame * 0.2) % 16;
+        ctx.fillRect(x + 2 + sh % 10, y + 3, 3, 1);
+        ctx.fillStyle = C.mirrorHi;
+        ctx.fillRect(x + 4, y + 6, 5, 1);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 1, y + 1, 14, 1);
+        ctx.fillRect(x + 1, y + 12, 14, 1);
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 13, TS, 3);
+        break;
+      case 'P': // Fitway Motivational Poster
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 2, y + 2, 12, 9);
+        ctx.fillStyle = C.fblk;
+        ctx.fillRect(x + 3, y + 3, 10, 7);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 5, y + 4, 6, 2);
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 13, TS, 3);
+        break;
+      case 'C': // Clock
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.white;
+        ctx.fillRect(x + 4, y + 2, 8, 8);
+        ctx.fillStyle = C.fblk;
+        ctx.fillRect(x + 5, y + 3, 6, 6);
+        ctx.fillStyle = C.white;
+        ctx.fillRect(x + 7, y + 4, 2, 3);
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 13, TS, 3);
+        break;
+      case 'V': // TV Screen
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.fblk;
+        ctx.fillRect(x + 1, y + 2, 14, 9);
+        ctx.fillStyle = (frame % 60 < 30) ? '#3060a0' : '#4070b0';
+        ctx.fillRect(x + 2, y + 3, 12, 7);
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 13, TS, 3);
+        break;
+      case 'H': // Exterior Window
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.glass;
+        ctx.fillRect(x + 2, y + 1, 12, 10);
+        ctx.fillStyle = C.mirrorHi;
+        ctx.fillRect(x + 4, y + 2, 3, 4);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 8, y + 1, 1, 10);
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 13, TS, 3);
+        break;
+      case 'D': // Reception Desk & PC
+        ctx.fillStyle = C.wood;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#8b6840';
+        ctx.fillRect(x, y, TS, 14);
+        ctx.fillStyle = '#a07850';
+        ctx.fillRect(x, y, TS, 3);
+        // PC screen
+        ctx.fillStyle = '#212121';
+        ctx.fillRect(x + 3, y + 2, 6, 5);
+        ctx.fillStyle = '#4caf50';
+        ctx.fillRect(x + 4, y + 3, 4, 3);
+        break;
+      case 'L': // Lockers
+        ctx.fillStyle = C.metal;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 7, y, 1, TS);
+        ctx.fillRect(x, y + 7, TS, 1);
+        ctx.fillStyle = C.metalLt;
+        ctx.fillRect(x + 1, y + 1, 5, 5);
+        ctx.fillRect(x + 9, y + 1, 5, 5);
+        break;
+      case 'p': // Potted plant
+        ctx.fillStyle = C.wood;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#8b5030';
+        ctx.fillRect(x + 4, y + 9, 8, 6);
+        ctx.fillStyle = '#40a050';
+        ctx.fillRect(x + 3, y + 2, 10, 8);
+        break;
+      case 'w': // Water Cooler
+        ctx.fillStyle = C.wood;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalLt;
+        ctx.fillRect(x + 3, y + 4, 10, 10);
+        ctx.fillStyle = '#90c8e8';
+        ctx.fillRect(x + 4, y + 1, 8, 6);
+        break;
+      case 'n': // Workout Bench
+        ctx.fillStyle = C.rubber;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 1, y + 6, 14, 4);
+        ctx.fillStyle = '#404040';
+        ctx.fillRect(x + 2, y + 10, 3, 4);
+        ctx.fillRect(x + 11, y + 10, 3, 4);
+        break;
+      case 'T': // Animated Treadmill
+        ctx.fillStyle = C.rubber;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 1, y + 1, 14, 14);
+        ctx.fillStyle = C.fblk;
+        ctx.fillRect(x + 2, y + 5, 12, 8);
+        const bOff = (frame * 0.6) % 8;
+        ctx.fillStyle = '#3a3a4a';
+        for (let i = -1; i < 3; i++) {
+          const sy = y + 6 + i * 4 + bOff;
+          if (sy > y + 4 && sy < y + 13) ctx.fillRect(x + 3, sy, 10, 1);
+        }
+        ctx.fillStyle = '#40c060';
+        ctx.fillRect(x + 4, y + 2, 8, 2);
+        break;
+      case 'B': // Exercise Bike
+        ctx.fillStyle = C.rubber;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 5, y + 2, 6, 12);
+        ctx.fillStyle = C.metal;
+        ctx.fillRect(x + 6, y + 3, 4, 3);
+        break;
+      case 'k': // Kettlebell Cluster
+        ctx.fillStyle = C.rubber;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.fblk;
+        ctx.fillRect(x + 3, y + 5, 5, 5);
+        ctx.fillRect(x + 9, y + 7, 5, 5);
+        ctx.fillStyle = C.metal;
+        ctx.fillRect(x + 4, y + 3, 3, 2);
+        ctx.fillRect(x + 10, y + 5, 3, 2);
+        break;
+      case 'd': // Dumbbell Rack
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metal;
+        ctx.fillRect(x + 1, y + 3, 14, 3);
+        ctx.fillRect(x + 1, y + 9, 14, 3);
+        ctx.fillStyle = C.fblk;
+        for (let i = 0; i < 4; i++) {
+          ctx.fillRect(x + 2 + i * 3, y + 4, 2, 1);
+          ctx.fillRect(x + 2 + i * 3, y + 10, 2, 1);
+        }
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 13, TS, 3);
+        break;
+      case 'b': // Barbell Bench Press
+        ctx.fillStyle = C.rubber;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metal;
+        ctx.fillRect(x + 2, y + 2, 12, 12);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 3, y + 3, 10, 10);
+        ctx.fillStyle = C.metalLt;
+        ctx.fillRect(x + 4, y + 5, 8, 2);
+        break;
+      case 'q': // Squat Rack
+        ctx.fillStyle = C.rubber;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metal;
+        ctx.fillRect(x + 1, y + 0, 3, TS);
+        ctx.fillRect(x + 12, y + 0, 3, TS);
+        ctx.fillStyle = C.metalLt;
+        ctx.fillRect(x + 2, y + 4, 12, 2);
+        break;
+      case 'S': // Stairs
+        ctx.fillStyle = '#a09888';
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#807060';
+        for (let i = 0; i < 4; i++) ctx.fillRect(x, y + i * 4, TS, 1);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 6, y + 2, 4, 2);
+        break;
+      case 'X': // Locked Gate / Door
+        ctx.fillStyle = C.metal;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 1, y + 1, 14, 14);
+        ctx.fillStyle = C.red;
+        ctx.fillRect(x + 5, y + 5, 6, 6);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 7, y + 7, 2, 2);
+        break;
+      case 'O': // Interactive Terminal
+        ctx.fillStyle = C.rubber;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#263238';
+        ctx.fillRect(x + 2, y + 2, 12, 12);
+        ctx.fillStyle = (frame % 30 < 15) ? '#00e676' : '#00b0ff';
+        ctx.fillRect(x + 4, y + 4, 8, 6);
+        break;
+      default:
+        ctx.fillStyle = C.wood;
+        ctx.fillRect(x, y, TS, TS);
+        break;
+    }
+  }
 
-    // Cardio Enemies
-    enemies.push({ x: 740, y: 160, vx: -0.8, vy: 0, w: 16, h: 16, type: 'treadmill_bot', hp: 2, maxHp: 2, name: 'Treadmill Bot' });
-    enemies.push({ x: 880, y: 160, vx: -1.2, vy: 0, w: 18, h: 16, type: 'rogue_bike', hp: 3, maxHp: 3, name: 'Rogue Bike' });
-    enemies.push({ x: 1000, y: 160, vx: 0.6, vy: 0, w: 14, h: 14, type: 'foam_roller', hp: 2, maxHp: 2, name: 'Foam Roller' });
-    enemies.push({ x: 1120, y: 155, vx: -0.9, vy: 0, w: 16, h: 16, type: 'cardio_slime', hp: 2, maxHp: 2, name: 'Cardio Slime' });
+  /* ═══ CHARACTER SPRITE RENDERING ═════════════════════════ */
+  function drawSprite(id, x, y, dir, walkFrame, exercising) {
+    const ch = CHARS.find(c => c.id === id);
+    if (!ch) { drawGenericNPC(id, x, y, dir, walkFrame, exercising); return; }
+    const cl = ch.col;
+    const bw = ch.build === 'broad' ? 14 : (ch.build === 'stocky' ? 13 : 11);
+    const bx = x + (16 - bw) / 2;
+    const legOff = (walkFrame === 1) ? 1 : (walkFrame === 3) ? -1 : 0;
 
-    // Fitness Checkpoint 1 (End of Cardio Zone)
-    checkpoints.push({
-      x: 1220, y: 140, w: 28, h: 40,
-      id: 'cardio_checkpoint',
-      title: 'CARDIO ZONE CHECKPOINT',
-      done: false
-    });
+    // Shadow
+    g.fillStyle = C.shadow;
+    g.fillRect(x + 2, y + 20, 12, 3);
 
-    // ── ZONE 3: STAIRWELL & VERTICAL CLIMB (x: 1300 - 1600) ─
-    platforms.push({ x: 1300, y: 180, w: 300, h: 44, type: 'floor_stairs' });
-    // Stair steps leading to Floor 2
-    platforms.push({ x: 1360, y: 160, w: 32, h: 12, type: 'stair_step' });
-    platforms.push({ x: 1410, y: 136, w: 32, h: 12, type: 'stair_step' });
-    platforms.push({ x: 1460, y: 112, w: 32, h: 12, type: 'stair_step' });
-    platforms.push({ x: 1510, y: 88,  w: 32, h: 12, type: 'stair_step' });
-    platforms.push({ x: 1560, y: 64,  w: 40, h: 12, type: 'stair_landing' });
+    // Shoes
+    g.fillStyle = cl.shoes;
+    g.fillRect(bx + 1, y + 19 + legOff, 4, 2);
+    g.fillRect(bx + bw - 5, y + 19 - legOff, 4, 2);
 
-    // ── ZONE 4: FLOOR 2 — STRENGTH & WEIGHTS ZONE (x: 1600 - 2400)
-    platforms.push({ x: 1600, y: 180, w: 800, h: 44, type: 'floor_weights' });
+    // Pants/Legs
+    g.fillStyle = cl.pants;
+    g.fillRect(bx + 1, y + 15 + legOff, 4, 4);
+    g.fillRect(bx + bw - 5, y + 15 - legOff, 4, 4);
 
-    // Squat Racks, Dumbbell Benches, Pull-up Bars
-    platforms.push({ x: 1680, y: 148, w: 44, h: 32, type: 'squat_rack' });
-    platforms.push({ x: 1770, y: 156, w: 36, h: 12, type: 'bench_press' });
-    platforms.push({ x: 1860, y: 128, w: 40, h: 10, type: 'pullup_bar' });
-    platforms.push({ x: 1960, y: 148, w: 48, h: 32, type: 'dumbbell_rack' });
-    platforms.push({ x: 2060, y: 110, w: 44, h: 10, type: 'cable_crossover' });
+    // Torso / Shirt
+    g.fillStyle = cl.shirt;
+    g.fillRect(bx, y + 8, bw, 7);
+    g.fillStyle = cl.shirtDk;
+    g.fillRect(bx, y + 13, bw, 2);
 
-    // Strength Zone Enemies
-    enemies.push({ x: 1720, y: 160, vx: -0.7, vy: 0, w: 18, h: 18, type: 'dumbbell_golem', hp: 4, maxHp: 4, name: 'Dumbbell Golem' });
-    enemies.push({ x: 1880, y: 160, vx: -0.9, vy: 0, w: 18, h: 18, type: 'barbell_bouncer', hp: 4, maxHp: 4, name: 'Barbell Bouncer' });
-    enemies.push({ x: 2040, y: 160, vx: -1.1, vy: 0, w: 16, h: 16, type: 'kettlebell_mite', hp: 3, maxHp: 3, name: 'Kettle Mite' });
-    enemies.push({ x: 2180, y: 160, vx: -0.8, vy: 0, w: 20, h: 20, type: 'weight_plate_roller', hp: 5, maxHp: 5, name: 'Heavy 45lb Plate' });
+    // Arms
+    g.fillStyle = cl.skin;
+    if (dir === 'left') {
+      g.fillRect(bx - 2, y + 9, 3, 5);
+    } else if (dir === 'right') {
+      g.fillRect(bx + bw - 1, y + 9, 3, 5);
+    } else {
+      g.fillRect(bx - 1, y + 9, 2, 5);
+      g.fillRect(bx + bw - 1, y + 9, 2, 5);
+    }
 
-    // Tokens & NPCs in Weights Room
-    tokens.push({ x: 1860, y: 100, collected: false });
-    tokens.push({ x: 2080, y: 85, collected: false });
-    gymNPCs.push({ x: 1780, y: 140, name: 'TRAINER', msg: 'Full depth on those squats! Good form!' });
+    // Neck & Head
+    g.fillStyle = cl.skin;
+    g.fillRect(bx + 3, y + 6, bw - 6, 2);
+    const hw = bw - 2;
+    const hx = bx + 1;
+    g.fillRect(hx, y + 2, hw, 5);
 
-    // Strength Checkpoint
-    checkpoints.push({
-      x: 2260, y: 140, w: 28, h: 40,
-      id: 'strength_checkpoint',
-      title: 'STRENGTH CHECKPOINT',
-      done: false
-    });
+    // Hair
+    g.fillStyle = cl.hair;
+    if (dir === 'up') {
+      g.fillRect(hx - 1, y, hw + 2, 4);
+    } else {
+      g.fillRect(hx - 1, y, hw + 2, 3);
+    }
 
-    // ── ZONE 5: FUNCTIONAL TRAINING & BOXING (x: 2400 - 3000)
-    platforms.push({ x: 2400, y: 180, w: 600, h: 44, type: 'floor_boxing' });
-    platforms.push({ x: 2480, y: 150, w: 28, h: 30, type: 'plyo_box' });
-    platforms.push({ x: 2540, y: 125, w: 28, h: 40, type: 'plyo_box_tall' });
-    platforms.push({ x: 2680, y: 130, w: 60, h: 10, type: 'boxing_ring_rope' });
+    // Face features
+    if (dir === 'down') {
+      g.fillStyle = '#1a1410';
+      g.fillRect(hx + 2, y + 4, 2, 1);
+      g.fillRect(hx + hw - 4, y + 4, 2, 1);
+      g.fillStyle = '#a06040';
+      g.fillRect(hx + 3, y + 6, hw - 6, 1);
+    } else if (dir === 'left') {
+      g.fillStyle = '#1a1410';
+      g.fillRect(hx + 1, y + 4, 2, 1);
+    } else if (dir === 'right') {
+      g.fillStyle = '#1a1410';
+      g.fillRect(hx + hw - 3, y + 4, 2, 1);
+    }
 
-    // Combat Enemies
-    enemies.push({ x: 2500, y: 160, vx: -1.3, vy: 0, w: 16, h: 20, type: 'speed_bag', hp: 3, maxHp: 3, name: 'Speed Bag Boxer' });
-    enemies.push({ x: 2660, y: 160, vx: -1.0, vy: 0, w: 18, h: 22, type: 'heavy_bag_slugger', hp: 5, maxHp: 5, name: 'Heavy Bag Slugger' });
-    enemies.push({ x: 2820, y: 160, vx: -1.4, vy: 0, w: 16, h: 16, type: 'battle_rope_snake', hp: 4, maxHp: 4, name: 'Battle Rope' });
+    // Character Accessories
+    if (cl.acc === 'glasses' && dir !== 'up') {
+      g.fillStyle = '#90b8d8';
+      g.fillRect(hx + 1, y + 3, hw - 2, 2);
+      g.fillStyle = '#37474f';
+      g.fillRect(hx, y + 3, 1, 2);
+      g.fillRect(hx + hw - 1, y + 3, 1, 2);
+    }
+    if (cl.acc === 'headband') {
+      g.fillStyle = '#e53935';
+      g.fillRect(hx - 1, y + 1, hw + 2, 2);
+    }
+    if (cl.acc === 'whistle') {
+      g.fillStyle = C.metalLt;
+      g.fillRect(bx + bw - 2, y + 8, 3, 1);
+      g.fillRect(bx + bw, y + 7, 2, 2);
+    }
+    if (id === 'sukh') {
+      g.fillStyle = C.fyDk;
+      g.fillRect(bx + 2, y + 8, bw - 4, 2);
+    }
+  }
 
-    // ── ZONE 6: LOCKER & RECOVERY SAFE ROOM (x: 3000 - 3400)
-    platforms.push({ x: 3000, y: 180, w: 400, h: 44, type: 'floor_recovery' });
-    platforms.push({ x: 3100, y: 156, w: 44, h: 12, type: 'recovery_bench' });
-    gymNPCs.push({ x: 3120, y: 140, name: 'RECOVERY BOT', msg: 'Hydrate! HP restored to 100%!' });
+  function drawGenericNPC(type, x, y, dir, wf, exercising) {
+    const legOff = (wf === 1) ? 1 : (wf === 3) ? -1 : 0;
+    let shirtCol = '#e53935', pantsCol = '#263238', skinCol = '#e0b080';
+    if (type === 'member_f') { shirtCol = '#ab47bc'; skinCol = '#f8d0b0'; }
+    if (type === 'member_m') { shirtCol = '#43a047'; }
 
-    // ── ZONE 7: PERFORMANCE LAB & HERMAN'S SYSTEMS (x: 3400 - 3900)
-    platforms.push({ x: 3400, y: 180, w: 500, h: 44, type: 'floor_lab' });
-    platforms.push({ x: 3500, y: 140, w: 48, h: 40, type: 'server_rack' });
-    platforms.push({ x: 3620, y: 110, w: 40, h: 10, type: 'smart_sensor_grid' });
-    gymNPCs.push({ x: 3520, y: 120, name: 'HERMAN TERMINAL', msg: 'SYSTEM: Fitway IoT Grid Online. 0 Errors.' });
-    tokens.push({ x: 3640, y: 85, collected: false });
+    g.fillStyle = C.shadow;
+    g.fillRect(x + 3, y + 20, 10, 2);
+    g.fillStyle = pantsCol;
+    g.fillRect(x + 4, y + 15 + legOff, 3, 4);
+    g.fillRect(x + 9, y + 15 - legOff, 3, 4);
+    g.fillStyle = shirtCol;
+    g.fillRect(x + 3, y + 8, 10, 7);
+    g.fillStyle = skinCol;
+    g.fillRect(x + 4, y + 2, 8, 5);
+    g.fillStyle = '#141414';
+    g.fillRect(x + 3, y, 10, 3);
+    if (dir === 'down') {
+      g.fillRect(x + 5, y + 4, 2, 1);
+      g.fillRect(x + 9, y + 4, 2, 1);
+    }
+  }
 
-    // ── ZONE 8: BOSS ARENA — THE SEDENTARY KING (x: 3900 - 4600)
-    platforms.push({ x: 3900, y: 180, w: 700, h: 44, type: 'floor_boss' });
-    platforms.push({ x: 4020, y: 130, w: 44, h: 10, type: 'boss_platform_left' });
-    platforms.push({ x: 4280, y: 130, w: 44, h: 10, type: 'boss_platform_right' });
+  /* ═══ PORTRAIT DRAWING (48×48) ═══════════════════════════ */
+  function drawPortrait(charId, px, py, size) {
+    const ch = CHARS.find(c => c.id === charId);
+    if (!ch) return;
+    const cl = ch.col;
+    const s = size || 48;
+    const u = s / 48;
 
-    // Spawn Boss
-    boss = {
-      x: 4300, y: 100,
-      w: 52, h: 52,
-      hp: 60, maxHp: 60,
-      phase: 1, // 1: Cushions, 2: Minions, 3: Lazy Zone Mech
-      name: 'THE SEDENTARY KING',
-      shielded: false,
-      attackTimer: 60,
-      anim: 0,
-      vx: -0.8
+    g.fillStyle = C.uiBg2;
+    g.fillRect(px, py, s, s);
+
+    // Shoulders
+    const bw = ch.build === 'broad' ? 40 : (ch.build === 'stocky' ? 36 : 32);
+    const bx = px + (s - bw * u) / 2;
+    g.fillStyle = cl.shirt;
+    g.fillRect(bx, py + 32 * u, bw * u, 16 * u);
+    g.fillStyle = cl.shirtDk;
+    g.fillRect(bx, py + 42 * u, bw * u, 6 * u);
+
+    // Head
+    g.fillStyle = cl.skin;
+    g.fillRect(px + 18 * u, py + 28 * u, 12 * u, 6 * u);
+    g.fillRect(px + 10 * u, py + 8 * u, 28 * u, 22 * u);
+
+    // Hair
+    g.fillStyle = cl.hair;
+    g.fillRect(px + 8 * u, py + 2 * u, 32 * u, 10 * u);
+
+    // Eyes
+    g.fillStyle = C.white;
+    g.fillRect(px + 14 * u, py + 16 * u, 8 * u, 5 * u);
+    g.fillRect(px + 26 * u, py + 16 * u, 8 * u, 5 * u);
+    g.fillStyle = '#141414';
+    g.fillRect(px + 17 * u, py + 17 * u, 4 * u, 3 * u);
+    g.fillRect(px + 29 * u, py + 17 * u, 4 * u, 3 * u);
+
+    // Glasses/Accessories
+    if (cl.acc === 'glasses') {
+      g.fillStyle = '#90b8d8';
+      g.fillRect(px + 12 * u, py + 15 * u, 10 * u, 6 * u);
+      g.fillRect(px + 26 * u, py + 15 * u, 10 * u, 6 * u);
+      g.fillStyle = '#37474f';
+      g.fillRect(px + 22 * u, py + 16 * u, 4 * u, 2 * u);
+    }
+    if (cl.acc === 'headband') {
+      g.fillStyle = '#e53935';
+      g.fillRect(px + 8 * u, py + 6 * u, 32 * u, 4 * u);
+    }
+    if (charId === 'sukh') {
+      g.fillStyle = C.fyDk;
+      g.fillRect(px + 14 * u, py + 32 * u, 20 * u, 4 * u);
+    }
+
+    g.strokeStyle = C.uiBorder;
+    g.lineWidth = 2;
+    g.strokeRect(px, py, s, s);
+    g.lineWidth = 1;
+  }
+
+  /* ═══ ROOM LOADING & MANAGEMENT ══════════════════════════ */
+  function loadRoom(roomId, sx, sy) {
+    curRoomId = roomId;
+    curRoom = ROOMS[roomId];
+    if (!curRoom) return;
+
+    if (sx !== undefined) { pl.x = sx * TS; pl.y = sy * TS; }
+    else { pl.x = curRoom.spawn.x; pl.y = curRoom.spawn.y; }
+
+    roomBgCanvas = document.createElement('canvas');
+    roomBgCanvas.width = W;
+    roomBgCanvas.height = H;
+    const rc = roomBgCanvas.getContext('2d');
+    rc.imageSmoothingEnabled = false;
+
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const ch = curRoom.map[r]?.[c] || 'W';
+        drawTile(rc, ch, c * TS, r * TS);
+      }
+    }
+
+    npcs = (curRoom.npcs || []).map(n => ({
+      ...n,
+      px: n.tx * TS,
+      py: n.ty * TS,
+      walkFrame: 0,
+      walkTimer: 0
+    }));
+
+    Audio8.sfx('stairs');
+  }
+
+  function getTile(col, row) {
+    if (!curRoom || row < 0 || row >= ROWS || col < 0 || col >= COLS) return 'W';
+    return curRoom.map[row]?.[c] || curRoom.map[row]?.[col] || 'W';
+  }
+
+  function canWalkTo(px, py) {
+    const footL = px + 2, footR = px + 14;
+    const footT = py + 14, footB = py + 21;
+
+    const tl = getTile(Math.floor(footL / TS), Math.floor(footT / TS));
+    const tr = getTile(Math.floor(footR / TS), Math.floor(footT / TS));
+    const bl = getTile(Math.floor(footL / TS), Math.floor(footB / TS));
+    const br = getTile(Math.floor(footR / TS), Math.floor(footB / TS));
+
+    if (!isWalkable(tl) || !isWalkable(tr) || !isWalkable(bl) || !isWalkable(br)) return false;
+
+    for (const npc of npcs) {
+      const nx = npc.px, ny = npc.py;
+      if (px + 14 > nx + 2 && px + 2 < nx + 14 && py + 21 > ny + 14 && py + 14 < ny + 21) return false;
+    }
+    return true;
+  }
+
+  function checkExits() {
+    const col = Math.floor((pl.x + 8) / TS);
+    const row = Math.floor((pl.y + 16) / TS);
+    const tile = curRoom.map[row]?.[col];
+
+    if (!curRoom.exits) return;
+    for (const ex of curRoom.exits) {
+      if (ex.condition && !storyProgress[ex.condition]) continue;
+      if (ex.chars && ex.chars.includes(tile)) {
+        fadeToRoom(ex.room, ex.sx, ex.sy);
+        return;
+      }
+      if (ex.row === row && col >= ex.col1 && col <= ex.col2) {
+        fadeToRoom(ex.room, ex.sx, ex.sy);
+        return;
+      }
+    }
+  }
+
+  function fadeToRoom(roomId, sx, sy) {
+    fade.dir = 1;
+    fade.cb = () => {
+      loadRoom(roomId, sx, sy);
+      fade.dir = -1;
+      fade.cb = null;
     };
   }
 
-  /* ══ WORKOUT CHECKPOINT TRIGGER ═════════════════════════════ */
-  function triggerWorkout(title, target, onFinish) {
-    workout.active = true;
-    workout.title = title || `${selectedChar.name}'S FITNESS CHECKPOINT`;
-    workout.exercise = selectedChar.challengeName;
-    workout.target = target || selectedChar.challengeTarget;
-    workout.current = 0;
-    workout.rewardXp = 100;
-    workout.onComplete = onFinish;
-    Audio8.sfx('powerup');
-    if (window.__buzz) window.__buzz(25);
-  }
-
-  function registerWorkoutRep() {
-    if (!workout.active) return;
-    workout.current++;
-    Audio8.sfx('coin');
-    if (window.__buzz) window.__buzz(15);
-
-    // Rep floating text
-    floatingTexts.push({
-      text: `REP ${workout.current}!`,
-      x: W / 2, y: 110,
-      life: 30, vy: -0.8,
-      col: '#ffe04f'
-    });
-
-    if (workout.current >= workout.target) {
-      // Workout Finished!
-      workout.active = false;
-      totalRepsCompleted += workout.target;
-      xp += workout.rewardXp;
-      score += 1000;
-      player.specialCharge = 100; // Instantly charge special ability!
-      Audio8.sfx('stage_clear');
-      if (window.__buzz) window.__buzz([30, 50, 40]);
-
-      floatingTexts.push({
-        text: 'SET COMPLETE! SPECIAL CHARGED! +100 XP',
-        x: W / 2, y: 80,
-        life: 60, vy: -0.6,
-        col: '#8fe3c8'
-      });
-
-      // Check level up
-      checkLevelUp();
-
-      if (workout.onComplete) workout.onComplete();
+  function updateFade() {
+    if (fade.dir > 0) {
+      fade.alpha = Math.min(1, fade.alpha + 0.08);
+      if (fade.alpha >= 1 && fade.cb) fade.cb();
+    } else if (fade.dir < 0) {
+      fade.alpha = Math.max(0, fade.alpha - 0.08);
+      if (fade.alpha <= 0) fade.dir = 0;
     }
   }
 
-  function checkLevelUp() {
-    const requiredXp = playerLevel * 200;
-    if (xp >= requiredXp) {
-      playerLevel++;
-      player.maxHp += 20;
-      player.hp = player.maxHp;
-      Audio8.sfx('oneup');
-      floatingTexts.push({
-        text: `LEVEL UP! LEVEL ${playerLevel}`,
-        x: player.x, y: player.y - 24,
-        life: 70, vy: -0.7,
-        col: '#ffd000'
-      });
-    }
+  /* ═══ DIALOGUE & STORY TRIGGER LOGIC ═════════════════════ */
+  function startDialogue(scriptKey, onDone) {
+    const lines = DIALOGUES[scriptKey];
+    if (!lines) return;
+    dlg.active = true;
+    dlg.lines = lines;
+    dlg.idx = 0;
+    dlg.charPos = 0;
+    dlg.timer = 0;
+    dlg.onDone = onDone || null;
+    state = 'dialogue';
+    Audio8.sfx('select');
   }
 
-  /* ══ CHARACTER ATTACKS & SPECIALS ═══════════════════════════ */
-  function performAttack() {
-    if (player.attackTimer > 0) return;
-    player.attackTimer = selectedChar.id === 'herman' || selectedChar.id === 'shubham' ? 12 : 18;
-    player.state = 'attack';
-    Audio8.sfx('shoot');
-
-    const dir = player.facing === 'right' ? 1 : -1;
-    const spawnX = player.x + (dir > 0 ? player.w + 4 : -12);
-    const spawnY = player.y + 6;
-
-    if (selectedChar.id === 'sukh') {
-      // Barbell Swing Arc
-      projectiles.push({
-        x: spawnX, y: spawnY - 6, vx: dir * 3.5, vy: 0,
-        w: 20, h: 14, type: 'barbell_swing',
-        life: 14, power: 15, isPlayer: true
-      });
-    } else if (selectedChar.id === 'gagan') {
-      // Heavy Kettlebell Throw & Rebound
-      projectiles.push({
-        x: spawnX, y: spawnY, vx: dir * 4.0, vy: -1.2,
-        w: 16, h: 16, type: 'kettlebell_shot',
-        life: 28, power: 18, isPlayer: true
-      });
-    } else if (selectedChar.id === 'shubham') {
-      // High-Velocity Band Whip
-      projectiles.push({
-        x: spawnX, y: spawnY, vx: dir * 5.8, vy: 0,
-        w: 24, h: 6, type: 'band_whip',
-        life: 16, power: 12, isPlayer: true
-      });
-    } else if (selectedChar.id === 'rakesh') {
-      // Solid EZ Bar Swing
-      projectiles.push({
-        x: spawnX, y: spawnY - 4, vx: dir * 3.8, vy: 0,
-        w: 18, h: 12, type: 'ezbar_strike',
-        life: 16, power: 14, isPlayer: true
-      });
-    } else if (selectedChar.id === 'herman') {
-      // Rapid Dual Dumbbells
-      projectiles.push({
-        x: spawnX, y: spawnY, vx: dir * 5.0, vy: -0.5,
-        w: 12, h: 12, type: 'dumbbell_throw',
-        life: 24, power: 11, isPlayer: true
-      });
-    }
-  }
-
-  function triggerSpecialAbility() {
-    if (player.specialCharge < 100 || player.isSpecialActive) return;
-    player.specialCharge = 0;
-    player.isSpecialActive = true;
-    player.specialDuration = 180; // 3 seconds of special power
-    screenShake = 16;
-    screenFlash = 12;
-    Audio8.sfx('flagpole');
-    if (window.__buzz) window.__buzz([30, 40, 50]);
-
-    floatingTexts.push({
-      text: `${selectedChar.specialName}!`,
-      x: player.x, y: player.y - 30,
-      life: 50, vy: -0.9,
-      col: selectedChar.color
-    });
-
-    const dir = player.facing === 'right' ? 1 : -1;
-
-    if (selectedChar.id === 'sukh') {
-      // Owner's Smash Earthquake Shockwave
-      for (let i = 0; i < 8; i++) {
-        projectiles.push({
-          x: player.x + (i * 24 * dir), y: 170,
-          vx: dir * 4.5, vy: -2.0,
-          w: 22, h: 22, type: 'shockwave',
-          life: 30, power: 35, isPlayer: true
-        });
-      }
-    } else if (selectedChar.id === 'gagan') {
-      // Kettle Crush Cyclone
-      for (let a = 0; a < 6; a++) {
-        projectiles.push({
-          x: player.x, y: player.y,
-          vx: Math.cos(a) * 5.0, vy: Math.sin(a) * 5.0,
-          w: 18, h: 18, type: 'kettlebell_shot',
-          life: 40, power: 30, isPlayer: true
-        });
-      }
-    } else if (selectedChar.id === 'shubham') {
-      // Screen-wide Band Blast
-      projectiles.push({
-        x: player.x - 40, y: player.y - 20,
-        vx: dir * 7.5, vy: 0,
-        w: 60, h: 40, type: 'band_blast',
-        life: 35, power: 32, isPlayer: true
-      });
-    } else if (selectedChar.id === 'rakesh') {
-      // Old School Aura Armor
-      player.invulTimer = 240;
-    } else if (selectedChar.id === 'herman') {
-      // Debug Mode Overclock Multi-Dumbbells
-      for (let i = 0; i < 6; i++) {
-        projectiles.push({
-          x: player.x, y: player.y,
-          vx: dir * (3.5 + i * 0.8), vy: -2.0 + (i % 3) * 1.5,
-          w: 12, h: 12, type: 'dumbbell_throw',
-          life: 45, power: 25, isPlayer: true
-        });
-      }
-    }
-  }
-
-  /* ══ UPDATE LOOP ═══════════════════════════════════════════ */
-  function update() {
-    frame++;
-
-    if (screenShake > 0) screenShake--;
-    if (screenFlash > 0) screenFlash--;
-
-    const held = window.__held || {};
-    const aEdge = window.__aEdge || false;
-
-    // Intro Screen Logic
-    if (gameState === 'intro') {
-      introTimer++;
-      if (aEdge || introTimer > 180) {
-        gameState = 'char_select';
-        Audio8.sfx('start');
-      }
+  function advanceDialogue() {
+    const line = dlg.lines[dlg.idx];
+    if (dlg.charPos < line.t.length) {
+      dlg.charPos = line.t.length;
       return;
     }
-
-    // Character Select Logic
-    if (gameState === 'char_select') {
-      if (held.left && !held._lastL) {
-        selectedCharIndex = (selectedCharIndex - 1 + CHARACTERS.length) % CHARACTERS.length;
-        selectedChar = CHARACTERS[selectedCharIndex];
-        Audio8.sfx('menu');
-      }
-      if (held.right && !held._lastR) {
-        selectedCharIndex = (selectedCharIndex + 1) % CHARACTERS.length;
-        selectedChar = CHARACTERS[selectedCharIndex];
-        Audio8.sfx('menu');
-      }
-      held._lastL = held.left;
-      held._lastR = held.right;
-
-      if (aEdge) {
-        selectedChar = CHARACTERS[selectedCharIndex];
-        initGameWorld();
-        gameState = 'play';
-        Audio8.sfx('cartridge');
-        Audio8.music('mario');
-      }
-      return;
+    dlg.idx++;
+    dlg.charPos = 0;
+    dlg.timer = 0;
+    Audio8.sfx('blip');
+    if (dlg.idx >= dlg.lines.length) {
+      dlg.active = false;
+      state = 'explore';
+      if (dlg.onDone) dlg.onDone();
     }
+  }
 
-    // Active Workout Checkpoint Modal
-    if (workout.active) {
-      if (aEdge) {
-        registerWorkoutRep();
-      }
-      return;
-    }
+  function checkInteraction() {
+    let tx = Math.floor((pl.x + 8) / TS);
+    let ty = Math.floor((pl.y + 16) / TS);
+    if (pl.dir === 'up') ty--;
+    else if (pl.dir === 'down') ty++;
+    else if (pl.dir === 'left') tx--;
+    else if (pl.dir === 'right') tx++;
 
-    if (gameState === 'win' || gameState === 'gameover') {
-      if (aEdge) {
-        gameState = 'char_select';
-        Audio8.sfx('start');
-      }
-      return;
-    }
+    // NPC Interactions
+    for (const npc of npcs) {
+      if (Math.abs(npc.tx - tx) <= 1 && Math.abs(npc.ty - ty) <= 1) {
+        npc.dir = pl.dir === 'up' ? 'down' : pl.dir === 'down' ? 'up' : pl.dir === 'left' ? 'right' : 'left';
 
-    // Floating text update
-    for (let i = floatingTexts.length - 1; i >= 0; i--) {
-      const ft = floatingTexts[i];
-      ft.y += ft.vy;
-      ft.life--;
-      if (ft.life <= 0) floatingTexts.splice(i, 1);
-    }
-
-    // Particles update
-    for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life--;
-      if (p.life <= 0) particles.splice(i, 1);
-    }
-
-    // Special power timer
-    if (player.isSpecialActive) {
-      player.specialDuration--;
-      if (player.specialDuration <= 0) player.isSpecialActive = false;
-    }
-    if (player.invulTimer > 0) player.invulTimer--;
-    if (player.attackTimer > 0) player.attackTimer--;
-
-    // ── Player Controls ─────────────────────────────────────
-    const speed = (selectedChar.stats.speed >= 4 ? 2.4 : 1.9) * (held.b ? 1.5 : 1.0);
-
-    if (held.left) {
-      player.vx = -speed;
-      player.facing = 'left';
-      player.state = 'run';
-    } else if (held.right) {
-      player.vx = speed;
-      player.facing = 'right';
-      player.state = 'run';
-    } else {
-      player.vx *= 0.8;
-      if (Math.abs(player.vx) < 0.1) {
-        player.vx = 0;
-        if (player.grounded && player.attackTimer <= 0) player.state = 'idle';
-      }
-    }
-
-    // Jump
-    if (aEdge && player.grounded) {
-      player.vy = -6.2;
-      player.grounded = false;
-      Audio8.sfx('jump');
-    }
-
-    // Attack action (Triggered by Attack button)
-    if (held.b && player.attackTimer <= 0) {
-      performAttack();
-    }
-
-    // Special button (Triggered when holding both or tapping special)
-    if (held.up && player.specialCharge >= 100) {
-      triggerSpecialAbility();
-    }
-
-    // Apply gravity
-    player.vy = Math.min(6.5, player.vy + 0.36);
-
-    // Horizontal Movement & Collisions
-    player.x += player.vx;
-    platforms.forEach(plat => {
-      if (boxOverlap(player.x, player.y, player.w, player.h, plat.x, plat.y, plat.w, plat.h)) {
-        if (plat.breakable && player.state === 'attack') {
-          // Smash foam block!
-          plat.hp--;
-          Audio8.sfx('brick');
-          score += 100;
-          for (let i = 0; i < 4; i++) {
-            particles.push({
-              x: plat.x + 8, y: plat.y + 8,
-              vx: (Math.random() - 0.5) * 4, vy: -3 + Math.random() * 2,
-              life: 25, col: '#ffe04f'
-            });
+        // ── CHAPTER 1 ──
+        if (chapter === 1) {
+          if (npc.id === 'sukh_reception') {
+            if (!storyProgress.ch1_talkedSukh) {
+              storyProgress.ch1_talkedSukh = true;
+              startDialogue('ch1_sukh_late');
+            } else if (storyProgress.ch1_stairsChecked) {
+              startDialogue('ch1_sukh_end', () => showChapterEnd(1));
+            } else {
+              startDialogue('ch1_sukh_late');
+            }
+            return;
           }
-        } else if (player.vx > 0) {
-          player.x = plat.x - player.w;
-          player.vx = 0;
-        } else if (player.vx < 0) {
-          player.x = plat.x + plat.w;
-          player.vx = 0;
-        }
-      }
-    });
-    platforms = platforms.filter(p => !p.breakable || p.hp > 0);
-
-    // Vertical Movement & Treadmill Conveyor Effect
-    player.grounded = false;
-    player.y += player.vy;
-
-    // Treadmills
-    treadmills.forEach(tm => {
-      if (player.x + player.w > tm.x && player.x < tm.x + tm.w &&
-          player.y + player.h >= tm.y && player.y + player.h <= tm.y + tm.h + 6 && player.vy >= 0) {
-        player.y = tm.y - player.h;
-        player.vy = 0;
-        player.grounded = true;
-        player.x += tm.speed; // Conveyor drag!
-      }
-    });
-
-    // Solid Platforms
-    platforms.forEach(plat => {
-      if (boxOverlap(player.x, player.y, player.w, player.h, plat.x, plat.y, plat.w, plat.h)) {
-        if (player.vy > 0) {
-          player.y = plat.y - player.h;
-          player.vy = 0;
-          player.grounded = true;
-        } else if (player.vy < 0) {
-          player.y = plat.y + plat.h;
-          player.vy = 0;
-        }
-      }
-    });
-
-    // Pit fall clamp
-    if (player.y > 240) {
-      player.y = 150;
-      player.hp -= 20;
-      Audio8.sfx('hit');
-    }
-
-    // Token Pickups
-    tokens.forEach(tok => {
-      if (!tok.collected && boxOverlap(player.x, player.y, player.w, player.h, tok.x, tok.y, 12, 12)) {
-        tok.collected = true;
-        fitwayTokens++;
-        score += 250;
-        xp += 50;
-        Audio8.sfx('coin');
-        floatingTexts.push({ text: '+1 FITWAY TOKEN', x: tok.x, y: tok.y - 10, life: 40, vy: -0.6, col: '#ffd000' });
-      }
-    });
-
-    // Checkpoint Trigger Detection
-    checkpoints.forEach(cp => {
-      if (!cp.done && boxOverlap(player.x, player.y, player.w, player.h, cp.x, cp.y, cp.w, cp.h)) {
-        cp.done = true;
-        triggerWorkout(cp.title, selectedChar.challengeTarget);
-      }
-    });
-
-    // Safe Room Recovery Area (Zone 6)
-    if (player.x > 3050 && player.x < 3300 && player.hp < player.maxHp) {
-      player.hp = Math.min(player.maxHp, player.hp + 0.2);
-    }
-
-    // ── Projectiles Update ──────────────────────────────────
-    for (let i = projectiles.length - 1; i >= 0; i--) {
-      const p = projectiles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life--;
-      if (p.life <= 0) { projectiles.splice(i, 1); continue; }
-
-      // Player projectiles hitting enemies
-      if (p.isPlayer) {
-        // Hit Boss
-        if (boss && boxOverlap(p.x, p.y, p.w, p.h, boss.x, boss.y, boss.w, boss.h)) {
-          if (!boss.shielded) {
-            boss.hp -= p.power;
-            Audio8.sfx('hit');
-            screenShake = 6;
-            floatingTexts.push({ text: `-${p.power}`, x: boss.x + 20, y: boss.y - 10, life: 30, vy: -0.7, col: '#ff5fa2' });
-
-            // Boss Fitness Break Trigger at 50% HP
-            if (boss.hp <= 30 && boss.phase === 1) {
-              boss.phase = 2;
-              boss.shielded = true;
-              triggerWorkout('BOSS FITNESS BREAK: BREAK HIS SHIELD!', 10, () => {
-                boss.shielded = false;
-                screenFlash = 16;
-                screenShake = 14;
-                boss.hp -= 15;
+          if (npc.id === 'gagan_cardio') {
+            if (!storyProgress.ch1_talkedGagan) {
+              storyProgress.ch1_talkedGagan = true;
+              startDialogue('ch1_gagan_meet', () => {
+                startRepChallenge('KETTLEBELL SWINGS', 'GAGAN', 15, () => {
+                  storyProgress.ch1_gaganChallengeDone = true;
+                  startDialogue('ch1_treadmill_beep', () => {
+                    startChaosMinigame();
+                  });
+                });
+              });
+            } else if (storyProgress.ch1_chaosCleared) {
+              startDialogue('ch1_stairs_locked', () => {
+                storyProgress.ch1_stairsChecked = true;
               });
             }
-
-            if (boss.hp <= 0) {
-              // Boss Defeated!
-              gameState = 'win';
-              Audio8.sfx('fanfare');
-              screenShake = 24;
-              score += 10000;
-              xp += 500;
-            }
+            return;
           }
-          projectiles.splice(i, 1);
-          continue;
         }
 
-        // Hit regular enemies
-        for (let j = enemies.length - 1; j >= 0; j--) {
-          const e = enemies[j];
-          if (boxOverlap(p.x, p.y, p.w, p.h, e.x, e.y, e.w, e.h)) {
-            e.hp -= p.power;
-            Audio8.sfx('stomp');
-            score += 150;
-            xp += 20;
-            player.specialCharge = Math.min(100, player.specialCharge + 12);
-
-            // Floating damage
-            floatingTexts.push({ text: `-${p.power}`, x: e.x, y: e.y - 8, life: 25, vy: -0.6, col: '#ffe04f' });
-
-            if (e.hp <= 0) {
-              // Enemy Defeated
-              Audio8.sfx('boom');
-              for (let k = 0; k < 6; k++) {
-                particles.push({
-                  x: e.x + 8, y: e.y + 8,
-                  vx: (Math.random() - 0.5) * 3, vy: -2 + Math.random() * 2,
-                  life: 20, col: selectedChar.color
-                });
-              }
-              enemies.splice(j, 1);
-            }
-            projectiles.splice(i, 1);
-            break;
+        // ── CHAPTER 2 ──
+        if (chapter === 2) {
+          if (npc.id === 'sukh_reception') {
+            startDialogue('ch2_intro');
+            return;
           }
+          if (npc.id === 'gagan_cardio') {
+            startDialogue('ch2_gagan_bench_rant', () => {
+              storyProgress.ch2_gaganBench = true;
+            });
+            return;
+          }
+          if (npc.id === 'shubham_func') {
+            startDialogue('ch2_meet_shubham', () => {
+              startRepChallenge('SPEED BAND PULLS', 'SHUBHAM', 20, () => {
+                storyProgress.ch2_shubhamChallengeDone = true;
+                showUnlock('RESISTANCE BAND', 'BAND BLAST', 'High-velocity agility and conditioning weapon.', () => {
+                  unlocks.resistanceBand = true;
+                  startDialogue('ch2_group_banter', () => {
+                    showChapterEnd(2);
+                  });
+                });
+              });
+            });
+            return;
+          }
+        }
+
+        // ── CHAPTER 3 ──
+        if (chapter === 3) {
+          if (npc.id === 'rakesh_func') {
+            startDialogue('ch3_meet_rakesh', () => {
+              startRepChallenge('EZ-BAR CURLS', 'RAKESH', 10, () => {
+                storyProgress.ch3_competitionDone = true;
+                startDialogue('ch3_glitch_investigate', () => {
+                  showUnlock('EZ-CURL BAR', 'OLD SCHOOL POWER', 'Pure veteran form purist barbell mastery.', () => {
+                    unlocks.ezCurlBar = true;
+                    storyProgress.stairsUnlocked = true;
+                    startDialogue('ch3_gagan_warm', () => {
+                      showChapterEnd(3);
+                    });
+                  });
+                });
+              });
+            });
+            return;
+          }
+        }
+
+        // ── CHAPTER 4 ──
+        if (chapter === 4) {
+          if (curRoomId === 'weights') {
+            if (npc.id === 'sukh_weights') {
+              startDialogue('ch4_sukh_boss', () => {
+                startRepChallenge('OWNER SQUAT TEST', 'SUKH', 20, () => {
+                  storyProgress.ch4_sukhBossDone = true;
+                  startDialogue('ch4_ending_sitcom', () => {
+                    showChapterEnd(4);
+                  });
+                });
+              });
+              return;
+            }
+          }
+        }
+
+        // Generic NPC lines
+        if (npc.text) {
+          startDialogue(npc.text);
+          return;
         }
       }
     }
 
-    // ── Enemies AI & Update ─────────────────────────────────
-    enemies.forEach(e => {
-      e.x += e.vx;
-      // Reverse at patrol bounds
-      if (Math.abs(e.x - player.x) > 300) return;
+    // Tile Examination
+    const tile = curRoom.map[ty]?.[tx];
+    if (tile === 'X' || tile === 'S') {
+      if (chapter < 4 && !storyProgress.stairsUnlocked) {
+        startDialogue('ch1_stairs_locked');
+      }
+    }
+  }
 
-      // Enemy hit player
-      if (boxOverlap(player.x, player.y, player.w, player.h, e.x, e.y, e.w, e.h)) {
-        if (player.invulTimer <= 0) {
-          player.hp -= 10;
-          player.invulTimer = 60;
-          player.vx = (player.x < e.x ? -3.0 : 3.0);
-          player.vy = -3.0;
-          screenShake = 8;
-          Audio8.sfx('hit');
-          if (player.hp <= 0) {
-            gameState = 'gameover';
-            Audio8.sfx('die');
-          }
-        }
+  /* ═══ CHALLENGE & MINIGAME ENGINES ═══════════════════════ */
+  function startRepChallenge(name, trainer, target, onDone) {
+    chl.active = true;
+    chl.name = name;
+    chl.trainer = trainer;
+    chl.target = target;
+    chl.current = 0;
+    chl.meter = 20;
+    chl.tempoDir = 1;
+    chl.onDone = onDone;
+    state = 'challenge';
+    Audio8.sfx('powerup');
+  }
+
+  function doRep() {
+    chl.current++;
+    Audio8.sfx('coin');
+    if (window.__buzz) window.__buzz(15);
+    if (chl.current >= chl.target) {
+      chl.active = false;
+      state = 'explore';
+      Audio8.sfx('fanfare');
+      if (chl.onDone) chl.onDone();
+    }
+  }
+
+  function startChaosMinigame() {
+    minigame.active = true;
+    minigame.type = 'chaos';
+    minigame.timer = 0;
+    minigame.score = 0;
+    minigame.total = 5;
+    minigame.onDone = () => {
+      storyProgress.ch1_chaosCleared = true;
+      showUnlock('MACHINE OVERRIDE', 'DEBUG & REBOOT', 'Understand gym electronics instead of just lifting.', () => {
+        unlocks.machineOverride = true;
+        startDialogue('ch1_chaos_done');
+      });
+    };
+    state = 'chaos_minigame';
+    Audio8.sfx('boom');
+  }
+
+  function showUnlock(title, name, desc, onDone) {
+    unlockAnim.active = true;
+    unlockAnim.timer = 0;
+    unlockAnim.title = title;
+    unlockAnim.name = name;
+    unlockAnim.desc = desc;
+    unlockAnim.onDone = onDone;
+    state = 'unlock';
+    Audio8.sfx('stage_clear');
+  }
+
+  function showChapterEnd(chNum) {
+    chCard.active = true;
+    chCard.timer = 0;
+    chCard.title = `CHAPTER ${chNum} — COMPLETE`;
+    chCard.subtitle = chNum === 1 ? '“JUST COME TO THE GYM”' :
+      chNum === 2 ? '“THE BENCH IS NOT RESERVED”' :
+        chNum === 3 ? '“EVERYONE KNOWS EVERYONE”' : '“THE WEIGHTS FLOOR”';
+    chCard.quote = chNum === 1 ? '“COME BACK TOMORROW.”' :
+      chNum === 2 ? '“NEXT: THE PEOPLE WHO NEVER LEAVE THE GYM”' :
+        chNum === 3 ? '“NEXT: THE WEIGHTS FLOOR — EVERYONE HAS A LIMIT.”' : '“KAL PHIR AA JAANA.”';
+
+    chCard.onDone = () => {
+      chCard.active = false;
+      if (chNum < 4) {
+        chapter = chNum + 1;
+        state = 'explore';
+        loadRoom('street');
+      } else {
+        state = 'credits';
+      }
+    };
+    state = 'chapter_end';
+    Audio8.sfx('fanfare');
+  }
+
+  /* ═══ SCREENS RENDERING ══════════════════════════════════ */
+  function renderTitle() {
+    titleTimer++;
+    g.fillStyle = C.uiDark;
+    g.fillRect(0, 0, W, H);
+
+    // Scanlines
+    g.fillStyle = 'rgba(255,208,0,0.03)';
+    for (let y = 0; y < H; y += 2) g.fillRect(0, y, W, 1);
+
+    g.textAlign = 'center';
+
+    g.font = '8px "Press Start 2P", monospace';
+    g.fillStyle = C.fy;
+    g.fillText('FITWAY PRESENTS', W / 2, 40);
+
+    g.font = '16px "Press Start 2P", monospace';
+    g.fillStyle = C.white;
+    g.fillText('IRON RUN', W / 2, 70);
+
+    g.font = '6px "Press Start 2P", monospace';
+    g.fillStyle = C.fy;
+    g.fillText('SECTOR 67, MOHALI — THE 16-BIT GYM ADVENTURE', W / 2, 88);
+
+    // Facade Art
+    g.fillStyle = '#1a1828';
+    g.fillRect(36, 105, 184, 60);
+    g.fillStyle = C.fblk;
+    g.fillRect(38, 107, 180, 56);
+    g.fillStyle = C.fy;
+    g.fillRect(80, 112, 96, 14);
+    g.fillStyle = C.fblk;
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillText('FITWAY GYM', W / 2, 122);
+
+    // Interactive Menu Options
+    const opts = ['START CHAPTER 1', 'SELECT CHAPTER', 'CHARACTER ROSTER', 'FREE ROAM'];
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillStyle = C.uiText;
+
+    if (Math.floor(frame / 16) % 2 === 0) {
+      g.fillStyle = C.fy;
+      g.fillText('PRESS [A] TO ENTER FITWAY', W / 2, 195);
+    }
+    g.font = '5px "Press Start 2P", monospace';
+    g.fillStyle = C.uiMuted;
+    g.fillText('© FITWAY GYM • CREATED BY HERMANIFY', W / 2, 215);
+    g.textAlign = 'left';
+  }
+
+  function renderCharSelect() {
+    g.fillStyle = '#0a0818';
+    g.fillRect(0, 0, W, H);
+
+    g.textAlign = 'center';
+    g.font = '8px "Press Start 2P", monospace';
+    g.fillStyle = C.fy;
+    g.fillText('FITWAY — SELECT YOUR MEMBER', W / 2, 14);
+
+    // Large portrait
+    drawPortrait(selChar.id, 12, 24, 56);
+
+    const ix = 76;
+    g.textAlign = 'left';
+    g.font = '9px "Press Start 2P", monospace';
+    g.fillStyle = C.uiText;
+    g.fillText(selChar.name, ix, 32);
+
+    g.font = '6px "Press Start 2P", monospace';
+    g.fillStyle = C.fy;
+    g.fillText(selChar.title, ix, 42);
+
+    g.fillStyle = C.uiMuted;
+    g.font = '5px "Press Start 2P", monospace';
+    const qLines = selChar.quote.split('\n');
+    qLines.forEach((ql, i) => g.fillText(ql, ix, 54 + i * 8));
+
+    // Stats
+    STAT_NAMES.forEach((sn, i) => {
+      const sx = (i < 3) ? ix : ix + 80;
+      const syi = 78 + (i % 3) * 10;
+      g.fillStyle = '#808090';
+      g.font = '6px "Press Start 2P", monospace';
+      g.fillText(sn, sx, syi);
+      for (let p = 0; p < 5; p++) {
+        g.fillStyle = p < selChar.stats[i] ? C.fy : '#2a2a3a';
+        g.fillRect(sx + 28 + p * 7, syi - 5, 5, 5);
       }
     });
 
-    // ── Boss AI (The Sedentary King) ────────────────────────
-    if (boss && Math.abs(player.x - boss.x) < 280) {
-      boss.anim++;
-      boss.attackTimer--;
+    g.fillStyle = C.white;
+    g.font = '6px "Press Start 2P", monospace';
+    g.fillText('WEAPON: ' + selChar.weapon, ix, 114);
+    g.fillStyle = '#4caf50';
+    g.fillText('SPECIAL: ' + selChar.special, ix, 124);
 
-      if (boss.attackTimer <= 0) {
-        boss.attackTimer = boss.phase === 2 ? 45 : 75;
-        // Boss throws sofa cushions or summons lazy snacks
-        projectiles.push({
-          x: boss.x - 10, y: boss.y + 20,
-          vx: -3.2, vy: -1.2,
-          w: 16, h: 14, type: 'cushion_projectile',
-          life: 60, power: 12, isPlayer: false
-        });
-        Audio8.sfx('bump');
+    // Roster grid
+    const rosterY = 142, boxSize = 28, gap = 8;
+    const totalW = CHARS.length * boxSize + (CHARS.length - 1) * gap;
+    const startX = (W - totalW) / 2;
+
+    CHARS.forEach((ch, i) => {
+      const bx = startX + i * (boxSize + gap);
+      const selected = i === charIdx;
+      if (selected) {
+        g.fillStyle = C.fy;
+        g.fillRect(bx - 2, rosterY - 2, boxSize + 4, boxSize + 4);
       }
-    }
+      drawPortrait(ch.id, bx, rosterY, boxSize);
+      g.fillStyle = selected ? C.fy : '#606070';
+      g.font = '5px "Press Start 2P", monospace';
+      g.textAlign = 'center';
+      g.fillText(ch.name, bx + boxSize / 2, rosterY + boxSize + 8);
+      g.textAlign = 'left';
+    });
 
-    // Camera follow player smoothly
-    const targetCamX = Math.max(0, player.x - 80);
-    cameraX += (targetCamX - cameraX) * 0.12;
+    g.textAlign = 'center';
+    if (Math.floor(frame / 16) % 2 === 0) {
+      g.font = '7px "Press Start 2P", monospace';
+      g.fillStyle = C.uiText;
+      g.fillText('◄ D-PAD ►     [A] SELECT', W / 2, 202);
+    }
+    g.textAlign = 'left';
   }
 
-  /* ══ RENDERING ════════════════════════════════════════════ */
+  function renderChapterEnd() {
+    chCard.timer++;
+    g.fillStyle = C.uiDark;
+    g.fillRect(0, 0, W, H);
+
+    g.textAlign = 'center';
+    g.font = '9px "Press Start 2P", monospace';
+    g.fillStyle = C.fy;
+    g.fillText('FITWAY', W / 2, 45);
+
+    g.font = '10px "Press Start 2P", monospace';
+    g.fillStyle = C.white;
+    g.fillText(chCard.title, W / 2, 70);
+
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillStyle = C.fy;
+    g.fillText(chCard.subtitle, W / 2, 95);
+
+    drawPortrait(selChar.id, W / 2 - 20, 110, 40);
+
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillStyle = C.uiMuted;
+    g.fillText(chCard.quote, W / 2, 175);
+
+    if (chCard.timer > 50 && Math.floor(frame / 16) % 2 === 0) {
+      g.fillStyle = C.white;
+      g.fillText('PRESS [A] TO CONTINUE', W / 2, 205);
+    }
+    g.textAlign = 'left';
+  }
+
+  function renderCredits() {
+    g.fillStyle = C.uiDark;
+    g.fillRect(0, 0, W, H);
+
+    g.textAlign = 'center';
+    g.font = '10px "Press Start 2P", monospace';
+    g.fillStyle = C.fy;
+    g.fillText('FITWAY: THE END', W / 2, 35);
+
+    g.font = '6px "Press Start 2P", monospace';
+    g.fillStyle = C.uiMuted;
+    g.fillText('SECTOR 67, MOHALI', W / 2, 50);
+
+    // Cast Cards
+    const yOff = 75;
+    g.font = '6px "Press Start 2P", monospace';
+
+    g.fillStyle = C.fy;
+    g.fillText('SUKH — OWNER & FOUNDER', W / 2, yOff);
+    g.fillStyle = C.white;
+    g.fillText('GAGAN — TECHNIQUE POLICE', W / 2, yOff + 16);
+    g.fillStyle = C.fy;
+    g.fillText('SHUBHAM — SPEED & CARDIO DEMON', W / 2, yOff + 32);
+    g.fillStyle = C.white;
+    g.fillText('RAKESH — VETERAN FORM PURIST', W / 2, yOff + 48);
+    g.fillStyle = '#4caf50';
+    g.fillText('HERMAN — SOFTWARE / HARDWARE / IT', W / 2, yOff + 64);
+
+    g.fillStyle = C.fy;
+    g.font = '8px "Press Start 2P", monospace';
+    g.fillText('“KAL PHIR AA JAANA.”', W / 2, 175);
+
+    if (Math.floor(frame / 16) % 2 === 0) {
+      g.fillStyle = C.white;
+      g.font = '6px "Press Start 2P", monospace';
+      g.fillText('PRESS [A] TO FREE ROAM THE GYM', W / 2, 205);
+    }
+    g.textAlign = 'left';
+  }
+
+  function renderChallenge() {
+    g.fillStyle = 'rgba(0,0,0,0.85)';
+    g.fillRect(0, 0, W, H);
+
+    g.fillStyle = C.uiBg;
+    g.fillRect(20, 25, W - 40, 170);
+    g.strokeStyle = C.uiBorder;
+    g.lineWidth = 2;
+    g.strokeRect(20, 25, W - 40, 170);
+    g.lineWidth = 1;
+
+    g.textAlign = 'center';
+    g.font = '8px "Press Start 2P", monospace';
+    g.fillStyle = C.fy;
+    g.fillText(chl.title, W / 2, 45);
+
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillStyle = C.white;
+    g.fillText(chl.name, W / 2, 65);
+    g.fillStyle = C.uiMuted;
+    g.fillText(`COACH: ${chl.trainer}`, W / 2, 78);
+
+    const pad = n => String(n).padStart(2, '0');
+    g.font = '22px "Press Start 2P", monospace';
+    g.fillStyle = '#4caf50';
+    g.fillText(`${pad(chl.current)} / ${pad(chl.target)}`, W / 2, 120);
+
+    // Rep Bar
+    g.fillStyle = C.metalDk;
+    g.fillRect(40, 140, W - 80, 8);
+    g.fillStyle = C.fy;
+    g.fillRect(40, 140, (W - 80) * (chl.current / chl.target), 8);
+
+    if (Math.floor(frame / 14) % 2 === 0) {
+      g.font = '8px "Press Start 2P", monospace';
+      g.fillStyle = C.fy;
+      g.fillText('TAP [A] TO REP!', W / 2, 175);
+    }
+    g.textAlign = 'left';
+  }
+
+  function renderChaosMinigame() {
+    minigame.timer++;
+    g.fillStyle = 'rgba(0,0,0,0.88)';
+    g.fillRect(0, 0, W, H);
+
+    g.textAlign = 'center';
+    g.font = '9px "Press Start 2P", monospace';
+    g.fillStyle = '#e53935';
+    g.fillText('CARDIO EMERGENCY OVERLOAD!', W / 2, 40);
+
+    g.font = '6px "Press Start 2P", monospace';
+    g.fillStyle = C.white;
+    g.fillText('SHUT DOWN MALFUNCTIONING CONSOLES', W / 2, 58);
+
+    g.font = '18px "Press Start 2P", monospace';
+    g.fillStyle = C.fy;
+    g.fillText(`REBOOTED: ${minigame.score} / ${minigame.total}`, W / 2, 110);
+
+    if (Math.floor(frame / 12) % 2 === 0) {
+      g.font = '8px "Press Start 2P", monospace';
+      g.fillStyle = '#4caf50';
+      g.fillText('TAP [A] TO OVERRIDE', W / 2, 160);
+    }
+    g.textAlign = 'left';
+  }
+
+  function renderUnlock() {
+    unlockAnim.timer++;
+    g.fillStyle = 'rgba(0,0,0,0.92)';
+    g.fillRect(0, 0, W, H);
+
+    g.textAlign = 'center';
+    g.font = '9px "Press Start 2P", monospace';
+    g.fillStyle = C.fy;
+    g.fillText('ABILITY UNLOCKED!', W / 2, 45);
+
+    g.fillStyle = C.uiBg;
+    g.fillRect(30, 60, W - 60, 95);
+    g.strokeStyle = C.fy;
+    g.lineWidth = 2;
+    g.strokeRect(30, 60, W - 60, 95);
+    g.lineWidth = 1;
+
+    g.font = '10px "Press Start 2P", monospace';
+    g.fillStyle = C.white;
+    g.fillText(unlockAnim.title, W / 2, 85);
+
+    g.font = '7px "Press Start 2P", monospace';
+    g.fillStyle = '#4caf50';
+    g.fillText(unlockAnim.name, W / 2, 105);
+
+    g.font = '5px "Press Start 2P", monospace';
+    g.fillStyle = C.uiMuted;
+    g.fillText(unlockAnim.desc, W / 2, 128);
+
+    if (unlockAnim.timer > 40 && Math.floor(frame / 16) % 2 === 0) {
+      g.font = '7px "Press Start 2P", monospace';
+      g.fillStyle = C.white;
+      g.fillText('PRESS [A] TO CONTINUE', W / 2, 185);
+    }
+    g.textAlign = 'left';
+  }
+
+  function renderHUD() {
+    if (state !== 'explore' || dlg.active) return;
+    g.fillStyle = 'rgba(8,6,16,0.85)';
+    g.fillRect(0, 0, W, 14);
+
+    drawPortrait(selChar.id, 1, 1, 12);
+    g.font = '6px "Press Start 2P", monospace';
+    g.fillStyle = C.fy;
+    g.fillText(selChar.name, 16, 5);
+
+    g.fillStyle = C.uiMuted;
+    g.fillText(curRoom?.name || '', 16, 12);
+
+    if (unlocks.machineOverride) {
+      g.fillStyle = '#4caf50';
+      g.fillText('⚡ OVERRIDE', W - 80, 9);
+    }
+  }
+
+  function renderDialogue() {
+    if (!dlg.active || dlg.idx >= dlg.lines.length) return;
+    const line = dlg.lines[dlg.idx];
+
+    g.fillStyle = C.uiBg;
+    g.fillRect(0, H - 56, W, 56);
+    g.fillStyle = C.uiBorder;
+    g.fillRect(0, H - 56, W, 2);
+    g.fillRect(0, H - 2, W, 2);
+
+    const speakerChar = CHARS.find(ch => ch.name === line.s);
+    if (speakerChar) {
+      drawPortrait(speakerChar.id, 4, H - 52, 32);
+    } else {
+      g.fillStyle = C.uiBg2;
+      g.fillRect(4, H - 52, 32, 32);
+      g.strokeStyle = C.metalDk;
+      g.strokeRect(4, H - 52, 32, 32);
+    }
+
+    if (line.s) {
+      g.fillStyle = C.fy;
+      g.font = '7px "Press Start 2P", monospace';
+      g.fillText(line.s, 42, H - 45);
+    }
+
+    g.fillStyle = C.uiText;
+    g.font = '6px "Press Start 2P", monospace';
+    const visibleText = line.t.substring(0, dlg.charPos);
+    const textLines = visibleText.split('\n');
+    textLines.forEach((tl, i) => {
+      g.fillText(tl, 42, H - 33 + i * 11);
+    });
+
+    if (dlg.charPos >= line.t.length) {
+      if (Math.floor(frame / 16) % 2 === 0) {
+        g.fillStyle = C.fy;
+        g.fillText('▼', W - 14, H - 8);
+      }
+    }
+  }
+
+  /* ═══ MAIN UPDATE LOOP ═══════════════════════════════════ */
+  function update() {
+    frame++;
+    updateFade();
+
+    const held = window.__held || {};
+    const aEdge = window.__aEdge;
+
+    switch (state) {
+      case 'title':
+        if (aEdge) {
+          state = 'char_select';
+          Audio8.sfx('start');
+        }
+        break;
+
+      case 'char_select':
+        if (held.left && !held._csL) {
+          charIdx = (charIdx - 1 + CHARS.length) % CHARS.length;
+          selChar = CHARS[charIdx];
+          Audio8.sfx('menu');
+        }
+        if (held.right && !held._csR) {
+          charIdx = (charIdx + 1) % CHARS.length;
+          selChar = CHARS[charIdx];
+          Audio8.sfx('menu');
+        }
+        held._csL = held.left;
+        held._csR = held.right;
+
+        if (aEdge) {
+          selChar = CHARS[charIdx];
+          state = 'explore';
+          chapter = 1;
+          loadRoom('street');
+          Audio8.sfx('cartridge');
+          Audio8.music('mario');
+          startDialogue('ch1_street_intro');
+        }
+        break;
+
+      case 'explore':
+        pl.moving = false;
+        let nx = pl.x, ny = pl.y;
+        const spd = held.b ? pl.spd * 1.5 : pl.spd;
+
+        if (held.up) { ny -= spd; pl.dir = 'up'; pl.moving = true; }
+        if (held.down) { ny += spd; pl.dir = 'down'; pl.moving = true; }
+        if (held.left) { nx -= spd; pl.dir = 'left'; pl.moving = true; }
+        if (held.right) { nx += spd; pl.dir = 'right'; pl.moving = true; }
+
+        if (canWalkTo(nx, pl.y)) pl.x = nx;
+        if (canWalkTo(pl.x, ny)) pl.y = ny;
+
+        pl.x = Math.max(0, Math.min(W - TS, pl.x));
+        pl.y = Math.max(0, Math.min(H - 22, pl.y));
+
+        if (pl.moving) {
+          pl.walkT++;
+          if (pl.walkT % 8 === 0) pl.walkFrame = (pl.walkFrame || 0) + 1;
+          if (pl.walkFrame > 3) pl.walkFrame = 0;
+        } else {
+          pl.walkFrame = 0;
+        }
+
+        checkExits();
+
+        if (pl.interactCooldown > 0) pl.interactCooldown--;
+        if (aEdge && pl.interactCooldown <= 0) {
+          pl.interactCooldown = 12;
+          checkInteraction();
+        }
+        break;
+
+      case 'dialogue':
+        if (dlg.active && dlg.lines[dlg.idx]) {
+          const line = dlg.lines[dlg.idx];
+          if (dlg.charPos < line.t.length) {
+            dlg.timer++;
+            if (dlg.timer % 2 === 0) dlg.charPos++;
+          }
+        }
+        if (aEdge) advanceDialogue();
+        break;
+
+      case 'challenge':
+        if (aEdge) doRep();
+        break;
+
+      case 'chaos_minigame':
+        if (aEdge) {
+          minigame.score++;
+          Audio8.sfx('blip');
+          if (minigame.score >= minigame.total) {
+            minigame.active = false;
+            if (minigame.onDone) minigame.onDone();
+          }
+        }
+        break;
+
+      case 'unlock':
+        if (aEdge && unlockAnim.timer > 30) {
+          unlockAnim.active = false;
+          state = 'explore';
+          if (unlockAnim.onDone) unlockAnim.onDone();
+        }
+        break;
+
+      case 'chapter_end':
+        if (aEdge && chCard.timer > 40) {
+          if (chCard.onDone) chCard.onDone();
+        }
+        break;
+
+      case 'credits':
+        if (aEdge) {
+          state = 'explore';
+          mode = 'free_roam';
+          chapter = 4;
+          storyProgress.stairsUnlocked = true;
+          loadRoom('reception');
+        }
+        break;
+    }
+  }
+
+  /* ═══ MAIN RENDER LOOP ═══════════════════════════════════ */
   function render(ctx) {
     if (ctx) g = ctx;
     if (!g) return;
 
-    g.save();
+    g.imageSmoothingEnabled = false;
 
-    // Screen shake
-    if (screenShake > 0) {
-      g.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
+    switch (state) {
+      case 'title':
+        renderTitle();
+        break;
+      case 'char_select':
+        renderCharSelect();
+        break;
+      case 'chapter_end':
+        renderChapterEnd();
+        break;
+      case 'credits':
+        renderCredits();
+        break;
+      case 'explore':
+      case 'dialogue':
+        if (roomBgCanvas) g.drawImage(roomBgCanvas, 0, 0);
+
+        // Render NPCs & player sorted by Y coordinate for depth
+        const entities = [];
+        npcs.forEach(npc => {
+          entities.push({
+            y: npc.py,
+            draw: () => {
+              drawSprite(npc.sprite || npc.charId || 'member_m', npc.px, npc.py, npc.dir, npc.walkFrame || 0, npc.exercising);
+            }
+          });
+        });
+
+        entities.push({
+          y: pl.y,
+          draw: () => {
+            drawSprite(selChar.id, pl.x, pl.y, pl.dir, pl.walkFrame || 0, false);
+          }
+        });
+
+        entities.sort((a, b) => a.y - b.y);
+        entities.forEach(e => e.draw());
+
+        renderHUD();
+        if (state === 'dialogue') renderDialogue();
+        break;
+
+      case 'challenge':
+        if (roomBgCanvas) g.drawImage(roomBgCanvas, 0, 0);
+        renderChallenge();
+        break;
+
+      case 'chaos_minigame':
+        if (roomBgCanvas) g.drawImage(roomBgCanvas, 0, 0);
+        renderChaosMinigame();
+        break;
+
+      case 'unlock':
+        renderUnlock();
+        break;
     }
 
-    if (gameState === 'intro') {
-      renderIntro();
-      g.restore();
-      return;
-    }
-
-    if (gameState === 'char_select') {
-      renderCharSelect();
-      g.restore();
-      return;
-    }
-
-    // Draw Gym Level
-    renderGymWorld();
-
-    g.restore();
-
-    // HUD & Overlays
-    renderGameHUD();
-
-    if (workout.active) {
-      renderWorkoutModal();
-    } else if (gameState === 'win') {
-      renderWinScreen();
-    } else if (gameState === 'gameover') {
-      renderGameOverScreen();
-    }
-
-    // Screen Flash
-    if (screenFlash > 0) {
-      g.fillStyle = `rgba(255,255,255,${(screenFlash / 16).toFixed(2)})`;
+    if (fade.alpha > 0) {
+      g.fillStyle = `rgba(0,0,0,${fade.alpha.toFixed(2)})`;
       g.fillRect(0, 0, W, H);
     }
   }
 
-  /* ── Intro Cinematic ─────────────────────────────────────── */
-  function renderIntro() {
-    g.fillStyle = '#0a0a14';
-    g.fillRect(0, 0, W, H);
-
-    g.font = '10px "Press Start 2P", monospace';
-    g.fillStyle = '#ffd000';
-    g.textAlign = 'center';
-    g.fillText('FITWAY PRESENTS', W / 2, 60);
-
-    g.font = '16px "Press Start 2P", monospace';
-    g.fillStyle = '#ffffff';
-    g.fillText('IRON RUN', W / 2, 95);
-
-    g.font = '7px "Press Start 2P", monospace';
-    g.fillStyle = '#ff5fa2';
-    g.fillText('A FITNESS ARCADE ADVENTURE', W / 2, 120);
-
-    if (Math.floor(frame / 20) % 2 === 0) {
-      g.fillStyle = '#8fe3c8';
-      g.font = '8px "Press Start 2P", monospace';
-      g.fillText('PRESS A OR TAP TO ENTER GYM', W / 2, 175);
-    }
-    g.textAlign = 'left';
-  }
-
-  /* ── Character Select Screen ─────────────────────────────── */
-  function renderCharSelect() {
-    g.fillStyle = '#12081f';
-    g.fillRect(0, 0, W, H);
-
-    // Header
-    g.fillStyle = '#ffd000';
-    g.font = '10px "Press Start 2P", monospace';
-    g.textAlign = 'center';
-    g.fillText('SELECT YOUR TRAINER', W / 2, 22);
-
-    // Selected Character Showcase Box
-    const char = CHARACTERS[selectedCharIndex];
-    Dialogue.panel(g, 16, 32, W - 32, 140);
-
-    // Character Name & Title
-    g.fillStyle = char.color;
-    g.font = '10px "Press Start 2P", monospace';
-    g.fillText(char.name, W / 2, 46);
-
-    g.fillStyle = '#ffffff';
-    g.font = '6px "Press Start 2P", monospace';
-    g.fillText(char.title, W / 2, 58);
-
-    // Animated Character Large Sprite Box
-    drawLargeCharSprite(char, W / 2 - 16, 70);
-
-    // Weapon & Special
-    g.font = '6px "Press Start 2P", monospace';
-    g.textAlign = 'left';
-    g.fillStyle = '#ffd000';
-    g.fillText(`WEAPON : ${char.weapon}`, 26, 116);
-    g.fillStyle = '#8fe3c8';
-    g.fillText(`SPECIAL: ${char.specialName}`, 26, 128);
-    g.fillStyle = '#ff5fa2';
-    g.fillText(`EXERCISE: ${char.challengeName}`, 26, 140);
-
-    // Stats bar display
-    drawStatPips('PWR', char.stats.power, 26, 154);
-    drawStatPips('SPD', char.stats.speed, 140, 154);
-
-    // Navigation Prompt
-    g.textAlign = 'center';
-    g.fillStyle = Math.floor(frame / 20) % 2 === 0 ? '#ffd000' : '#ffffff';
-    g.font = '7px "Press Start 2P", monospace';
-    g.fillText('◄ USE D-PAD / ARROWS ►', W / 2, 190);
-    g.fillText('PRESS A / SPACE TO CONFIRM', W / 2, 204);
-    g.textAlign = 'left';
-  }
-
-  function drawStatPips(label, val, x, y) {
-    g.fillStyle = '#ffffff';
-    g.font = '6px "Press Start 2P", monospace';
-    g.fillText(label, x, y);
-    for (let i = 0; i < 5; i++) {
-      g.fillStyle = (i < val ? '#ffd000' : '#333333');
-      g.fillRect(x + 30 + i * 8, y - 5, 6, 6);
-    }
-  }
-
-  function drawLargeCharSprite(char, x, y) {
-    // Large pixel sprite
-    g.fillStyle = char.color;
-    g.fillRect(x + 4, y, 24, 28);
-    g.fillStyle = '#fce0a8'; // Skin
-    g.fillRect(x + 8, y + 4, 16, 10);
-    g.fillStyle = '#000000'; // Eyes
-    g.fillRect(x + 12, y + 6, 2, 2);
-    g.fillRect(x + 18, y + 6, 2, 2);
-    g.fillStyle = char.darkColor; // Gym tank
-    g.fillRect(x + 6, y + 14, 20, 14);
-  }
-
-  /* ── Living Gym World Render ─────────────────────────────── */
-  function renderGymWorld() {
-    // Dynamic gym backdrop color based on area
-    g.fillStyle = '#1b1b2f';
-    g.fillRect(0, 0, W, H);
-
-    g.save();
-    g.translate(-Math.floor(cameraX), 0);
-
-    // Fitway Branding Sign on Exterior (x: 40)
-    g.fillStyle = '#000000';
-    g.fillRect(20, 30, 120, 36);
-    g.fillStyle = '#ffd000';
-    g.fillRect(22, 32, 116, 32);
-    g.fillStyle = '#000000';
-    g.font = '12px "Press Start 2P", monospace';
-    g.fillText('FITWAY', 34, 52);
-
-    // Section Area Markers
-    g.font = '7px "Press Start 2P", monospace';
-    g.fillStyle = 'rgba(255,208,0,0.6)';
-    g.fillText('RECEPTION', 160, 80);
-    g.fillText('CARDIO ZONE', 720, 80);
-    g.fillText('STRENGTH & WEIGHTS', 1700, 80);
-    g.fillText('FUNCTIONAL & BOXING', 2500, 80);
-    g.fillText('RECOVERY LOUNGE', 3080, 80);
-    g.fillText('PERFORMANCE LAB', 3500, 80);
-    g.fillText('BOSS: SEDENTARY KING', 4100, 80);
-
-    // Platforms & Gym Equipment
-    platforms.forEach(plat => {
-      if (plat.type === 'floor_reception') {
-        g.fillStyle = '#e8d8c8'; // Elegant wood reception floor
-        g.fillRect(plat.x, plat.y, plat.w, plat.h);
-        g.fillStyle = '#ffd000'; // Fitway yellow accent stripe
-        g.fillRect(plat.x, plat.y, plat.w, 4);
-      } else if (plat.type === 'floor_cardio') {
-        g.fillStyle = '#222831'; // Modern gym rubber mat
-        g.fillRect(plat.x, plat.y, plat.w, plat.h);
-        g.fillStyle = '#00adb5';
-        g.fillRect(plat.x, plat.y, plat.w, 3);
-      } else if (plat.type === 'floor_weights') {
-        g.fillStyle = '#1a1a1a'; // Heavy duty black gym rubber
-        g.fillRect(plat.x, plat.y, plat.w, plat.h);
-        g.fillStyle = '#ffd000';
-        g.fillRect(plat.x, plat.y, plat.w, 4);
-      } else if (plat.type === 'foam_blocks') {
-        g.fillStyle = '#ffe04f';
-        g.fillRect(plat.x, plat.y, plat.w, plat.h);
-        g.fillStyle = '#d3216b';
-        g.strokeRect(plat.x + 0.5, plat.y + 0.5, plat.w - 1, plat.h - 1);
-        g.font = '6px "Press Start 2P", monospace';
-        g.fillText('HIT', plat.x + 2, plat.y + 8);
-      } else if (plat.type === 'reception_desk') {
-        g.fillStyle = '#5c3d2e';
-        g.fillRect(plat.x, plat.y, plat.w, plat.h);
-        g.fillStyle = '#ffd000';
-        g.fillRect(plat.x + 2, plat.y + 2, plat.w - 4, 4);
-      } else {
-        g.fillStyle = '#393e46';
-        g.fillRect(plat.x, plat.y, plat.w, plat.h);
-        g.fillStyle = '#ffd000';
-        g.fillRect(plat.x, plat.y, plat.w, 2);
-      }
-    });
-
-    // Treadmills with animated belts
-    treadmills.forEach(tm => {
-      g.fillStyle = '#000000';
-      g.fillRect(tm.x, tm.y, tm.w, tm.h);
-      g.fillStyle = '#ffd000';
-      const offset = (frame * tm.speed * 2) % 12;
-      for (let tx = tm.x + offset; tx < tm.x + tm.w; tx += 12) {
-        if (tx >= tm.x) g.fillRect(tx, tm.y + 2, 4, tm.h - 4);
-      }
-    });
-
-    // Fitway Tokens
-    tokens.forEach(tok => {
-      if (!tok.collected) {
-        g.fillStyle = '#ffd000';
-        g.beginPath();
-        g.arc(tok.x + 6, tok.y + 6, 6, 0, Math.PI * 2);
-        g.fill();
-        g.fillStyle = '#000000';
-        g.font = '6px "Press Start 2P", monospace';
-        g.fillText('F', tok.x + 3, tok.y + 2);
-      }
-    });
-
-    // NPCs & Dialogues
-    gymNPCs.forEach(npc => {
-      g.fillStyle = '#8fe3c8';
-      g.fillRect(npc.x, npc.y, 14, 20);
-      g.fillStyle = '#ffffff';
-      g.fillRect(npc.x + 2, npc.y + 2, 10, 6);
-      if (Math.abs(player.x - npc.x) < 40) {
-        Dialogue.panel(g, npc.x - 20, npc.y - 26, npc.msg.length * 6 + 14, 16);
-        g.font = '5px "Press Start 2P", monospace';
-        g.fillStyle = '#1a1a1a';
-        g.fillText(npc.msg, npc.x - 14, npc.y - 20);
-      }
-    });
-
-    // Checkpoints Stations
-    checkpoints.forEach(cp => {
-      g.fillStyle = cp.done ? '#8fe3c8' : '#ffd000';
-      g.fillRect(cp.x, cp.y, cp.w, cp.h);
-      g.fillStyle = '#000000';
-      g.fillRect(cp.x + 4, cp.y + 4, cp.w - 8, cp.h - 8);
-      g.fillStyle = '#ffd000';
-      g.font = '6px "Press Start 2P", monospace';
-      g.fillText('REP', cp.x + 4, cp.y + 12);
-    });
-
-    // Enemies
-    enemies.forEach(e => {
-      drawEnemy(e);
-    });
-
-    // Boss (The Sedentary King)
-    if (boss) {
-      drawBoss(boss);
-    }
-
-    // Projectiles
-    projectiles.forEach(p => {
-      drawProjectile(p);
-    });
-
-    // Player
-    drawPlayer();
-
-    // Floating texts
-    floatingTexts.forEach(ft => {
-      g.font = '6px "Press Start 2P", monospace';
-      g.fillStyle = ft.col || '#ffffff';
-      g.fillText(ft.text, ft.x, ft.y);
-    });
-
-    g.restore();
-  }
-
-  function drawPlayer() {
-    const px = player.x, py = player.y;
-
-    g.save();
-    if (player.facing === 'left') {
-      g.translate(px + player.w, py);
-      g.scale(-1, 1);
-    } else {
-      g.translate(px, py);
-    }
-
-    // Player body
-    g.fillStyle = selectedChar.color;
-    g.fillRect(2, 2, 12, 16);
-    g.fillStyle = '#fce0a8'; // Skin
-    g.fillRect(4, 2, 8, 6);
-    g.fillStyle = '#000'; // Eyes
-    g.fillRect(8, 4, 2, 2);
-
-    // Gym outfit
-    g.fillStyle = selectedChar.darkColor;
-    g.fillRect(2, 8, 12, 10);
-
-    // Special aura effect
-    if (player.isSpecialActive) {
-      g.strokeStyle = (frame % 4 < 2 ? '#ffd000' : '#ff5fa2');
-      g.strokeRect(-2, -2, player.w + 4, player.h + 4);
-    }
-
-    g.restore();
-  }
-
-  function drawEnemy(e) {
-    if (e.type === 'treadmill_bot') {
-      g.fillStyle = '#00adb5';
-      g.fillRect(e.x, e.y, e.w, e.h);
-      g.fillStyle = '#ff5fa2';
-      g.fillRect(e.x + 2, e.y + 4, 4, 4);
-    } else if (e.type === 'dumbbell_golem') {
-      g.fillStyle = '#393e46';
-      g.fillRect(e.x, e.y, e.w, e.h);
-      g.fillStyle = '#ffd000';
-      g.fillRect(e.x + 4, e.y + 4, e.w - 8, e.h - 8);
-    } else {
-      g.fillStyle = '#e23e57';
-      g.fillRect(e.x, e.y, e.w, e.h);
-    }
-  }
-
-  function drawBoss(b) {
-    g.fillStyle = '#7a0f42';
-    g.fillRect(b.x, b.y, b.w, b.h);
-    g.fillStyle = '#ffd000';
-    g.fillRect(b.x + 8, b.y + 8, b.w - 16, b.h - 16);
-    g.fillStyle = '#ffffff';
-    g.font = '6px "Press Start 2P", monospace';
-    g.fillText('KING LAZY', b.x + 4, b.y - 10);
-
-    // Boss HP bar
-    const ratio = Math.max(0, b.hp / b.maxHp);
-    g.fillStyle = '#333333';
-    g.fillRect(b.x, b.y - 6, b.w, 4);
-    g.fillStyle = b.shielded ? '#00adb5' : '#e23e57';
-    g.fillRect(b.x, b.y - 6, b.w * ratio, 4);
-  }
-
-  function drawProjectile(p) {
-    g.fillStyle = p.isPlayer ? selectedChar.color : '#e23e57';
-    g.fillRect(p.x, p.y, p.w, p.h);
-  }
-
-  /* ── Game HUD ────────────────────────────────────────────── */
-  function renderGameHUD() {
-    g.fillStyle = '#ffffff';
-    g.font = '7px "Press Start 2P", monospace';
-
-    // Character Name & HP
-    g.fillText(`${selectedChar.name}`, 16, 14);
-    g.fillStyle = '#333333';
-    g.fillRect(16, 18, 60, 6);
-    g.fillStyle = '#e23e57';
-    g.fillRect(16, 18, (player.hp / player.maxHp) * 60, 6);
-
-    // Special Meter
-    g.fillStyle = '#ffffff';
-    g.fillText('SPECIAL', 90, 14);
-    g.fillStyle = '#333333';
-    g.fillRect(90, 18, 50, 6);
-    g.fillStyle = player.specialCharge >= 100 ? '#ffd000' : '#8fe3c8';
-    g.fillRect(90, 18, (player.specialCharge / 100) * 50, 6);
-
-    // Fitway Tokens & Streak
-    g.fillStyle = '#ffd000';
-    g.fillText(`🪙 x${fitwayTokens}`, 155, 18);
-    g.fillText(`🔥 ${dailyStreak}d`, 205, 18);
-  }
-
-  /* ── Interactive Workout Checkpoint Modal ─────────────────── */
-  function renderWorkoutModal() {
-    g.fillStyle = 'rgba(0,0,0,0.85)';
-    g.fillRect(0, 0, W, H);
-
-    Dialogue.panel(g, 20, 30, W - 40, 160);
-
-    g.font = '8px "Press Start 2P", monospace';
-    g.fillStyle = '#ffd000';
-    g.textAlign = 'center';
-    g.fillText(workout.title, W / 2, 48);
-
-    g.fillStyle = '#ffffff';
-    g.font = '7px "Press Start 2P", monospace';
-    g.fillText(workout.exercise, W / 2, 70);
-
-    // Giant Counter
-    g.font = '24px "Press Start 2P", monospace';
-    g.fillStyle = '#8fe3c8';
-    const pad = (v) => String(v).padStart(2, '0');
-    g.fillText(`${pad(workout.current)} / ${pad(workout.target)}`, W / 2, 110);
-
-    // Pump button instruction
-    if (Math.floor(frame / 16) % 2 === 0) {
-      g.font = '8px "Press Start 2P", monospace';
-      g.fillStyle = '#ffd000';
-      g.fillText('TAP A / SCREEN TO REP!', W / 2, 150);
-    }
-    g.textAlign = 'left';
-  }
-
-  function renderWinScreen() {
-    g.fillStyle = 'rgba(0,0,0,0.85)';
-    g.fillRect(0, 0, W, H);
-
-    Dialogue.panel(g, 24, 30, W - 48, 160);
-    g.font = '10px "Press Start 2P", monospace';
-    g.fillStyle = '#ffd000';
-    g.textAlign = 'center';
-    g.fillText('FITWAY MISSION COMPLETE!', W / 2, 50);
-
-    g.font = '7px "Press Start 2P", monospace';
-    g.fillStyle = '#ffffff';
-    g.fillText(`FINAL SCORE : ${score}`, W / 2, 75);
-    g.fillText(`REPS COMPLETED: ${totalRepsCompleted}`, W / 2, 90);
-    g.fillText(`XP EARNED   : ${xp}`, W / 2, 105);
-    g.fillText(`DAILY STREAK: 🔥 ${dailyStreak} DAYS!`, W / 2, 120);
-
-    g.fillStyle = '#8fe3c8';
-    g.fillText('COME BACK TOMORROW TO TRAIN!', W / 2, 145);
-    g.fillStyle = '#ffd000';
-    g.fillText('PRESS A TO RETURN', W / 2, 165);
-    g.textAlign = 'left';
-  }
-
-  function renderGameOverScreen() {
-    g.fillStyle = 'rgba(0,0,0,0.9)';
-    g.fillRect(0, 0, W, H);
-
-    g.font = '12px "Press Start 2P", monospace';
-    g.fillStyle = '#e23e57';
-    g.textAlign = 'center';
-    g.fillText('WORKOUT PAUSED', W / 2, 90);
-
-    g.font = '8px "Press Start 2P", monospace';
-    g.fillStyle = '#ffd000';
-    g.fillText('DRINK WATER & RETRY!', W / 2, 120);
-    g.fillText('PRESS A TO TRY AGAIN', W / 2, 145);
-    g.textAlign = 'left';
-  }
-
-  function boxOverlap(x1, y1, w1, h1, x2, y2, w2, h2) {
-    return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
-  }
-
-  /* ══ PUBLIC INTERFACE ═════════════════════════════════════ */
+  /* ═══ LIFECYCLE ══════════════════════════════════════════ */
   function start(ctx) {
     g = ctx;
-    running = true;
-    gameState = 'intro';
-    introTimer = 0;
+    state = 'title';
+    titleTimer = 0;
+    charIdx = 0;
+    selChar = CHARS[0];
+    chapter = 1;
   }
 
   function stop() {
-    running = false;
     Audio8.stop();
   }
 
   function reset() {
-    gameState = 'char_select';
+    state = 'title';
+    titleTimer = 0;
+    chapter = 1;
   }
 
   function onAction() {
-    if (gameState === 'intro') {
-      gameState = 'char_select';
-      Audio8.sfx('start');
-    } else if (gameState === 'char_select') {
-      selectedChar = CHARACTERS[selectedCharIndex];
-      initGameWorld();
-      gameState = 'play';
-      Audio8.sfx('cartridge');
-      Audio8.music('mario');
-    } else if (workout.active) {
-      registerWorkoutRep();
-    } else if (gameState === 'win' || gameState === 'gameover') {
-      gameState = 'char_select';
-    }
+    if (state === 'challenge') { doRep(); return; }
+    window.__aEdge = true;
   }
 
-  return {
-    start,
-    stop,
-    reset,
-    update,
-    render,
-    onAction,
-    getHUD: () => ({
-      title: "FITWAY: IRON RUN",
-      score,
-      xp,
-      reps: totalRepsCompleted,
-      streak: dailyStreak,
-      char: selectedChar ? selectedChar.name : "SUKH"
-    })
-  };
+  function getHUD() {
+    return {
+      title: 'FITWAY: IRON RUN',
+      char: selChar?.name || 'HERMAN',
+      room: curRoom?.name || 'SECTOR 67, MOHALI',
+      chapter: `CHAPTER ${chapter}`,
+      equipped: unlocks.machineOverride ? 'OVERRIDE' : 'NONE'
+    };
+  }
+
+  return { start, stop, reset, update, render, onAction, getHUD };
 })();
