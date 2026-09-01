@@ -1,24 +1,32 @@
 /* ============================================================
-   FITWAY: IRON RUN — 512×448 HD Modern Gym RPG Experience
-   Sector 67, Mohali • Ultimate Visual & Environmental Overhaul
+   FITWAY: IRON RUN — 512×448 Ultra-HD Gym RPG Masterpiece
+   Sector 67, Mohali • Museum-Grade Environmental & Audio Edition
    ============================================================
-   High-Definition 32-Bit / Modern Indie Pixel Aesthetics:
-   - 512×448 Native HD Resolution (32×32 Rich Detailed Tiles)
-   - Dense Environmental Additions:
-     * Dual-Tower Cable Crossover with Multi-grip Pull-up Bridge
-     * High-Tech Treadmills with Glowing Cyan Heart-Rate Dashboards
-     * Aerodynamic Spin Bikes with Rotating Chrome Flywheels
-     * Heavy Olympic Squat Racks with Calibrated Bumper Plates
-     * 3-Tier Multi-Dumbbell Racks with Hex Weights
-     * Suspended Heavy Punching Bags with Hanging Chains & Rebound
-     * Water Cooler Station with Animated Water Bubbles
-     * Wall-Mounted Glowing 7-Segment Digital Workout Timer
-     * Trophy & Achievement Showcase with Specular Glints
-     * Ficus & Monstera Tropical Plants in Terracotta Planters
-     * Chalk Pedestal with Lifting Chalk & Floor Markings
-   - Living Gym Lifters & Boxers with Realistic Exercise Animations
-   - Layered Volumetric Sunbeams, Floating Chalk Motes & Fan Shadows
-   - 96×96 Street Fighter-Grade Character Busts & Glassmorphic UI
+   Dense 32-Bit / Modern Indie Pixel Art Gym Simulation:
+   - 512×448 Native Resolution (32×32 Pixel Handcrafted Tiles)
+   - Expanded Environmental Stations & Props:
+     * Heavy Tractor Tire Stack & Sledgehammer Zone
+     * Deadlift Platform with Olympic Barbell & Colored Bumpers
+     * Concept2-Style Indoor Rower with Flywheel & Monitored Rail
+     * 3-Tier Kettlebell Pyramid Tree (Color-Coded Competition Bells)
+     * Foam Roller & Yoga Mat Storage Rack (Multicolor Rolls)
+     * Glass Mini-Fridge with Glowing Cold Protein Drinks
+     * Dual-Tower Cable Crossover & Squat Power Cage
+     * High-Tech Treadmills & Aerodynamic Spin Bikes
+     * Suspended Heavy Leather Punching Bags & Speed Bag Station
+     * Water Cooler with Rising Animated Bubbles & Cup Dispenser
+     * Wall-Mounted Glowing 7-Segment Timer & PR Leaderboard
+     * Trophy Showcase & Ficus/Monstera Tropical Planters
+     * Sector 67 Street Exterior: Parked Motorcycle, Crosswalk, Storefront
+   - Living Animated Gym NPCs:
+     * Barbell Bench Presser with Spotter
+     * Heavy Olympic Deadlifter
+     * Indoor Rower with Dynamic Stroke Cycle
+     * High-Pace Treadmill Runner & Spin Cyclist
+     * Heavy Bag Boxer with Rebound Physics
+     * Jump Rope Conditioning Athlete
+   - Multi-Beam Volumetric Sunbeams, Chalk Motes & Rotating Fan Shadows
+   - 96×96 Street Fighter II Character Busts & Glassmorphic UI
    ============================================================ */
 
 window.FitwayGame = (() => {
@@ -26,34 +34,34 @@ window.FitwayGame = (() => {
   const W = 512, H = 448, TS = 32, COLS = 16, ROWS = 14;
   let g = null, frame = 0;
 
-  /* ═══ HIGH-DEFINITION PALETTE ═════════════════════════════ */
+  /* ═══ ULTRA-HD COLOR PALETTE ═════════════════════════════ */
   const C = {
-    // Rich Walnut Hardwood Planks with Lacquer Sheen
+    // Parquet Walnut Hardwood Floor with Lacquer Gloss
     wood1: '#b88652', wood2: '#9e6d3c', wood3: '#835429', wood4: '#cf9e6b',
-    woodLine: '#66411d', woodKnot: '#543213', woodHi: 'rgba(255, 255, 255, 0.08)',
-    // Vulcanized Interlocking Rubber Matting
+    woodLine: '#66411d', woodKnot: '#543213', woodHi: 'rgba(255, 255, 255, 0.09)',
+    // Vulcanized Interlocking Gym Rubber
     rubber1: '#262932', rubber2: '#1c1e26', rubber3: '#323644', rubberBorder: '#ffd000',
-    // Performance Turf & Mats
+    // Performance Turf & Lifting Platforms
     turfBlue: '#154878', turfBlueLt: '#2062a0', turfLine: '#ffffff',
-    carpetRed: '#8f242e', carpetRedLt: '#b83240',
-    // Structural Wall & Trims
+    carpetRed: '#8f242e', carpetRedLt: '#b83240', platformWood: '#d7a15c',
+    // Architectural Wall & Trims
     wall: '#ede5d8', wallDk: '#cfc0ad', wallTop: '#786856', baseboard: '#442d1b', baseboardHi: '#6b492f',
     // Fitway Electric Neon Gold
     fy: '#ffd000', fyDk: '#cc9900', fyLt: '#ffe766', fyGlow: 'rgba(255, 208, 0, 0.5)',
     fblk: '#0d0f14', fblk2: '#161922', fblk3: '#222634',
-    // Chrome, Steel & Equipment
+    // Chrome, Steel & Machinery
     metal: '#949ea8', metalDk: '#505862', metalLt: '#c8d4e0', metalHi: '#f2f7fc',
-    // Weight Bumper Plates (Olympic Calibrated)
-    plateRed: '#e53935', plateBlue: '#1e88e5', plateYellow: '#fdd835', plateGreen: '#43a047',
-    // Glass, Atmosphere & Neon
+    // Olympic Calibrated Bumper Plates
+    plateRed: '#e53935', plateBlue: '#1e88e5', plateYellow: '#fdd835', plateGreen: '#43a047', plateWhite: '#f5f5f5',
+    // Atmosphere, Glass & Neon
     mirror: '#a0c8dc', mirrorLt: '#cce4f2', mirrorHi: '#ffffff',
-    glass: '#88bad8', waterJug: '#4fc3f7',
-    sunbeam: 'rgba(255, 245, 210, 0.14)', sunbeamCore: 'rgba(255, 250, 230, 0.26)',
+    glass: '#88bad8', waterJug: '#4fc3f7', fridgeGlow: 'rgba(0, 229, 255, 0.18)',
+    sunbeam: 'rgba(255, 245, 210, 0.15)', sunbeamCore: 'rgba(255, 250, 230, 0.28)',
     // Dynamic Accents
     cyan: '#00e5ff', red: '#f03a3a', emerald: '#00e676', orange: '#ff9100', purple: '#ab47bc',
     // UI Theme
-    uiGlass: 'rgba(13, 15, 20, 0.88)', uiGlassBorder: '#ffd000', uiText: '#f0f3f8', uiMuted: '#8a94a6',
-    black: '#000000', white: '#ffffff', shadow: 'rgba(0, 0, 0, 0.35)'
+    uiGlass: 'rgba(13, 15, 20, 0.90)', uiGlassBorder: '#ffd000', uiText: '#f0f3f8', uiMuted: '#8a94a6',
+    black: '#000000', white: '#ffffff', shadow: 'rgba(0, 0, 0, 0.38)'
   };
 
   /* ═══ 5 PLAYABLE FITWAY HEROES ═══════════════════════════ */
@@ -168,14 +176,14 @@ window.FitwayGame = (() => {
   let motes = [];
   function initMotes() {
     motes = [];
-    for (let i = 0; i < 36; i++) {
+    for (let i = 0; i < 42; i++) {
       motes.push({
         x: Math.random() * W,
         y: Math.random() * H,
-        vx: (Math.random() - 0.5) * 0.4,
+        vx: (Math.random() - 0.5) * 0.45,
         vy: -0.15 - Math.random() * 0.35,
         sz: Math.random() > 0.6 ? 2.5 : 1.5,
-        alpha: 0.2 + Math.random() * 0.6
+        alpha: 0.2 + Math.random() * 0.65
       });
     }
   }
@@ -231,16 +239,17 @@ window.FitwayGame = (() => {
   // Room NPCs
   let npcs = [];
 
-  /* ═══ 512×448 DETAILED GYM ROOM MAPS ═════════════════════ */
+  /* ═══ 512×448 DENSE GYM ROOM MAPS ════════════════════════ */
   // Tile Key:
-  // . = walnut hardwood floor, , = rubber deadlift mat, r = red carpet, b = blue agility turf
-  // s = street asphalt, c = sidewalk curb, g = grass
-  // W = solid wall with baseboard, M = full chrome mirror, H = upper sunbeam window
-  // F = Fitway gold sign, D = desk & terminal, L = lockers, p = ficus plant, w = water cooler
-  // n = bench press station, T = treadmill, B = spin bike, k = kettlebell & yoga ball
-  // q = cable crossover tower, d = dumbbell rack, U = punching bag, Y = speed bag
-  // K = chalk pedestal, C = wall digital timer, A = award trophy case
-  const WALKABLE = '._, rbmgs><^vEO';
+  // . = walnut wood floor, , = rubber mat, r = red lifting zone, b = blue agility turf
+  // s = street asphalt, c = sidewalk curb, g = grass, J = deadlift platform
+  // W = solid wall, M = full mirror, H = upper window, F = Fitway sign
+  // D = reception desk, L = lockers, p = ficus plant, w = water cooler
+  // n = bench press station, T = treadmill, B = spin bike, R = Concept2 rower
+  // k = kettlebell tree & yoga ball, q = cable crossover tower, d = dumbbell rack
+  // U = heavy punching bag, Y = speed bag, O = tire flip stack & hammer
+  // K = chalk pedestal, C = wall timer, A = trophy case, E = fridge, G = foam roller rack
+  const WALKABLE = '._, rbmgsJ><^vE';
   function isWalkable(ch) { return WALKABLE.includes(ch); }
 
   const ROOMS = {
@@ -248,15 +257,15 @@ window.FitwayGame = (() => {
       name: 'FITWAY MAIN GYM — SECTOR 67',
       map: [
         'W.H..H..H..H..HW',
-        'Wd.k......qq..rW',
-        'Wd.k......qq..rW',
-        'W..A...C.......W',
-        'W.TT.TT.BB..n..W',
-        'W.TT.TT.BB..n..W',
+        'Wd.k.J...Jqq..rW',
+        'Wd.k.J...Jqq..rW',
+        'W..A...C...E...W',
+        'W.TT.TT.BB.RR.nW',
+        'W.TT.TT.BB.RR.nW',
         'W..............W',
         'W.bK.bb.mm.U.Y.pW',
         'W.bb.bb.mm.U.Y.wW',
-        'W..............W',
+        'W.OG.OG........W',
         'W..DD.....LL..>W',
         'W..DD.....LL..>W',
         'W..............W',
@@ -271,9 +280,10 @@ window.FitwayGame = (() => {
         { id: 'sukh_main', charId: 'sukh', tx: 3, ty: 10, dir: 'down', isStory: true, name: 'SUKH' },
         { id: 'gagan_main', charId: 'gagan', tx: 8, ty: 4, dir: 'down', isStory: true, name: 'GAGAN' },
         { id: 'shubham_main', charId: 'shubham', tx: 3, ty: 7, dir: 'down', isStory: true, name: 'SHUBHAM' },
-        { id: 'rakesh_main', charId: 'rakesh', tx: 12, ty: 5, dir: 'left', isStory: true, name: 'RAKESH' },
-        { id: 'bench_lifter', tx: 12, ty: 4, dir: 'up', sprite: 'lifter_bench', exercising: true, name: 'BENCH LIFTER' },
+        { id: 'rakesh_main', charId: 'rakesh', tx: 13, ty: 5, dir: 'left', isStory: true, name: 'RAKESH' },
+        { id: 'bench_lifter', tx: 14, ty: 4, dir: 'up', sprite: 'lifter_bench', exercising: true, name: 'BENCH LIFTER' },
         { id: 'treadmill_runner', tx: 2, ty: 4, dir: 'down', sprite: 'member_m', exercising: true, name: 'RUNNER' },
+        { id: 'rower_npc', tx: 11, ty: 4, dir: 'right', sprite: 'rower', exercising: true, name: 'ROWER' },
         { id: 'boxer_bag', tx: 11, ty: 7, dir: 'right', sprite: 'boxer', exercising: true, name: 'BOXER' }
       ]
     },
@@ -402,7 +412,7 @@ window.FitwayGame = (() => {
         ctx.fillRect(x + 15, y, 2, TS);
         ctx.fillStyle = C.wood4;
         ctx.fillRect(x + 17, y, 2, TS);
-        // Wood knots & subtle grain noise
+        // Wood knots & grain noise
         ctx.fillStyle = C.woodKnot;
         ctx.fillRect(x + 6, y + 4, 3, 2);
         ctx.fillRect(x + 24, y + 14, 3, 2);
@@ -422,6 +432,27 @@ window.FitwayGame = (() => {
         ctx.fillStyle = '#101218';
         ctx.fillRect(x, y, TS, 2);
         ctx.fillRect(x, y, 2, TS);
+        break;
+
+      case 'J': // 32×32 Deadlift Platform (Oak Center + Rubber Drop Zones)
+        ctx.fillStyle = C.rubber2;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.platformWood;
+        ctx.fillRect(x + 6, y + 2, 20, 28);
+        ctx.fillStyle = C.woodLine;
+        ctx.fillRect(x + 6, y + 10, 20, 2);
+        ctx.fillRect(x + 6, y + 20, 20, 2);
+        // Chrome Barbell on Platform with Colored Bumper Plates
+        ctx.fillStyle = C.metalHi;
+        ctx.fillRect(x + 2, y + 14, 28, 3);
+        ctx.fillStyle = C.plateRed;
+        ctx.fillRect(x + 2, y + 9, 3, 13);
+        ctx.fillStyle = C.plateBlue;
+        ctx.fillRect(x + 5, y + 11, 2, 9);
+        ctx.fillStyle = C.plateRed;
+        ctx.fillRect(x + 27, y + 9, 3, 13);
+        ctx.fillStyle = C.plateBlue;
+        ctx.fillRect(x + 25, y + 11, 2, 9);
         break;
 
       case 'r': // 32×32 Crimson Performance Lifting Zone
@@ -581,6 +612,57 @@ window.FitwayGame = (() => {
         ctx.fillRect(x + 10, y + 18, 4, 4); // Cold tap
         break;
 
+      case 'E': // 32×32 Glass Mini-Fridge with Cold Protein Shakes
+        ctx.fillStyle = C.wall;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = '#141822';
+        ctx.fillRect(x + 4, y + 2, 24, 26);
+        ctx.fillStyle = C.cyan;
+        ctx.fillRect(x + 6, y + 4, 20, 22);
+        // Colored protein bottles inside
+        ctx.fillStyle = C.red;
+        ctx.fillRect(x + 8, y + 8, 3, 6);
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 13, y + 8, 3, 6);
+        ctx.fillStyle = C.emerald;
+        ctx.fillRect(x + 18, y + 8, 3, 6);
+        ctx.fillStyle = C.baseboard;
+        ctx.fillRect(x, y + 25, TS, 7);
+        break;
+
+      case 'G': // 32×32 Foam Rollers & Yoga Mat Rack
+        ctx.fillStyle = C.turfBlue;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 4, y + 4, 24, 24);
+        // Multicolored foam rollers
+        ctx.fillStyle = '#e91e63';
+        ctx.fillRect(x + 6, y + 6, 6, 20);
+        ctx.fillStyle = '#9c27b0';
+        ctx.fillRect(x + 14, y + 6, 6, 20);
+        ctx.fillStyle = '#00bcd4';
+        ctx.fillRect(x + 22, y + 6, 4, 20);
+        break;
+
+      case 'O': // 32×32 Heavy Tractor Tire Stack & Sledgehammer Zone
+        ctx.fillStyle = C.turfBlue;
+        ctx.fillRect(x, y, TS, TS);
+        // Heavy Black Tractor Tire
+        ctx.fillStyle = '#141416';
+        ctx.beginPath();
+        ctx.arc(x + 16, y + 16, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = C.turfBlue;
+        ctx.beginPath();
+        ctx.arc(x + 16, y + 16, 6, 0, Math.PI * 2);
+        ctx.fill();
+        // Yellow Sledgehammer leaning on tire
+        ctx.fillStyle = C.fy;
+        ctx.fillRect(x + 10, y + 4, 3, 24);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 7, y + 4, 9, 6);
+        break;
+
       case 'T': // 32×32 High-Tech Treadmill with Cyan LED Dashboard
         ctx.fillStyle = C.rubber2;
         ctx.fillRect(x, y, TS, TS);
@@ -599,7 +681,7 @@ window.FitwayGame = (() => {
         ctx.fillStyle = C.cyan;
         ctx.fillRect(x + 8, y + 4, 16, 4);
         ctx.fillStyle = C.red;
-        ctx.fillRect(x + 14, y + 6, 4, 2); // Safety magnet key
+        ctx.fillRect(x + 14, y + 6, 4, 2); // Safety key
         // Chrome Rails
         ctx.fillStyle = C.metalLt;
         ctx.fillRect(x + 2, y + 6, 4, 22);
@@ -620,6 +702,17 @@ window.FitwayGame = (() => {
         ctx.fillStyle = C.metalHi;
         ctx.fillRect(x + 6, y + 20 + pOff, 6, 3);
         ctx.fillRect(x + 20, y + 20 - pOff, 6, 3);
+        break;
+
+      case 'R': // 32×32 Concept2-Style Indoor Rowing Machine
+        ctx.fillStyle = C.rubber2;
+        ctx.fillRect(x, y, TS, TS);
+        ctx.fillStyle = C.metalDk;
+        ctx.fillRect(x + 4, y + 14, 24, 6); // Monorail track
+        ctx.fillStyle = '#212121';
+        ctx.fillRect(x + 20, y + 6, 8, 14); // Flywheel housing
+        ctx.fillStyle = C.cyan;
+        ctx.fillRect(x + 22, y + 4, 4, 3); // PM5 digital display monitor
         break;
 
       case 'd': // 32×32 Chrome & Rubber Hex Multi-Tier Dumbbell Rack
@@ -669,7 +762,7 @@ window.FitwayGame = (() => {
         ctx.fillRect(x + 12, y + 14, 4, 4);
         break;
 
-      case 'k': // 32×32 Yoga Stability Ball & Kettlebell Cluster
+      case 'k': // 32×32 Kettlebell Tree & Yoga Stability Ball
         ctx.fillStyle = C.wood1;
         ctx.fillRect(x, y, TS, TS);
         // Large Blue Stability Ball
@@ -681,11 +774,13 @@ window.FitwayGame = (() => {
         ctx.beginPath();
         ctx.arc(x + 10, y + 11, 4, 0, Math.PI * 2);
         ctx.fill();
-        // Kettlebell
+        // Kettlebells (Pink 8kg, Yellow 16kg, Red 32kg)
+        ctx.fillStyle = '#e91e63';
+        ctx.fillRect(x + 18, y + 8, 5, 5);
+        ctx.fillStyle = '#fdd835';
+        ctx.fillRect(x + 24, y + 12, 6, 6);
         ctx.fillStyle = C.fblk;
-        ctx.fillRect(x + 18, y + 16, 10, 10);
-        ctx.fillStyle = C.metalLt;
-        ctx.fillRect(x + 20, y + 12, 6, 4);
+        ctx.fillRect(x + 18, y + 18, 9, 9);
         break;
 
       case 'q': // 32×32 Dual-Tower Cable Crossover & Squat Station
@@ -770,7 +865,7 @@ window.FitwayGame = (() => {
 
   /* ═══ 32×48 HIGH-DEFINITION CHARACTER SPRITE RENDERING ═══ */
   function drawSprite(id, x, y, dir, walkFrame, exercising) {
-    // Lifter on Bench Press Animation
+    // Lifter on Bench Press Animation with Spotter
     if (id === 'lifter_bench') {
       g.fillStyle = C.shadow;
       g.fillRect(x - 4, y + 36, 40, 8);
@@ -798,7 +893,22 @@ window.FitwayGame = (() => {
       g.fillStyle = '#e0b080';
       g.fillRect(x + 8, y + 4, 12, 12);
       g.fillStyle = C.red;
-      g.fillRect(x + 18 + punchOff, y + 18, 8, 8); // Red boxing glove punching
+      g.fillRect(x + 18 + punchOff, y + 18, 8, 8); // Red boxing glove
+      return;
+    }
+
+    // Rower on Concept2 Machine
+    if (id === 'rower') {
+      const rowCycle = (frame * 0.1) % (Math.PI * 2);
+      const rowX = Math.sin(rowCycle) * 6;
+      g.fillStyle = C.shadow;
+      g.fillRect(x + 4, y + 38, 24, 6);
+      g.fillStyle = '#43a047';
+      g.fillRect(x + 8 + rowX, y + 16, 14, 12); // Athlete torso sliding on seat rail
+      g.fillStyle = '#e0b080';
+      g.fillRect(x + 10 + rowX, y + 6, 10, 10);
+      g.fillStyle = C.metalLt;
+      g.fillRect(x + 18 + rowX, y + 18, 8, 3); // Oar handle
       return;
     }
 
@@ -1027,7 +1137,7 @@ window.FitwayGame = (() => {
     if (!isWalkable(tl) || !isWalkable(tr) || !isWalkable(bl) || !isWalkable(br)) return false;
 
     for (const npc of npcs) {
-      if (npc.sprite === 'lifter_bench') continue;
+      if (npc.sprite === 'lifter_bench' || npc.sprite === 'rower') continue;
       const nx = npc.px, ny = npc.py;
       if (px + 28 > nx + 4 && px + 4 < nx + 28 && py + 42 > ny + 28 && py + 28 < ny + 42) return false;
     }
