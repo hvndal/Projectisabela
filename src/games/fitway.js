@@ -2081,51 +2081,74 @@ window.FitwayGame = (() => {
   function renderHUD() {
     if (state !== 'explore' || dlg.active) return;
 
-    // Glassmorphic Gauges
-    g.fillStyle = 'rgba(15,17,23,0.88)';
-    g.fillRect(6, 6, 168, 52);
-    g.strokeStyle = '#3a3f50';
-    g.strokeRect(6, 6, 168, 52);
+    // Glassmorphic Gauges Container
+    g.fillStyle = 'rgba(11, 13, 18, 0.90)';
+    g.fillRect(6, 6, 180, 56);
+    g.strokeStyle = 'rgba(255, 208, 0, 0.4)';
+    g.lineWidth = 1.5;
+    g.strokeRect(6, 6, 180, 56);
+    g.lineWidth = 1;
 
+    // HP Bar with Specular Glass Sheen
+    g.fillStyle = '#b71c1c';
+    g.fillRect(12, 12, 100, 10);
     g.fillStyle = '#f03a3a';
-    g.fillRect(12, 12, 92, 10);
+    g.fillRect(12, 12, 100 * (pl.hp / pl.maxHp), 10);
+    g.fillStyle = 'rgba(255,255,255,0.35)';
+    g.fillRect(12, 12, 100 * (pl.hp / pl.maxHp), 3);
     g.fillStyle = C.white;
     g.font = '8px "Press Start 2P", monospace';
-    g.fillText('HP 100', 110, 21);
+    g.fillText(`HP ${pl.hp}`, 118, 20);
 
+    // EN (Energy) Bar
+    g.fillStyle = '#01579b';
+    g.fillRect(12, 26, 100, 10);
     g.fillStyle = '#00b0ff';
-    g.fillRect(12, 26, 76, 10);
-    g.fillText('EN 85', 110, 35);
+    g.fillRect(12, 26, 100 * (pl.energy / pl.maxEnergy), 10);
+    g.fillStyle = 'rgba(255,255,255,0.35)';
+    g.fillRect(12, 26, 100 * (pl.energy / pl.maxEnergy), 3);
+    g.fillStyle = C.white;
+    g.fillText(`EN ${pl.energy}`, 118, 34);
 
+    // ST (Stamina) Bar
+    g.fillStyle = '#1b5e20';
+    g.fillRect(12, 40, 100, 10);
     g.fillStyle = '#00e676';
-    g.fillRect(12, 40, 92, 10);
-    g.fillText('ST 100', 110, 49);
+    g.fillRect(12, 40, 100 * (pl.stamina / pl.maxStamina), 10);
+    g.fillStyle = 'rgba(255,255,255,0.35)';
+    g.fillRect(12, 40, 100 * (pl.stamina / pl.maxStamina), 3);
+    g.fillStyle = C.white;
+    g.fillText(`ST ${pl.stamina}`, 118, 48);
 
     // Top-Right Sector 67 Info & Current Chapter Objective
-    g.fillStyle = 'rgba(15,17,23,0.88)';
-    g.fillRect(W - 200, 6, 194, 52);
-    g.strokeStyle = '#3a3f50';
-    g.strokeRect(W - 200, 6, 194, 52);
+    g.fillStyle = 'rgba(11, 13, 18, 0.90)';
+    g.fillRect(W - 210, 6, 204, 56);
+    g.strokeStyle = 'rgba(255, 208, 0, 0.4)';
+    g.lineWidth = 1.5;
+    g.strokeRect(W - 210, 6, 204, 56);
+    g.lineWidth = 1;
 
     g.fillStyle = C.fy;
     g.font = '9px "Press Start 2P", monospace';
-    g.fillText(`CH ${chapter}: ${CHAPTERS[chapter - 1]?.title.slice(0, 12)}`, W - 194, 20);
-    g.fillStyle = C.uiText;
+    g.fillText(`CH ${chapter}: ${CHAPTERS[chapter - 1]?.title.slice(0, 14)}`, W - 202, 20);
+    g.fillStyle = C.white;
     g.font = '7px "Press Start 2P", monospace';
     const curObj = CHAPTERS[chapter - 1]?.objectives[Math.min(storyStep, (CHAPTERS[chapter - 1]?.objectives.length || 1) - 1)] || 'Explore Sector 67';
-    g.fillText(`🎯 ${curObj.slice(0, 26)}`, W - 194, 34);
-    g.fillStyle = C.uiMuted;
-    g.fillText('Sector 67, Mohali', W - 194, 48);
+    g.fillText(`🎯 ${curObj.slice(0, 27)}`, W - 202, 35);
+    g.fillStyle = C.cyan;
+    g.fillText('Sector 67, Mohali', W - 202, 50);
 
-    // Bottom Action Prompt
-    g.fillStyle = 'rgba(15,17,23,0.88)';
-    g.fillRect(40, H - 36, W - 80, 32);
+    // Bottom Action Prompt with Golden Neon Trim
+    g.fillStyle = 'rgba(11, 13, 18, 0.92)';
+    g.fillRect(36, H - 36, W - 72, 30);
     g.strokeStyle = C.fy;
-    g.strokeRect(40, H - 36, W - 80, 32);
+    g.lineWidth = 2;
+    g.strokeRect(36, H - 36, W - 72, 30);
+    g.lineWidth = 1;
     g.fillStyle = C.fy;
-    g.font = '9px "Press Start 2P", monospace';
+    g.font = '8.5px "Press Start 2P", monospace';
     g.textAlign = 'center';
-    g.fillText(`[A] ACTION / WORKOUT  •  [B] SPRINT  •  ⚡ OVERRIDE READY`, W / 2, H - 15);
+    g.fillText(`[A] ACTION / WORKOUT  •  [B] SPRINT  •  ⚡ OVERRIDE READY`, W / 2, H - 17);
     g.textAlign = 'left';
   }
 
@@ -2134,32 +2157,35 @@ window.FitwayGame = (() => {
     const line = dlg.lines[dlg.idx];
     const isTalking = dlg.charPos < line.t.length;
 
-    g.fillStyle = C.uiGlass;
-    g.fillRect(0, H - 110, W, 110);
-    g.fillStyle = C.uiGlassBorder;
-    g.fillRect(0, H - 110, W, 4);
+    // Glassmorphic Translucent Dialogue Window
+    g.fillStyle = 'rgba(10, 12, 17, 0.94)';
+    g.fillRect(0, H - 116, W, 116);
+    g.fillStyle = C.fy;
+    g.fillRect(0, H - 116, W, 4);
     g.fillRect(0, H - 4, W, 4);
 
     const speakerChar = CHARS.find(ch => ch.name === line.s);
     if (speakerChar) {
-      drawPortrait(speakerChar.id, 8, H - 102, 68, isTalking);
+      drawPortrait(speakerChar.id, 10, H - 106, 76, isTalking);
     } else {
       g.fillStyle = C.fblk2;
-      g.fillRect(8, H - 102, 68, 68);
+      g.fillRect(10, H - 106, 76, 76);
       g.strokeStyle = C.metalDk;
-      g.strokeRect(8, H - 102, 68, 68);
+      g.strokeRect(10, H - 106, 76, 76);
     }
 
     if (line.s) {
       g.fillStyle = C.fy;
       g.font = '12px "Press Start 2P", monospace';
-      g.fillText(line.s, 86, H - 85);
+      g.fillText(line.s, 98, H - 86);
+      g.fillStyle = 'rgba(255,208,0,0.3)';
+      g.fillRect(98, H - 80, 120, 2);
     }
 
     g.fillStyle = C.uiText;
     g.font = '10px "Press Start 2P", monospace';
     const visibleText = line.t.substring(0, dlg.charPos);
-    visibleText.split('\n').forEach((tl, i) => g.fillText(tl, 86, H - 62 + i * 20));
+    visibleText.split('\n').forEach((tl, i) => g.fillText(tl, 98, H - 60 + i * 20));
 
     if (dlg.charPos >= line.t.length && Math.floor(frame / 16) % 2 === 0) {
       g.fillStyle = C.fy;
