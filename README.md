@@ -13,27 +13,16 @@ The beloved top-down adventure quest!
 - 9 hand-crafted areas, dialogue trees, hidden secrets, and the slightly angry strawberry boss.
 - Gather 7 hearts, 5 stars, and 3 magical flowers to restore the kingdom.
 
-### 2. Cartridge 02: FITWAY: IRON RUN (A Fitness Arcade Adventure)
-A completely original, mobile-first retro arcade fitness game set inside **Fitway Gym**!
-- **"What if Fitway Gym was secretly an arcade game?"**
-- **5 Playable Fitway Team Members**:
-  - **Sukh (The Owner)**: Armed with an Olympic Barbell. *Special*: Owner's Smash earthquake shockwave. *Challenge*: 10 Barbell Squats.
-  - **Gagan (The Power Trainer)**: Armed with a Giant Kettlebell. *Special*: Kettle Crush cyclone throw. *Challenge*: 15 Kettlebell Swings.
-  - **Shubham (The Conditioning Trainer)**: Armed with a High-Tension Resistance Band. *Special*: Band Blast full-screen snap. *Challenge*: 20 Band Pulls.
-  - **Rakesh (The Old-School Trainer)**: Armed with an EZ-Curl Bar. *Special*: Old School Mode iron defense aura. *Challenge*: 10 EZ-Bar Curls.
-  - **Herman (Software Developer & Hardware Engineer)**: Built the gym's connected systems and automation. Armed with Dual Dumbbells. *Special*: Debug Mode overclocked multi-split bouncing dumbbells. *Challenge*: 10 Dumbbell Curls.
-- **The Living Gym World Levels**:
-  - Exterior & Early Morning Sunrise
-  - Fitway Reception Desk (NPCs, water cooler, tutorial foam blocks)
-  - Cardio Floor (moving treadmill conveyor belts, rogue bikes, treadmill bots)
-  - Interactive Fitness Checkpoints with real-time rep counter (`07 / 10`)
-  - Vertical Stairwell Climb
-  - Strength Floor (squat racks, cable machines, weight plates, dumbbell golems)
-  - Functional Training & Boxing Area (plyo boxes, heavy punching bags)
-  - Locker & Recovery Lounge (HP replenishment safe room)
-  - Performance Lab & Herman's Secret Systems Terminal Room
-  - Boss Arena: **The Sedentary King of Inactivity** (Couch throne, cushion projectiles, boss fitness shield breaks, and character finishers!)
-- **Daily Streak Progression**: 🔥 Duolingo-like workout streak counter, XP leveling, and Fitway Token collectibles!
+### 1. Cartridge 01: FITWAY: IRON RUN (A Fitness Arcade Adventure)
+A 16-bit top-down gym exploration RPG set in **Sector 67, Mohali**!
+- **Street Fighter-Style Character Roster**: Choose from **Sukh** (Owner), **Gagan** (Power Trainer), **Shubham** (Conditioning Trainer), **Rakesh** (Old-School Trainer), or **Herman** (Software & Hardware Engineer).
+- **The 4-Chapter Sitcom Story Arc**:
+  - **Chapter 1**: *“Just Come To The Gym”* — Morning arrival, meeting Sukh at reception, Gagan's kettlebell test, treadmill malfunction chaos minigame, and unlocking **Machine Override**.
+  - **Chapter 2**: *“The Bench Is Not Reserved”* — Gagan's bench dispute, mediating gym etiquette, meeting Shubham, speed band pulls, and unlocking **Resistance Band**.
+  - **Chapter 3**: *“Everyone Knows Everyone”* — Sector 67 gym gossip, meeting veteran Rakesh, the multi-stage Fitway Competition, and unlocking **EZ-Curl Bar**.
+  - **Chapter 4**: *“The Weights Floor” (Grand Finale)* — Floor 2 heavy weights area, building-wide power surge, confronting Sukh (*“Gym sirf machines nahi hai. People.”*), final ensemble team challenge, Sukh's Owner Squat Test, and sitcom ending.
+- **6 Interconnected Explorable Gym Areas**: Sector 67 Street, Reception, Hallway, Cardio Floor, Functional Training Zone, and Floor 2 Weights Floor.
+- **Post-Game Free Roam & Credits**: Explore the living gym freely after completing the story.
 
 ### 3. Cartridge 03: Cyber Tank 1989 (Hermanify Base Defense)
 NES Battle City-style armored combat:
