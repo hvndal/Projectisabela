@@ -935,95 +935,170 @@ window.FitwayGame = (() => {
       return;
     }
 
+    // Distinct Character Builds & Muscle Physics
     const ch = CHARS.find(c => c.id === id);
     if (!ch) { drawGenericNPC(id, x, y, dir, walkFrame, exercising); return; }
     const cl = ch.col;
-    const bw = ch.build === 'broad' ? 26 : (ch.build === 'stocky' ? 24 : 20);
+    const bw = ch.build === 'broad' ? 28 : (ch.build === 'stocky' ? 26 : 22);
     const bx = x + (32 - bw) / 2;
 
     // 8-Frame Sub-pixel Stride & Bob
     const wf = walkFrame % 8;
-    const stride = (wf === 1 || wf === 2) ? 3 : (wf === 5 || wf === 6) ? -3 : 0;
-    const armSwing = (wf === 1 || wf === 2) ? -3 : (wf === 5 || wf === 6) ? 3 : 0;
+    const stride = (wf === 1 || wf === 2) ? 3.5 : (wf === 5 || wf === 6) ? -3.5 : 0;
+    const armSwing = (wf === 1 || wf === 2) ? -3.5 : (wf === 5 || wf === 6) ? 3.5 : 0;
     const headBob = (wf % 2 === 1) ? 1.5 : 0;
     const breath = Math.sin(frame * 0.08) * 1.0;
 
-    // Drop Shadow
-    g.fillStyle = C.shadow;
+    // Multi-Layer Radial Drop Shadow
+    g.fillStyle = 'rgba(0, 0, 0, 0.45)';
     g.beginPath();
     g.ellipse(x + 16, y + 42, bw * 0.65, 5, 0, 0, Math.PI * 2);
     g.fill();
+    g.fillStyle = 'rgba(0, 0, 0, 0.25)';
+    g.beginPath();
+    g.ellipse(x + 16, y + 42, bw * 0.85, 7, 0, 0, Math.PI * 2);
+    g.fill();
 
-    // Shoes & Soles
+    // Shoes with Soles & Ankle Padding
     g.fillStyle = cl.shoes;
-    g.fillRect(bx + 2, y + 38 + stride, 8, 4);
-    g.fillRect(bx + bw - 10, y + 38 - stride, 8, 4);
-    g.fillStyle = C.white;
-    g.fillRect(bx + 2, y + 41 + stride, 8, 1);
-    g.fillRect(bx + bw - 10, y + 41 - stride, 8, 1);
-
-    // Joggers & Shorts
-    g.fillStyle = cl.pants;
-    g.fillRect(bx + 2, y + 30 + stride, 8, 8);
-    g.fillRect(bx + bw - 10, y + 30 - stride, 8, 8);
-
-    // Athletic Torso & Muscle Shading
-    g.fillStyle = cl.shirt;
-    g.fillRect(bx, y + 16 + breath + headBob, bw, 14);
-    g.fillStyle = cl.shirtDk;
-    g.fillRect(bx, y + 26 + breath + headBob, bw, 4);
-
-    // Arms with Dynamic Stride Swing
-    g.fillStyle = cl.skin;
-    if (dir === 'left') {
-      g.fillRect(bx - 4 + armSwing, y + 18 + breath + headBob, 6, 10);
-    } else if (dir === 'right') {
-      g.fillRect(bx + bw - 2 - armSwing, y + 18 + breath + headBob, 6, 10);
-    } else {
-      g.fillRect(bx - 3 + armSwing, y + 18 + breath + headBob, 5, 10);
-      g.fillRect(bx + bw - 2 - armSwing, y + 18 + breath + headBob, 5, 10);
+    g.fillRect(bx + 1, y + 37 + stride, 8, 5);
+    g.fillRect(bx + bw - 9, y + 37 - stride, 8, 5);
+    g.fillStyle = '#ffffff';
+    g.fillRect(bx + 1, y + 41 + stride, 8, 1.5);
+    g.fillRect(bx + bw - 9, y + 41 - stride, 8, 1.5);
+    if (id === 'shubham') {
+      g.fillStyle = C.cyan;
+      g.fillRect(bx + 3, y + 38 + stride, 4, 2);
+      g.fillRect(bx + bw - 7, y + 38 - stride, 4, 2);
     }
 
-    // Neck & Head
-    g.fillRect(bx + 6, y + 12 + breath + headBob, bw - 12, 4);
-    const hw = bw - 4, hx = bx + 2;
-    g.fillRect(hx, y + 4 + breath + headBob, hw, 10);
+    // Joggers, Shorts & Leg Muscle Definition
+    g.fillStyle = cl.pants;
+    g.fillRect(bx + 2, y + 29 + stride, 7, 9);
+    g.fillRect(bx + bw - 9, y + 29 - stride, 7, 9);
+    // Leg Shading
+    g.fillStyle = 'rgba(0,0,0,0.2)';
+    g.fillRect(bx + 2, y + 33 + stride, 3, 5);
+    g.fillRect(bx + bw - 9, y + 33 - stride, 3, 5);
 
-    // Hair Details
+    // Belt / Drawstring details
+    if (id === 'gagan') {
+      g.fillStyle = '#4e342e'; // Heavy leather lifting belt
+      g.fillRect(bx, y + 27 + breath + headBob, bw, 4);
+      g.fillStyle = C.metalHi;
+      g.fillRect(bx + bw / 2 - 3, y + 27 + breath + headBob, 6, 4);
+    }
+
+    // Athletic Torso & Muscle Definition
+    g.fillStyle = cl.shirt;
+    g.fillRect(bx, y + 15 + breath + headBob, bw, 15);
+    g.fillStyle = cl.shirtDk;
+    g.fillRect(bx, y + 25 + breath + headBob, bw, 5);
+
+    // Distinct Shirt & Tank Features
+    if (id === 'herman') {
+      // Tech-Athletic Cyan Seam Piping
+      g.fillStyle = C.cyan;
+      g.fillRect(bx + 3, y + 17 + breath + headBob, 2, 10);
+      g.fillRect(bx + bw - 5, y + 17 + breath + headBob, 2, 10);
+    } else if (id === 'sukh') {
+      // Fitway Tank Top Cut & Traps
+      g.fillStyle = cl.skin;
+      g.fillRect(bx, y + 15 + breath + headBob, 4, 8);
+      g.fillRect(bx + bw - 4, y + 15 + breath + headBob, 4, 8);
+      g.fillStyle = C.fblk;
+      g.fillRect(bx + bw / 2 - 4, y + 18 + breath + headBob, 8, 6);
+    } else if (id === 'rakesh') {
+      // Vintage White Collar
+      g.fillStyle = C.white;
+      g.fillRect(bx + 4, y + 15 + breath + headBob, bw - 8, 3);
+    }
+
+    // Muscular Arms with Dynamic Stride Swing
+    g.fillStyle = cl.skin;
+    if (dir === 'left') {
+      g.fillRect(bx - 4 + armSwing, y + 17 + breath + headBob, 6, 11);
+      g.fillStyle = 'rgba(0,0,0,0.15)';
+      g.fillRect(bx - 4 + armSwing, y + 22 + breath + headBob, 2, 6);
+    } else if (dir === 'right') {
+      g.fillRect(bx + bw - 2 - armSwing, y + 17 + breath + headBob, 6, 11);
+      g.fillStyle = 'rgba(0,0,0,0.15)';
+      g.fillRect(bx + bw + 2 - armSwing, y + 22 + breath + headBob, 2, 6);
+    } else {
+      g.fillRect(bx - 3 + armSwing, y + 17 + breath + headBob, 5, 11);
+      g.fillRect(bx + bw - 2 - armSwing, y + 17 + breath + headBob, 5, 11);
+    }
+
+    // Wrist Accessories & Smartwatch
+    if (id === 'herman') {
+      g.fillStyle = C.fblk;
+      g.fillRect(bx - 3 + armSwing, y + 24 + breath + headBob, 4, 3);
+      g.fillStyle = C.emerald;
+      g.fillRect(bx - 2 + armSwing, y + 25 + breath + headBob, 2, 1); // Green pulse sensor
+    }
+    if (id === 'gagan') {
+      g.fillStyle = C.white; // Chalk on wrists
+      g.fillRect(bx - 3 + armSwing, y + 25 + breath + headBob, 5, 2);
+      g.fillRect(bx + bw - 2 - armSwing, y + 25 + breath + headBob, 5, 2);
+    }
+
+    // Muscular Neck & Traps
+    g.fillStyle = cl.skin;
+    g.fillRect(bx + 6, y + 11 + breath + headBob, bw - 12, 5);
+
+    // Sculpted Head & Face
+    const hw = bw - 4, hx = bx + 2;
+    g.fillRect(hx, y + 3 + breath + headBob, hw, 11);
+
+    // Hair Details with Shading
     g.fillStyle = cl.hair;
-    g.fillRect(hx - 2, y + breath + headBob, hw + 4, dir === 'up' ? 8 : 6);
-    g.fillRect(hx, y - 2 + breath + headBob, hw, 4);
+    g.fillRect(hx - 2, y - 1 + breath + headBob, hw + 4, dir === 'up' ? 9 : 7);
+    g.fillRect(hx, y - 3 + breath + headBob, hw, 4);
 
     // Face & Eyes
     if (dir === 'down') {
       g.fillStyle = '#0f1115';
-      g.fillRect(hx + 4, y + 8 + breath + headBob, 4, 2);
-      g.fillRect(hx + hw - 8, y + 8 + breath + headBob, 4, 2);
+      g.fillRect(hx + 4, y + 7 + breath + headBob, 4, 2.5);
+      g.fillRect(hx + hw - 8, y + 7 + breath + headBob, 4, 2.5);
       g.fillStyle = '#9e6140';
-      g.fillRect(hx + 6, y + 12 + breath + headBob, hw - 12, 2);
+      g.fillRect(hx + 6, y + 11 + breath + headBob, hw - 12, 2);
+
+      // Beard Stubble for Sukh & Mustache for Rakesh
+      if (id === 'sukh') {
+        g.fillStyle = '#5d4037';
+        g.fillRect(hx + 3, y + 11 + breath + headBob, hw - 6, 3);
+      }
+      if (id === 'rakesh') {
+        g.fillStyle = '#424242';
+        g.fillRect(hx + 4, y + 10 + breath + headBob, hw - 8, 2);
+      }
     } else if (dir === 'left') {
       g.fillStyle = '#0f1115';
-      g.fillRect(hx + 2, y + 8 + breath + headBob, 4, 2);
+      g.fillRect(hx + 2, y + 7 + breath + headBob, 4, 2.5);
     } else if (dir === 'right') {
       g.fillStyle = '#0f1115';
-      g.fillRect(hx + hw - 6, y + 8 + breath + headBob, 4, 2);
+      g.fillRect(hx + hw - 6, y + 7 + breath + headBob, 4, 2.5);
     }
 
     // Signature Accessories
     if (cl.acc === 'glasses' && dir !== 'up') {
       g.fillStyle = C.cyan;
-      g.fillRect(hx + 2, y + 6 + breath + headBob, hw - 4, 4);
+      g.fillRect(hx + 2, y + 5 + breath + headBob, hw - 4, 4);
       g.fillStyle = '#263238';
-      g.fillRect(hx, y + 6 + breath + headBob, 2, 4);
-      g.fillRect(hx + hw - 2, y + 6 + breath + headBob, 2, 4);
+      g.fillRect(hx, y + 5 + breath + headBob, 2, 4);
+      g.fillRect(hx + hw - 2, y + 5 + breath + headBob, 2, 4);
+      g.fillStyle = C.white;
+      g.fillRect(hx + 3, y + 6 + breath + headBob, 2, 2); // Glass shine
     }
     if (cl.acc === 'headband') {
       g.fillStyle = C.red;
-      g.fillRect(hx - 2, y + 2 + breath + headBob, hw + 4, 4);
+      g.fillRect(hx - 2, y + 1 + breath + headBob, hw + 4, 4);
+      g.fillStyle = '#ff8a80';
+      g.fillRect(hx, y + 1 + breath + headBob, hw, 1);
     }
     if (id === 'sukh') {
-      g.fillStyle = C.fyDk;
-      g.fillRect(bx + 4, y + 16 + breath + headBob, bw - 8, 4);
+      g.fillStyle = C.metalHi; // Chrome whistle chain
+      g.fillRect(bx + bw / 2 - 2, y + 15 + breath + headBob, 4, 4);
     }
   }
 
@@ -1045,7 +1120,7 @@ window.FitwayGame = (() => {
     g.fillRect(x + 6, y, 20, 6);
   }
 
-  /* ═══ 96×96 ANIMATED TALKING CHARACTER PORTRAITS ═════════ */
+  /* ═══ 120×120 STREET FIGHTER II CHARACTER BUSTS ═════════ */
   function drawPortrait(charId, px, py, size, isTalking) {
     const ch = CHARS.find(c => c.id === charId);
     if (!ch) return;
@@ -1053,7 +1128,7 @@ window.FitwayGame = (() => {
     const s = size || 96;
     const u = s / 96;
 
-    // Glassmorphic Card Frame
+    // Glassmorphic Card Frame with Beveled Border
     g.fillStyle = C.uiGlass;
     g.fillRect(px, py, s, s);
     g.strokeStyle = C.uiGlassBorder;
@@ -1061,70 +1136,124 @@ window.FitwayGame = (() => {
     g.strokeRect(px, py, s, s);
     g.lineWidth = 1;
 
-    // Shoulders
-    const bw = ch.build === 'broad' ? 78 : (ch.build === 'stocky' ? 70 : 64);
+    // Subtle Radial Aura Glow behind head
+    const aura = g.createRadialGradient(px + s / 2, py + s / 2, 10 * u, px + s / 2, py + s / 2, 45 * u);
+    aura.addColorStop(0, 'rgba(255, 208, 0, 0.18)');
+    aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    g.fillStyle = aura;
+    g.fillRect(px + 4, py + 4, s - 8, s - 8);
+
+    // Shoulders with Fabric Folds & Shading
+    const bw = ch.build === 'broad' ? 82 : (ch.build === 'stocky' ? 76 : 68);
     const bx = px + (s - bw * u) / 2;
     g.fillStyle = cl.shirt;
     g.fillRect(bx, py + 62 * u, bw * u, 34 * u);
     g.fillStyle = cl.shirtDk;
-    g.fillRect(bx, py + 80 * u, bw * u, 16 * u);
+    g.fillRect(bx, py + 78 * u, bw * u, 18 * u);
 
-    // Neck
+    // Specific Shirt Details
+    if (charId === 'herman') {
+      g.fillStyle = C.cyan;
+      g.fillRect(bx + 8 * u, py + 64 * u, 3 * u, 24 * u);
+      g.fillRect(bx + bw * u - 11 * u, py + 64 * u, 3 * u, 24 * u);
+    } else if (charId === 'sukh') {
+      g.fillStyle = cl.skin;
+      g.fillRect(bx, py + 62 * u, 12 * u, 20 * u);
+      g.fillRect(bx + bw * u - 12 * u, py + 62 * u, 12 * u, 20 * u);
+      g.fillStyle = C.fblk;
+      g.fillRect(px + 36 * u, py + 70 * u, 24 * u, 12 * u); // Fitway logo
+      g.fillStyle = C.fy;
+      g.fillRect(px + 40 * u, py + 72 * u, 16 * u, 4 * u);
+    } else if (charId === 'rakesh') {
+      g.fillStyle = C.white;
+      g.fillRect(px + 30 * u, py + 62 * u, 36 * u, 8 * u); // Vintage collar
+    }
+
+    // Muscular Neck & Traps with Shadowing
     g.fillStyle = cl.skin;
-    g.fillRect(px + 36 * u, py + 54 * u, 24 * u, 15 * u);
+    g.fillRect(px + 34 * u, py + 52 * u, 28 * u, 16 * u);
+    g.fillStyle = 'rgba(0,0,0,0.18)';
+    g.fillRect(px + 34 * u, py + 52 * u, 28 * u, 6 * u);
 
-    // Head Base
-    g.fillRect(px + 22 * u, py + 18 * u, 52 * u, 42 * u);
+    // Sculpted Jawline & Head Base
+    g.fillStyle = cl.skin;
+    g.fillRect(px + 22 * u, py + 16 * u, 52 * u, 42 * u);
 
-    // Hair Styling
+    // Hair Styling with Volume & Highlights
     g.fillStyle = cl.hair;
-    g.fillRect(px + 16 * u, py + 6 * u, 64 * u, 22 * u);
-    g.fillRect(px + 20 * u, py + 2 * u, 56 * u, 12 * u);
+    g.fillRect(px + 14 * u, py + 4 * u, 68 * u, 24 * u);
+    g.fillRect(px + 18 * u, py + 0 * u, 60 * u, 14 * u);
+    g.fillStyle = 'rgba(255,255,255,0.15)'; // Hair highlight sheen
+    g.fillRect(px + 26 * u, py + 2 * u, 24 * u, 4 * u);
 
-    // Eyes with Blinking
+    // Brow Ridge & Nose Bridge
+    g.fillStyle = '#9e6140';
+    g.fillRect(px + 45 * u, py + 34 * u, 6 * u, 12 * u); // Nose bridge
+    g.fillRect(px + 43 * u, py + 44 * u, 10 * u, 3 * u); // Nose tip
+
+    // Expressive Eyes with Pupil Catchlights & Blinking
     const isBlinking = frame % 120 < 6;
     if (isBlinking) {
       g.fillStyle = '#0f1115';
-      g.fillRect(px + 30 * u, py + 38 * u, 14 * u, 2 * u);
-      g.fillRect(px + 52 * u, py + 38 * u, 14 * u, 2 * u);
+      g.fillRect(px + 28 * u, py + 38 * u, 16 * u, 3 * u);
+      g.fillRect(px + 52 * u, py + 38 * u, 16 * u, 3 * u);
     } else {
       g.fillStyle = C.white;
-      g.fillRect(px + 30 * u, py + 34 * u, 14 * u, 8 * u);
-      g.fillRect(px + 52 * u, py + 34 * u, 14 * u, 8 * u);
+      g.fillRect(px + 28 * u, py + 32 * u, 16 * u, 9 * u);
+      g.fillRect(px + 52 * u, py + 32 * u, 16 * u, 9 * u);
       g.fillStyle = '#0f1115';
-      g.fillRect(px + 36 * u, py + 35 * u, 7 * u, 6 * u);
-      g.fillRect(px + 58 * u, py + 35 * u, 7 * u, 6 * u);
-      g.fillStyle = C.cyan;
-      g.fillRect(px + 39 * u, py + 37 * u, 3 * u, 3 * u);
-      g.fillRect(px + 61 * u, py + 37 * u, 3 * u, 3 * u);
+      g.fillRect(px + 34 * u, py + 33 * u, 8 * u, 7 * u);
+      g.fillRect(px + 58 * u, py + 33 * u, 8 * u, 7 * u);
+      g.fillStyle = (charId === 'herman' || charId === 'shubham') ? C.cyan : '#ffd000';
+      g.fillRect(px + 37 * u, py + 35 * u, 4 * u, 4 * u);
+      g.fillRect(px + 61 * u, py + 35 * u, 4 * u, 4 * u);
+      g.fillStyle = C.white;
+      g.fillRect(px + 39 * u, py + 34 * u, 2 * u, 2 * u); // Catchlight
+      g.fillRect(px + 63 * u, py + 34 * u, 2 * u, 2 * u);
     }
 
-    // Animated Mouth Flap
+    // Facial Hair (Sukh Beard / Rakesh Mustache)
+    if (charId === 'sukh') {
+      g.fillStyle = '#4a2c20';
+      g.fillRect(px + 28 * u, py + 48 * u, 40 * u, 10 * u);
+      g.fillRect(px + 32 * u, py + 44 * u, 32 * u, 4 * u);
+    }
+    if (charId === 'rakesh') {
+      g.fillStyle = '#424242';
+      g.fillRect(px + 34 * u, py + 46 * u, 28 * u, 5 * u);
+    }
+
+    // Animated Talking Mouth Flap
     const mouthOpen = isTalking && (Math.floor(frame / 6) % 2 === 0);
     g.fillStyle = '#7a3e26';
     if (mouthOpen) {
-      g.fillRect(px + 40 * u, py + 48 * u, 16 * u, 6 * u);
-      g.fillStyle = '#4a1e12';
-      g.fillRect(px + 42 * u, py + 50 * u, 12 * u, 3 * u);
+      g.fillRect(px + 38 * u, py + 48 * u, 20 * u, 6 * u);
+      g.fillStyle = '#3e160c';
+      g.fillRect(px + 40 * u, py + 50 * u, 16 * u, 3 * u);
     } else {
-      g.fillRect(px + 42 * u, py + 50 * u, 12 * u, 2 * u);
+      g.fillRect(px + 40 * u, py + 50 * u, 16 * u, 2 * u);
     }
 
     // Accessories
     if (cl.acc === 'glasses') {
       g.fillStyle = C.cyan;
-      g.fillRect(px + 24 * u, py + 30 * u, 22 * u, 14 * u);
-      g.fillRect(px + 50 * u, py + 30 * u, 22 * u, 14 * u);
+      g.fillRect(px + 24 * u, py + 28 * u, 22 * u, 16 * u);
+      g.fillRect(px + 50 * u, py + 28 * u, 22 * u, 16 * u);
       g.fillStyle = '#263238';
-      g.fillRect(px + 46 * u, py + 33 * u, 6 * u, 3 * u);
+      g.fillRect(px + 46 * u, py + 32 * u, 4 * u, 4 * u);
+      g.fillStyle = 'rgba(255,255,255,0.4)';
+      g.fillRect(px + 27 * u, py + 30 * u, 6 * u, 4 * u);
+      g.fillRect(px + 53 * u, py + 30 * u, 6 * u, 4 * u);
     }
     if (cl.acc === 'headband') {
       g.fillStyle = C.red;
-      g.fillRect(px + 16 * u, py + 12 * u, 64 * u, 8 * u);
+      g.fillRect(px + 14 * u, py + 10 * u, 68 * u, 9 * u);
+      g.fillStyle = '#ff8a80';
+      g.fillRect(px + 18 * u, py + 10 * u, 60 * u, 2 * u);
     }
     if (charId === 'sukh') {
-      g.fillStyle = C.fyDk;
-      g.fillRect(px + 30 * u, py + 62 * u, 36 * u, 8 * u);
+      g.fillStyle = C.metalHi;
+      g.fillRect(px + 44 * u, py + 62 * u, 8 * u, 8 * u);
     }
   }
 
