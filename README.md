@@ -1,227 +1,94 @@
-# ISABELA AND THE LOST HEART OF THE PINK KINGDOM
+# HERMANIFY — 8-Bit NES Arcade & Custom Retro Games
 
-A tiny lost NES game from about 1993 that happens to be a cute, pink,
-optimistic adventure made for Isabela.
+**Hermanify** is an authentic 8-bit NES Arcade Hub featuring custom-made retro video games, synthesized Mario-style chiptune sounds, CRT scanlines, and mobile touch support.
 
-Open `index.html` in a browser. That's it — no build step, no server, no
-dependencies, and it works fully offline — the fonts ship with it.
-
-```
-MOVE     arrow keys / WASD / on-screen D-pad
-TALK     SPACE / ENTER / Z / the A button
-RUN      hold SHIFT / the B button
-SEARCH   face a thing and press A
-```
-
-The game tells you what to do as you go:
-
-- a yellow **[A] TALK / LOOK / OPEN** tag pops up over anything you can
-  act on, so you never have to guess what's interactive
-- **white arrows** at the screen edges show which ways you can leave
-- a **padlock** over a gate shows whether you've collected enough yet
-- the counter in the top-left corner always shows what you still need
-
-**FULLSCREEN** blows the console up to fill the display. On a phone,
-turning it sideways lays the D-pad and buttons out either side of the
-screen, like a handheld.
-
-Gather **7 hearts**, **5 stars** and **3 magical flowers**, get past the
-thing guarding the shrine, and find out where the Heart actually went.
-About 10–15 minutes. There are 8 secrets; you need none of them.
+Open `index.html` in any browser. That's it — zero build steps, no server required, no dependencies, and fully offline-capable.
 
 ---
 
-## Changing the words
+## 🎮 The Cartridge Lineup
 
-**Everything you'd want to rewrite lives in `src/config.js`.** Nothing else
-needs touching.
+### 1. Cartridge 01: Isabela & the Lost Heart of the Pink Kingdom
+The beloved top-down adventure quest!
+- 9 hand-crafted areas, dialogue trees, hidden secrets, and the slightly angry strawberry boss.
+- Gather 7 hearts, 5 stars, and 3 magical flowers to restore the kingdom.
 
-### The final message
+### 2. Cartridge 02: Herman's Super Plumber (Coin Castle Rush)
+Classic 8-bit Super Mario-style side-scrolling platformer:
+- Run, jump, and sprint across the Mushroom Kingdom.
+- Hit `[?]` Mystery blocks for coins and Super Star invincibility power-ups.
+- Smash brick blocks, stomp on Goombas, kick Koopa shells, and conquer the castle flagpole with victory fanfare!
 
-The one that matters. Near the top of `src/config.js`:
+### 3. Cartridge 03: Cyber Tank 1989 (Hermanify Base Defense)
+NES Battle City-style armored combat:
+- 4-directional tank steering through destructible brick terrain.
+- Protect the Hermanify Golden Eagle Base from rogue enemy tank waves.
+- Shoot flashing tanks to earn Star cannon upgrades, Grenades, and Shovel base fortification.
 
-```js
-const FINAL_MESSAGE = [
-  'Hi {HER}.',
-  "Thanks for playing. Or something. I don't know.",
-  'Made by {BY}.',
-];
-```
-
-Each string is one dialogue box. Roughly **3 lines of 27 characters** fit per
-box; add as many boxes as you like. They play through the same retro window
-as the rest of the game, right after the reveal and just before the ending.
-
-`{HER}` becomes `heroName` and `{BY}` becomes `madeBy`, both set just above,
-so the names stay in one place and follow through to the ending card.
-
-### The names
-
-```js
-heroName: 'ISABELA',
-madeBy:   'HERMAN',
-```
-
-Write `{HER}` or `{BY}` anywhere in any line of dialogue and they become
-these — so changing these two strings updates the whole game, ending card
-included.
-
-### Any other line
-
-`DIALOGUE` in the same file is a plain object of scripts:
-
-```js
-merchant: [
-  { who: 'STRAWBERRY MERCHANT', text: 'Welcome! I sell strawberries.' },
-  { who: '{HER}',               text: 'How many do you have?' },
-  { who: 'STRAWBERRY MERCHANT', text: 'One.' },
-],
-```
-
-A step is either a spoken box, a narrator box (`{ text: '...' }` with no
-`who`), or a command. The commands are documented above `DIALOGUE`; the
-useful ones are `shake`, `flash`, `sfx`, `music`, `give`, `secret`, `quest`,
-`flag`, `choice` and `goto`.
-
-Choices look like this:
-
-```js
-{ cmd: 'choice', prompt: 'Believe him?', options: [
-  { label: 'YES, SIR',       key: 'knight_yes' },
-  { label: 'SEVEN HUNDRED?', key: 'knight_no' },
-]},
-```
-
-### How much you need to collect
-
-```js
-targets: { hearts: 7, stars: 5, flowers: 3 },
-gates: {
-  strawberryField: { stars: 3 },
-  shrineDoor:      { hearts: 7, stars: 5, flowers: 3 },
-},
-```
-
-If you raise a target, add matching pickups in `src/maps.js` — the game
-counts what's actually placed in the world, not what the config claims.
+### 4. Cartridge 04: Star Guardian 8-Bit (Cosmic Defender)
+Vertical arcade space shooter (Galaga / Space Invaders style):
+- 3-layer parallax starfield with insectoid alien formations and dive-bomb swoops.
+- Upgrade to Triple Spread Lasers and Energy Shields.
+- Epic Sector Mothership boss battle!
 
 ---
 
-## Changing the world
-
-`src/maps.js` holds all nine screens. Each is 16 × 14 characters, one
-character per tile, with the legend at the top of the file:
-
-```js
-tiles: [
-  '################',
-  '#..,.RRRR.,..,.#',
-  ...
-],
-```
-
-Alongside the art, each area lists its `npcs`, `objects`, `items`, `exits`,
-`gates` and `portals` as plain data. Rows that come out the wrong length are
-padded rather than breaking the world, so it's safe to experiment.
-
-There's a reachability audit worth re-running after map edits — it
-flood-fills every screen and reports anything you can no longer walk to.
-It lives in the scratchpad rather than the repo; the short version is: if a
-collectible stops being reachable, the game is unfinishable, so check by
-walking there.
-
-## Changing the look
-
-- `src/sprites.js` — every sprite and tile, hand-authored as a grid of
-  characters mapped through `PAL`. Edit `PAL` to reskin the whole game at
-  once; edit a grid to redraw one thing.
-- `assets/style.css` — the page around the game (cartridge label, CRT
-  console, HUD, manual). Colours are CSS variables at the top.
-
-## Sound
-
-`src/audio.js` is a small synthesiser — no audio files. Songs are written as
-note strings (`'G4:1 C5:1 E5:1 ...'`) in `SONGS`; sound effects are short
-functions in `SFX`. The game runs perfectly with sound off, and stays silent
-until the player's first click or keypress, as browsers require.
-
-### Getting audio started on a phone
-
-Phones make this harder than it looks, and `src/audio.js` handles each part:
-
-1. No browser will start audio outside a user gesture.
-2. iOS creates the context *suspended*, and only really starts it once
-   something is scheduled inside that gesture — so a 1-sample buffer is
-   fired immediately on unlock.
-3. **iOS routes bare WebAudio through the ringer channel**, so a phone with
-   the mute switch flipped plays a completely silent game. Having an
-   `<audio>` element genuinely playing moves the page into the media
-   playback category, which follows the volume buttons instead. The game
-   holds half a second of looping silence (a data URI, attached to the DOM
-   — iOS ignores clips that are too short and elements that are detached).
-4. A single gesture can still be swallowed, so the unlock retries on
-   `touchstart`, `touchend`, `pointerdown`, `pointerup`, `mousedown`,
-   `click` and `keydown` until the context reports `running`, then
-   unhooks itself. It also re-resumes on `visibilitychange` and
-   `pageshow`, for coming back from a locked screen or a phone call.
-
-**The `♪ SOUND` button reports the truth**, so "no sound" is diagnosable
-rather than mysterious:
-
-| Button says | Meaning |
-|---|---|
-| `♪ TAP FOR SOUND` | the browser has not let audio start — tap anywhere |
-| `♪ SOUND: ON` | the audio context is genuinely running |
-| `♪ SOUND: OFF` | you muted it; tap to unmute |
-
-If it says **SOUND: ON** and you still hear nothing on an iPhone, the
-remaining suspect is the hardware mute switch or the volume being at zero
-for the *media* channel — press volume-up while the game is running.
-
-A caveat worth stating plainly: this was verified in Chromium with autoplay
-blocking on, desktop and emulated Android. **Real iOS Safari could not be
-tested here** — the WebKit build would not install in the build sandbox — so
-the iOS-specific paths are written to the documented behaviour rather than
-confirmed on a device.
-
-## Fonts
-
-Both fonts are checked into `assets/fonts/` and declared with `@font-face`
-rather than pulled from Google Fonts. The entire look depends on them, and a
-fallback to system monospace ruins it — this way the game renders correctly
-offline, on a plane, and with no third-party request. Both are SIL Open Font
-License 1.1; see `assets/fonts/OFL.txt`.
-
-## Link previews
-
-`assets/preview.png` is a 1200×630 card generated from the real title screen,
-wired up in `index.html` with `og:` and `twitter:` tags. The two absolute
-URLs in those tags assume GitHub Pages at
-`https://hvndal.github.io/Projectisabela/` — change them if you host it
-somewhere else, since link scrapers won't resolve a relative path.
-
-To give the **repository** itself a preview image (the card that shows when
-you paste the repo link), upload the same file under
-Settings → General → Social preview. That one can't be set from git.
-
-## Layout
+## 🕹️ Controls
 
 ```
-index.html        page shell
-assets/style.css  page styling
-src/config.js     ← all the editable content
-src/sprites.js    pixel art
-src/maps.js       the nine screens
-src/audio.js      chiptune synth
-src/dialogue.js   the text window
-src/game.js       engine: input, collision, rendering, boss, ending
-assets/fonts/     the two pixel fonts, self-hosted
-assets/preview.png  1200x630 card for link previews
+MOVE / RUN        Arrow keys / WASD / On-screen Touch D-pad
+ACTION / TALK     SPACE / ENTER / Z / A Button
+SPRINT / SPRINT   Hold SHIFT / X / B Button
+EJECT CARTRIDGE   Click "⏏ EJECT / SELECT GAME"
+FULLSCREEN        Toggle fullscreen mode
 ```
-
-Scripts load in that order as plain `<script>` tags — no modules, so the
-whole thing runs straight off the filesystem.
 
 ---
 
-Made for Isabela ♥
+## 🔊 8-Bit Mario Soundboard & Chiptune Synth
+
+`src/audio.js` synthesizes all sound in real time using the Web Audio API (square pulse waves, triangle basslines, white noise percussion, and frequency ramp pitch glides):
+- **Mario Coin Ding**: Dual square wave chime (B5 → E6)
+- **Mario Jump**: Frequency pitch slide up (C4 → F5)
+- **1-Up Jingle & Flagpole Fanfare**
+- **Goomba Stomp, Brick Smash, and Pipe Warp**
+- **Tank Cannon & Space Laser Blasts**
+- **Interactive Retro Soundboard** on the front page to play live 8-bit sounds!
+
+---
+
+## 📺 CRT Shaders & Visual Filters
+
+Switch between 4 visual display modes on the front page:
+- **CRT Color**: Authentic scanlines + phosphor glow + bezel
+- **Scanlines FX**: Heavy retro scanline overlay
+- **Amber Phosphor**: Classic monochrome CRT terminal amber
+- **Game Boy Mono**: 4-shade authentic greenish LCD palette
+
+---
+
+## 📁 Project Architecture
+
+```
+index.html            Hermanify Arcade front page & console shell
+assets/style.css      Arcade styling, cartridge cards, CRT shaders, soundboard
+assets/fonts/         Press Start 2P & VT323 pixel fonts (self-hosted)
+assets/preview.png    Social link preview card
+
+src/
+├── config.js         Game text, dialogues, and quests configuration
+├── sprites.js        Pixel art tilemaps and character sprites
+├── maps.js           9-screen world map layout for Isabela's Quest
+├── audio.js          Chiptune audio synthesizer & Mario-style SFX engine
+├── dialogue.js       Typewriter retro dialogue window
+├── games/
+│   ├── isabela.js    Isabela Adventure RPG Cartridge Engine
+│   ├── plumber.js    Herman's Super Plumber Platformer Cartridge Engine
+│   ├── tank.js       Cyber Tank 1989 Battle City Cartridge Engine
+│   └── space.js      Star Guardian 8-Bit Space Shooter Cartridge Engine
+└── game.js           Master Hermanify Console & Cartridge Hub Router
+```
+
+---
+
+Crafted for Isabela ♥ by Herman

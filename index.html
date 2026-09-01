@@ -4,64 +4,81 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#ffe3f0">
-<title>Isabela and the Lost Heart of the Pink Kingdom</title>
-<meta name="description" content="A tiny lost NES game from 1993 that happens to be a cute, pink, optimistic adventure made for Isabela. Playable in the browser, on desktop and phone.">
+<title>HERMANIFY — 8-Bit NES Arcade & Custom Retro Games</title>
+<meta name="description" content="Hermanify: An authentic 8-bit NES Arcade Hub featuring custom-made retro video games, synthesized Mario-style chiptune sounds, CRT scanlines, and mobile touch support.">
 
-<!-- Link preview. If you host this somewhere other than GitHub Pages,
-     change the two absolute URLs below to match. -->
+<!-- OpenGraph / Social preview -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="PINKTENDO">
-<meta property="og:title" content="Isabela and the Lost Heart of the Pink Kingdom">
-<meta property="og:description" content="A tiny lost NES game that happens to be about her. Gather 7 hearts, 5 stars and 3 flowers, get past the slightly angry strawberry, and find out where the Heart really went.">
+<meta property="og:site_name" content="HERMANIFY">
+<meta property="og:title" content="HERMANIFY — 8-Bit NES Arcade & Custom Games">
+<meta property="og:description" content="Play custom-made 8-bit NES games: Isabela's Quest, Herman's Super Plumber, Cyber Tank 1989, and Star Guardian!">
 <meta property="og:url" content="https://hvndal.github.io/Projectisabela/">
 <meta property="og:image" content="https://hvndal.github.io/Projectisabela/assets/preview.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Pixel-art title screen reading ISABELA AND THE LOST HEART OF THE PINK KINGDOM">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Isabela and the Lost Heart of the Pink Kingdom">
-<meta name="twitter:description" content="A tiny lost NES game that happens to be about her.">
+<meta name="twitter:title" content="HERMANIFY — 8-Bit NES Arcade">
+<meta name="twitter:description" content="Custom 8-bit retro games with Mario-like sound effects, CRT filters, and authentic NES gameplay.">
 <meta name="twitter:image" content="https://hvndal.github.io/Projectisabela/assets/preview.png">
 <link rel="stylesheet" href="assets/style.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3 4h3v1h1V4h3v1h1v4h-1v1h-1v1H8v1H6v-1H5v-1H4V9H3z' fill='%23ff4f9a'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M2 3h12v10H2z' fill='%23d3216b'/><path d='M4 5h8v6H4z' fill='%23ffe04f'/><path d='M6 7h4v2H6z' fill='%23ff5fa2'/></svg>">
 </head>
-<body>
+<body data-crt="standard">
 
-<!-- ══ marquee (kept from the prototype) ══ -->
+<!-- ══ MARQUEE TICKER ══ -->
 <div class="marquee-bar">
   <div class="marquee-track">
-    <span>&#9829; INSERT COIN &#9829; A TINY LOST NES GAME &#9829; MADE FOR ISABELA &#9829; THE HEART IS MISSING &#9829; THE ROYAL FROG HAS RESIGNED &#9829; 73% OF OPTIMISM UNACCOUNTED FOR &#9829; SOMEONE STOLE A SOCK &#9829;</span>
-    <span aria-hidden="true">&#9829; INSERT COIN &#9829; A TINY LOST NES GAME &#9829; MADE FOR ISABELA &#9829; THE HEART IS MISSING &#9829; THE ROYAL FROG HAS RESIGNED &#9829; 73% OF OPTIMISM UNACCOUNTED FOR &#9829; SOMEONE STOLE A SOCK &#9829;</span>
+    <span>&#9733; WELCOME TO HERMANIFY &#9733; 8-BIT NES ARCADE HUB &#9733; CHOOSE YOUR CARTRIDGE &#9733; 8-BIT MARIO SOUNDS &#9733; ISABELA'S QUEST &#9733; SUPER PLUMBER &#9733; CYBER TANK 1989 &#9733; STAR GUARDIAN &#9733; INSERT COIN TO PLAY &#9733;</span>
+    <span aria-hidden="true">&#9733; WELCOME TO HERMANIFY &#9733; 8-BIT NES ARCADE HUB &#9733; CHOOSE YOUR CARTRIDGE &#9733; 8-BIT MARIO SOUNDS &#9733; ISABELA'S QUEST &#9733; SUPER PLUMBER &#9733; CYBER TANK 1989 &#9733; STAR GUARDIAN &#9733; INSERT COIN TO PLAY &#9733;</span>
   </div>
 </div>
 
 <div class="page">
 
-  <!-- ══ cartridge label header ══ -->
-  <header class="cart-label">
-    <div class="cart-holes" aria-hidden="true"><i></i><i></i><i></i></div>
-    <div class="cart-title">
-      <h1>ISABELA<span class="cart-amp">and the</span>LOST HEART</h1>
-      <p class="cart-sub">OF THE PINK KINGDOM</p>
+  <!-- ══ HERMANIFY ARCADE HEADER & CRT CONTROLS ══ -->
+  <header class="arcade-masthead">
+    <div class="masthead-brand">
+      <div class="brand-badge">&#9733; SYSTEM 8-BIT &#9733;</div>
+      <h1 class="brand-title">HERMANIFY</h1>
+      <p class="brand-subtitle">CUSTOM MADE NES ENTERTAINMENT SYSTEM</p>
     </div>
-    <div class="cart-scrawl" aria-hidden="true">ISABELA &#9829;</div>
+
+    <!-- CRT Visual Mode Switcher -->
+    <div class="crt-controls-bar">
+      <span class="crt-label-tag">CRT SHADER:</span>
+      <button class="crt-btn active" data-crt-mode="standard">CRT COLOR</button>
+      <button class="crt-btn" data-crt-mode="scanlines">SCANLINES</button>
+      <button class="crt-btn" data-crt-mode="amber">AMBER PHOSPHOR</button>
+      <button class="crt-btn" data-crt-mode="gameboy">GAME BOY MONO</button>
+    </div>
   </header>
 
-  <!-- ══ the console ══ -->
-  <div class="console-shell">
+  <!-- ══ THE NES CONSOLE ══ -->
+  <main class="console-shell">
 
+    <!-- Cartridge Label Header -->
+    <div class="cart-label">
+      <div class="cart-holes" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="cart-title">
+        <h1>ISABELA &amp; THE LOST HEART<span class="cart-amp">&#9829;</span></h1>
+        <p class="cart-sub">OF THE PINK KINGDOM</p>
+      </div>
+      <div class="cart-scrawl" aria-hidden="true">ISABELA &#9829;</div>
+    </div>
+
+    <!-- CRT Screen & Monitor Bezel -->
     <div class="crt-monitor">
       <div class="crt-inner">
-        <canvas id="screen" width="256" height="224" aria-label="Game screen"></canvas>
+        <canvas id="screen" width="256" height="224" aria-label="Hermanify 8-bit game screen"></canvas>
         <div class="crt-scan" aria-hidden="true"></div>
         <div class="crt-glow" aria-hidden="true"></div>
       </div>
       <div class="crt-brand" aria-hidden="true">
-        <span class="led"></span> PINKTENDO ENTERTAINMENT SYSTEM
+        <span class="led"></span> HERMANIFY ENTERTAINMENT SYSTEM &middot; 8-BIT CHIPTUNE ENGINE
       </div>
     </div>
 
-    <!-- ══ HUD ══ -->
+    <!-- Dynamic Console HUD -->
     <div class="hud" id="hud">
       <div class="hud-cell">
         <span class="hud-label">HEARTS</span>
@@ -85,72 +102,195 @@
       </div>
     </div>
 
-    <!-- ══ touch controls ══ -->
+    <!-- On-Screen Touch D-Pad & Action Buttons (for Mobile/Tablet) -->
     <div class="touch" id="touch" aria-hidden="true">
       <div class="dpad">
-        <button class="dbtn dbtn--up"    data-dir="up">&#9650;</button>
-        <button class="dbtn dbtn--left"  data-dir="left">&#9664;</button>
-        <button class="dbtn dbtn--right" data-dir="right">&#9654;</button>
-        <button class="dbtn dbtn--down"  data-dir="down">&#9660;</button>
+        <button class="dbtn dbtn--up"    data-dir="up" aria-label="Up">&#9650;</button>
+        <button class="dbtn dbtn--left"  data-dir="left" aria-label="Left">&#9664;</button>
+        <button class="dbtn dbtn--right" data-dir="right" aria-label="Right">&#9654;</button>
+        <button class="dbtn dbtn--down"  data-dir="down" aria-label="Down">&#9660;</button>
         <span class="dpad-center"></span>
       </div>
       <div class="abuttons">
-        <button class="rbtn rbtn--b" data-btn="b" data-caption="RUN">B</button>
-        <button class="rbtn rbtn--a" data-btn="a" data-caption="TALK">A</button>
+        <button class="rbtn rbtn--b" data-btn="b" data-caption="RUN/SPRINT">B</button>
+        <button class="rbtn rbtn--a" data-btn="a" data-caption="JUMP/TALK">A</button>
       </div>
     </div>
 
+    <!-- Console Hardware Buttons -->
     <div class="console-feet">
+      <button class="pxbtn pxbtn--eject" id="btn-eject" type="button">&#9167; EJECT / SELECT GAME</button>
       <button class="pxbtn" id="btn-sound" type="button">&#9834; SOUND: ON</button>
       <button class="pxbtn pxbtn--go" id="btn-full" type="button">&#9974; FULLSCREEN</button>
-      <button class="pxbtn" id="btn-reset" type="button">RESET</button>
-      <span class="hint">MOVE: WASD / ARROWS &nbsp;&middot;&nbsp; TALK: SPACE / Z &nbsp;&middot;&nbsp; RUN: HOLD SHIFT</span>
+      <button class="pxbtn" id="btn-reset" type="button">&#8635; RESET</button>
+      <span class="hint">CONTROLS: ARROWS / WASD &bull; ACTION: SPACE / Z &bull; RUN: SHIFT</span>
     </div>
-  </div>
+  </main>
 
-  <!-- ══ manual page (the "old website" half of the hybrid) ══ -->
+  <!-- ══ FRONT PAGE GAME SELECTOR ("CHOOSE A GAME") ══ -->
+  <section class="section-cart-rack" id="cart-rack">
+    <div class="section-head">
+      <h2>&#9733; CHOOSE A GAME CARTRIDGE &#9733;</h2>
+      <p>Select any custom-made 8-bit game to insert into the Hermanify Console</p>
+    </div>
+
+    <div class="cart-grid">
+
+      <!-- Cartridge 1: Isabela -->
+      <article class="cart-card active" data-id="isabela">
+        <div class="cart-card-top" style="background: linear-gradient(135deg, #ff5fa2, #d3216b);">
+          <span class="cart-num">CART 01</span>
+          <span class="cart-badge badge-rpg">ADVENTURE</span>
+        </div>
+        <div class="cart-card-body">
+          <h3 class="cart-card-title">ISABELA &amp; THE LOST HEART</h3>
+          <p class="cart-card-sub">OF THE PINK KINGDOM</p>
+          <p class="cart-card-desc">The beloved original adventure! Explore Bellavista Village, collect 7 hearts, 5 stars &amp; 3 flowers, speak to quirky villagers, and conquer the strawberry boss.</p>
+          <div class="cart-meta">
+            <span>&#128197; 1993</span>
+            <span>&#128100; 1 PLAYER</span>
+            <span>&#9874; NORMAL</span>
+          </div>
+          <button class="pxbtn pxbtn--play btn-play-cart" type="button">&#9654; INSERT &amp; PLAY</button>
+        </div>
+      </article>
+
+      <!-- Cartridge 2: Herman's Super Plumber -->
+      <article class="cart-card" data-id="plumber">
+        <div class="cart-card-top" style="background: linear-gradient(135deg, #e52521, #a30000);">
+          <span class="cart-num">CART 02</span>
+          <span class="cart-badge badge-platformer">PLATFORMER</span>
+        </div>
+        <div class="cart-card-body">
+          <h3 class="cart-card-title">HERMAN'S SUPER PLUMBER</h3>
+          <p class="cart-card-sub">COIN CASTLE RUSH</p>
+          <p class="cart-card-desc">Authentic 8-bit Mario-style side-scrolling platformer. Stomp Goombas, smash [?] question blocks for coins &amp; stars, hop over warp pipes, and slide down the castle flagpole!</p>
+          <div class="cart-meta">
+            <span>&#128197; 1985</span>
+            <span>&#128100; 1 PLAYER</span>
+            <span>&#9874; ARCADE</span>
+          </div>
+          <button class="pxbtn pxbtn--play btn-play-cart" type="button">&#9654; INSERT &amp; PLAY</button>
+        </div>
+      </article>
+
+      <!-- Cartridge 3: Cyber Tank 1989 -->
+      <article class="cart-card" data-id="tank">
+        <div class="cart-card-top" style="background: linear-gradient(135deg, #00a800, #005500);">
+          <span class="cart-num">CART 03</span>
+          <span class="cart-badge badge-action">BATTLE TANK</span>
+        </div>
+        <div class="cart-card-body">
+          <h3 class="cart-card-title">CYBER TANK 1989</h3>
+          <p class="cart-card-sub">HERMANIFY BASE DEFENSE</p>
+          <p class="cart-card-desc">NES Battle City-style armored combat. Blast through destructible brick terrain, protect the Golden Eagle Base, defeat rogue panzer waves, and grab tank upgrades.</p>
+          <div class="cart-meta">
+            <span>&#128197; 1989</span>
+            <span>&#128100; 1 PLAYER</span>
+            <span>&#9874; STRATEGY</span>
+          </div>
+          <button class="pxbtn pxbtn--play btn-play-cart" type="button">&#9654; INSERT &amp; PLAY</button>
+        </div>
+      </article>
+
+      <!-- Cartridge 4: Star Guardian 8-Bit -->
+      <article class="cart-card" data-id="space">
+        <div class="cart-card-top" style="background: linear-gradient(135deg, #0080ff, #002277);">
+          <span class="cart-num">CART 04</span>
+          <span class="cart-badge badge-shooter">SPACE SHOOTER</span>
+        </div>
+        <div class="cart-card-body">
+          <h3 class="cart-card-title">STAR GUARDIAN 8-BIT</h3>
+          <p class="cart-card-sub">COSMIC DEFENDER</p>
+          <p class="cart-card-desc">Galaga / Space Invaders style space arcade shooter. Weave through alien dive-bombers, collect spread-shot laser upgrades, and blast the colossal Mothership!</p>
+          <div class="cart-meta">
+            <span>&#128197; 1987</span>
+            <span>&#128100; 1 PLAYER</span>
+            <span>&#9874; ACTION</span>
+          </div>
+          <button class="pxbtn pxbtn--play btn-play-cart" type="button">&#9654; INSERT &amp; PLAY</button>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ══ 8-BIT MARIO & RETRO SOUNDBOARD JUKEBOX ══ -->
+  <section class="section-soundboard">
+    <div class="panel panel--soundboard">
+      <h2 class="panel-head">&#9834; 8-BIT MARIO &amp; ARCADE SOUNDBOARD &#9834;</h2>
+      <p class="soundboard-intro">Interactive Web Audio Chiptune Synthesizer. Tap any sound button to trigger authentic synthesized 8-bit retro audio!</p>
+
+      <div class="sfx-grid">
+        <button class="sfx-btn sfx-mario" data-sfx="coin"><span>🪙</span> COIN DING</button>
+        <button class="sfx-btn sfx-mario" data-sfx="jump"><span>🦘</span> MARIO JUMP</button>
+        <button class="sfx-btn sfx-mario" data-sfx="stomp"><span>👞</span> STOMP GOOMBA</button>
+        <button class="sfx-btn sfx-mario" data-sfx="powerup"><span>🍄</span> SUPER POWERUP</button>
+        <button class="sfx-btn sfx-mario" data-sfx="pipe"><span>🟩</span> WARP PIPE</button>
+        <button class="sfx-btn sfx-mario" data-sfx="oneup"><span>⭐</span> 1-UP JINGLE</button>
+        <button class="sfx-btn sfx-mario" data-sfx="flagpole"><span>🚩</span> FLAGPOLE FANFARE</button>
+        <button class="sfx-btn sfx-mario" data-sfx="brick"><span>🧱</span> BRICK SMASH</button>
+        <button class="sfx-btn sfx-arcade" data-sfx="shoot"><span>💥</span> TANK CANNON</button>
+        <button class="sfx-btn sfx-arcade" data-sfx="laser"><span>🔫</span> SPACE LASER</button>
+        <button class="sfx-btn sfx-arcade" data-sfx="boom"><span>💣</span> 8-BIT EXPLOSION</button>
+        <button class="sfx-btn sfx-arcade" data-sfx="cartridge"><span>💾</span> CARTRIDGE INSERT</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DYNAMIC INSTRUCTION BOOKLET ══ -->
   <section class="manual">
     <div class="panel panel--manual">
-      <h2 class="panel-head">&#9733; INSTRUCTION BOOKLET &#9733;</h2>
+      <h2 class="panel-head" id="manual-game-title">&#9733; INSTRUCTION BOOKLET &#9733;</h2>
       <div class="manual-cols">
         <div>
           <h3>THE STORY</h3>
-          <p>The kingdom of Bellavista was powered by the <b>Heart of the Pink Kingdom</b>. It kept the flowers blooming and generally prevented everyone from becoming boring.</p>
-          <p>One morning it vanished. The sky went gray. The royal frog resigned. A sock was stolen.</p>
-          <p>The kingdom needs a hero. All the actual heroes are busy. So: you.</p>
+          <div id="manual-story">
+            <p>The kingdom of Bellavista was powered by the <b>Heart of the Pink Kingdom</b>. It kept the flowers blooming and generally prevented everyone from becoming boring.</p>
+            <p>One morning it vanished. The sky went gray. The royal frog resigned. The kingdom needs a hero: you!</p>
+          </div>
         </div>
         <div>
           <h3>HOW TO PLAY</h3>
-          <ul class="manual-list">
-            <li><b>MOVE</b> &mdash; arrow keys, WASD, or the D-pad</li>
-            <li><b>TALK / CONFIRM</b> &mdash; SPACE, ENTER, Z, or <b>A</b></li>
-            <li><b>RUN</b> &mdash; hold SHIFT, or the <b>B</b> button</li>
-            <li><b>SEARCH</b> &mdash; face a thing and press A</li>
-            <li>Gather <b>7 hearts</b>, <b>5 stars</b> and <b>3 magical flowers</b></li>
-            <li>Wander behind things. That is the whole trick.</li>
+          <ul class="manual-list" id="manual-controls-list">
+            <li><b>MOVE / RUN</b> &mdash; arrow keys, WASD, or the D-pad</li>
+            <li><b>ACTION / TALK</b> &mdash; SPACE, ENTER, Z, or <b>A</b> button</li>
+            <li><b>SPRINT / SPRINT</b> &mdash; hold SHIFT or the <b>B</b> button</li>
+            <li>Collect all targets and secrets to complete the quest!</li>
           </ul>
         </div>
         <div>
-          <h3>WARNING</h3>
-          <p>The kingdom is troubled by <b>THE BEIGE ONES</b>, creatures who remove colour and personality from things.</p>
-          <p>They are not dangerous. They are just very, very tiring.</p>
-          <p class="manual-tiny">&copy; 199&mdash; PINKTENDO &middot; ALL RIGHTS RESERVED<br>MADE FOR ISABELA &#9829; BY HERMAN</p>
+          <h3>TIPS &amp; SECRETS</h3>
+          <div id="manual-tips">
+            <p>Wander behind trees, search odd corners, and be kind to the Beige Ones!</p>
+            <p class="manual-tiny">&copy; 1993 HERMANIFY &middot; ALL RIGHTS RESERVED<br>MADE FOR ISABELA &#9829; BY HERMAN</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- ══ SITE FOOTER ══ -->
   <footer class="site-foot">
-    <span>&copy; 199&mdash; PINKTENDO &middot; BEST VIEWED ON A CRT &middot; MADE BY HERMAN</span>
-    <span class="foot-hearts" aria-hidden="true">&#9829; &#9733; &#9829; &#9733; &#9829;</span>
+    <span>&copy; HERMANIFY ENTERTAINMENT SYSTEM &middot; BEST VIEWED ON A CRT &middot; CRAFTED BY HERMAN</span>
+    <span class="foot-hearts" aria-hidden="true">&#9733; &#9829; &#9733; &#9829; &#9733;</span>
   </footer>
+
 </div>
 
+<!-- ══ SCRIPTS ══ -->
 <script src="src/config.js"></script>
 <script src="src/sprites.js"></script>
 <script src="src/maps.js"></script>
 <script src="src/audio.js"></script>
 <script src="src/dialogue.js"></script>
+<!-- Cartridge Engines -->
+<script src="src/games/isabela.js"></script>
+<script src="src/games/plumber.js"></script>
+<script src="src/games/tank.js"></script>
+<script src="src/games/space.js"></script>
+<!-- Master Console Router -->
 <script src="src/game.js"></script>
+
 </body>
 </html>

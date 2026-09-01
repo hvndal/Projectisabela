@@ -1,14 +1,7 @@
 /* ============================================================
-   ISABELA AND THE LOST HEART OF THE PINK KINGDOM
-   Shell styling. Descended from the Stitch prototype:
-   pixel panels, hard shadows, marquee, CRT, scanlines --
-   with the neon magenta/cyan pair retuned to the
-   pink / cream / peach / mint palette from the art reference.
+   HERMANIFY  --  8-Bit NES Arcade Hub & Custom Retro Games
    ============================================================ */
 
-/* Self-hosted so the pixel look never falls back to a system font --
-   the whole aesthetic depends on these two. Both are SIL Open Font
-   License 1.1 (see assets/fonts/OFL.txt). */
 @font-face {
   font-family: 'Press Start 2P';
   src: url('fonts/PressStart2P.ttf') format('truetype');
@@ -31,6 +24,10 @@
   --peach:       #ffd2b8;
   --lav:         #cdb4ff;
   --mint:        #8fe3c8;
+  --gold:        #ffe04f;
+  --mario-red:   #e52521;
+  --mario-blue:  #0080ff;
+  --mario-green: #00a800;
   --ink:         #3d1029;
   --shadow:      #ffa8cf;
 
@@ -53,7 +50,6 @@ html, body {
 body {
   min-height: 100vh;
   image-rendering: pixelated;
-  /* gingham paper, straight out of the prototype's checker */
   background-image:
     linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff),
     linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff);
@@ -65,24 +61,24 @@ body {
 
 body.playing { overflow: hidden; }
 
-a, button, .pxbtn, [role='button'] {
+a, button, .pxbtn, .sfx-btn, .cart-btn, .crt-btn, [role='button'] {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24'><path d='M6 4h4v2h4V4h4v4h2v6h-2v2h-2v2h-2v2h-4v-2H8v-2H6v-2H4V8h2z' fill='%23d3216b'/><path d='M8 6h2v2h4V6h2v2h2v4h-2v2h-2v2h-4v-2H8v-2H6V8h2z' fill='%23fff'/></svg>") 0 0, pointer;
 }
 
-/* global scanline veil ------------------------------------- */
+/* global scanline veil */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 200;
   pointer-events: none;
-  background: linear-gradient(rgba(255,255,255,0) 50%, rgba(255,120,180,0.07) 50%);
+  background: linear-gradient(rgba(255,255,255,0) 50%, rgba(255,120,180,0.06) 50%);
   background-size: 100% 4px;
 }
 
-/* ══ marquee ══════════════════════════════════════════════ */
+/* ══ MARQUEE TICKER ══════════════════════════════════════ */
 .marquee-bar {
-  background: var(--pink);
+  background: var(--pink-deep);
   border-bottom: var(--px) solid var(--pink-ink);
   color: #fff;
   font-family: 'Press Start 2P', monospace;
@@ -97,37 +93,119 @@ body::before {
 .marquee-track {
   display: inline-flex;
   gap: 3rem;
-  animation: marquee 42s linear infinite;
+  animation: marquee 38s linear infinite;
   will-change: transform;
 }
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-/* ══ layout ═══════════════════════════════════════════════ */
+/* ══ LAYOUT ═══════════════════════════════════════════════ */
 .page {
-  max-width: 960px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 18px 14px 40px;
+  padding: 16px 14px 40px;
 }
 
-/* ══ cartridge label ══════════════════════════════════════ */
+/* ══ ARCADE MASTHEAD & CRT MODE CONTROLS ══════════════════ */
+.arcade-masthead {
+  background: linear-gradient(180deg, #ffe9f3 0%, var(--paper) 100%);
+  border: var(--px) solid var(--pink-ink);
+  box-shadow: var(--px) var(--px) 0 var(--pink-deep), calc(var(--px)*2) calc(var(--px)*2) 0 var(--shadow);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.masthead-brand { text-align: left; }
+.brand-badge {
+  display: inline-block;
+  background: var(--pink-deep);
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  padding: 4px 8px;
+  border: 2px solid var(--pink-ink);
+  margin-bottom: 6px;
+  letter-spacing: .1em;
+}
+.brand-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(20px, 5vw, 34px);
+  color: var(--pink-deep);
+  margin: 0;
+  text-shadow: 2px 2px 0 #fff, 4px 4px 0 var(--pink-soft);
+  letter-spacing: .05em;
+}
+.brand-subtitle {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(7px, 1.8vw, 10px);
+  color: var(--pink-ink);
+  margin: 8px 0 0;
+  letter-spacing: .12em;
+}
+
+.crt-controls-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.crt-label-tag {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: var(--pink-deep);
+  margin-right: 4px;
+}
+.crt-btn {
+  background: var(--cream);
+  border: 2px solid var(--pink-ink);
+  color: var(--pink-ink);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  padding: 6px 8px;
+  box-shadow: 2px 2px 0 var(--pink-soft);
+}
+.crt-btn:hover { background: var(--pink-soft); }
+.crt-btn.active {
+  background: var(--pink-deep);
+  color: #fff;
+  border-color: var(--pink-ink);
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.3);
+}
+
+/* CRT Modes */
+body[data-crt="amber"] .crt-monitor {
+  filter: sepia(1) saturate(5) hue-rotate(-25deg) contrast(1.3) brightness(0.9);
+}
+body[data-crt="gameboy"] .crt-monitor {
+  filter: sepia(1) hue-rotate(50deg) saturate(3) contrast(1.4) brightness(0.85);
+}
+body[data-crt="scanlines"] .crt-scan {
+  background: linear-gradient(rgba(0,0,0,0) 50%, rgba(20,5,15,0.4) 50%);
+  background-size: 100% 2px;
+}
+
+/* ══ CARTRIDGE LABEL ══════════════════════════════════════ */
 .cart-label {
   position: relative;
   background: linear-gradient(180deg, var(--pink-soft) 0%, var(--pink-pale) 100%);
   border: var(--px) solid var(--pink-ink);
   box-shadow: var(--px) var(--px) 0 var(--pink-deep), calc(var(--px)*2) calc(var(--px)*2) 0 var(--shadow);
-  padding: 16px 18px 14px;
-  margin-bottom: 22px;
+  padding: 14px 18px 12px;
+  margin-bottom: 20px;
   text-align: center;
 }
 .cart-holes {
-  display: flex; justify-content: center; gap: 10px; margin-bottom: 10px;
+  display: flex; justify-content: center; gap: 10px; margin-bottom: 8px;
 }
 .cart-holes i {
   width: 26px; height: 8px; background: var(--pink-ink); opacity: .35; display: block;
 }
 .cart-title h1 {
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(13px, 3.6vw, 26px);
+  font-size: clamp(13px, 3.4vw, 24px);
   line-height: 1.55;
   color: var(--pink-deep);
   margin: 0;
@@ -135,34 +213,35 @@ body::before {
   display: flex; flex-direction: column; align-items: center; gap: .35em;
 }
 .cart-amp {
-  font-size: .48em;
+  font-size: .52em;
   color: var(--pink-ink);
   text-shadow: 2px 2px 0 #fff;
   letter-spacing: .1em;
 }
 .cart-sub {
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(7px, 1.9vw, 11px);
+  font-size: clamp(7px, 1.8vw, 11px);
   color: var(--pink-ink);
-  margin: 14px 0 0;
+  margin: 12px 0 0;
   letter-spacing: .18em;
   text-shadow: 2px 2px 0 #fff;
 }
 .cart-scrawl {
   position: absolute;
-  right: 10px; bottom: 4px;
-  font-size: 26px;
+  right: 12px; bottom: 6px;
+  font-size: 24px;
   color: var(--pink-deep);
   transform: rotate(-7deg);
-  opacity: .8;
+  opacity: .85;
 }
 
-/* ══ console shell ════════════════════════════════════════ */
+/* ══ CONSOLE SHELL ════════════════════════════════════════ */
 .console-shell {
   background: var(--paper);
   border: var(--px) solid var(--pink-ink);
   box-shadow: var(--px) var(--px) 0 var(--pink-deep), calc(var(--px)*2) calc(var(--px)*2) 0 var(--shadow);
   padding: 16px;
+  margin-bottom: 28px;
 }
 
 .crt-monitor {
@@ -201,7 +280,7 @@ body::before {
   font-family: 'Press Start 2P', monospace;
   font-size: 7px;
   color: var(--pink-ink);
-  opacity: .6;
+  opacity: .75;
   text-align: right;
   padding-top: 6px;
   letter-spacing: .1em;
@@ -264,7 +343,7 @@ body::before {
   letter-spacing: .08em;
 }
 
-/* ══ touch controls ═══════════════════════════════════════ */
+/* ══ TOUCH CONTROLS ═══════════════════════════════════════ */
 .touch {
   display: none;
   justify-content: space-between;
@@ -280,8 +359,6 @@ body.touch-on .touch { display: flex; }
   position: relative;
   width: 156px; height: 156px;
   touch-action: none;
-  /* the whole cross is one touch surface: thumb position picks the
-     direction, so diagonals work and sliding never drops the input */
 }
 .dbtn { pointer-events: none; }
 .dbtn, .rbtn {
@@ -330,7 +407,7 @@ body.touch-on .touch { display: flex; }
 }
 .rbtn--b { right: 76px; top: 42px; }
 
-/* ══ feet / buttons ═══════════════════════════════════════ */
+/* ══ CONSOLE FOOT CONTROLS ════════════════════════════════ */
 .console-feet {
   display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
   margin-top: 14px; padding-top: 12px;
@@ -344,50 +421,180 @@ body.touch-on .touch { display: flex; }
   font-size: 9px;
   padding: 9px 12px;
   box-shadow: var(--px) var(--px) 0 var(--pink-soft);
-  transition: none;
+  transition: transform 0.05s ease;
 }
 .pxbtn:hover { background: var(--pink); color: #fff; }
 .pxbtn:active { transform: translate(var(--px), var(--px)); box-shadow: none; }
+
+.pxbtn--eject {
+  background: var(--gold);
+  color: var(--ink);
+  border-color: var(--pink-ink);
+}
+.pxbtn--eject:hover { background: #ffd000; color: #000; }
+
+.pxbtn--go { background: var(--pink); color: #fff; }
+.pxbtn--warn { background: #ffe04f; color: var(--pink-ink); }
+.pxbtn--go:hover { background: var(--pink-deep); }
 .hint {
   font-size: 17px; color: var(--pink-ink); opacity: .8; margin-left: auto;
 }
 
-/* ══ fullscreen ═══════════════════════════════════════════
-   The console fills the display; everything else steps aside.
-   `.fs-on` is also set as a fallback on iPhone Safari, which
-   has no element fullscreen at all.
-   ════════════════════════════════════════════════════════ */
-.pxbtn--go { background: var(--pink); color: #fff; }
-.pxbtn--warn { background: #ffe04f; color: var(--pink-ink); }
-.pxbtn--go:hover { background: var(--pink-deep); }
+/* ══ CARTRIDGE SELECTION RACK ("CHOOSE A GAME") ═══════════ */
+.section-cart-rack {
+  margin: 32px 0;
+}
+.section-head {
+  text-align: center;
+  margin-bottom: 22px;
+}
+.section-head h2 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(14px, 3.2vw, 20px);
+  color: var(--pink-deep);
+  margin: 0 0 8px;
+  text-shadow: 2px 2px 0 #fff;
+}
+.section-head p {
+  font-size: 20px;
+  color: var(--pink-ink);
+  margin: 0;
+  opacity: .85;
+}
 
-.console-shell:fullscreen {
-  width: 100vw; height: 100vh;
-  background: #2a0f1f;
-  border: none; box-shadow: none;
-  padding: 10px;
+.cart-grid {
   display: grid;
-  grid-template-rows: auto auto auto auto;
-  align-content: center;
-  justify-items: center;
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
 }
-.console-shell:fullscreen > * { width: 100%; max-width: 860px; }
-.console-shell:fullscreen .crt-monitor {
-  max-width: min(100%, calc((100vh - 300px) * 1.143));
-  border-width: 8px;
+.cart-card {
+  background: var(--paper);
+  border: var(--px) solid var(--pink-ink);
+  box-shadow: var(--px) var(--px) 0 var(--pink-deep), calc(var(--px)*2) calc(var(--px)*2) 0 var(--shadow);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
 }
-.console-shell:fullscreen .hint { display: none; }
+.cart-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--px) calc(var(--px)*2) 0 var(--pink-deep), calc(var(--px)*2) calc(var(--px)*3) 0 var(--shadow);
+}
+.cart-card.active {
+  outline: 3px solid var(--pink);
+  border-color: var(--pink-deep);
+}
+.cart-card-top {
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  border-bottom: var(--px) solid var(--pink-ink);
+}
+.cart-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  letter-spacing: .08em;
+}
+.cart-badge {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  padding: 3px 6px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.4);
+}
 
-/* iOS fallback: hide the page around the console and pin it */
-body.fs-on { overflow: hidden; }
-body.fs-on .marquee-bar,
-body.fs-on .cart-label,
-body.fs-on .manual,
-body.fs-on .site-foot { display: none; }
-body.fs-on .page { padding: 6px; max-width: none; }
+.cart-card-body {
+  padding: 14px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.cart-card-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: var(--pink-deep);
+  margin: 0 0 4px;
+  line-height: 1.4;
+}
+.cart-card-sub {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: var(--pink-ink);
+  opacity: .75;
+  margin: 0 0 10px;
+}
+.cart-card-desc {
+  font-size: 17px;
+  line-height: 1.15;
+  color: var(--ink);
+  margin: 0 0 14px;
+  flex: 1;
+}
+.cart-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: var(--pink-ink);
+  border-top: 1px dashed var(--pink-soft);
+  padding-top: 8px;
+  margin-bottom: 12px;
+}
+.pxbtn--play {
+  width: 100%;
+  background: var(--pink);
+  color: #fff;
+  font-size: 10px;
+  padding: 10px;
+  text-align: center;
+}
+.pxbtn--play:hover { background: var(--pink-deep); }
 
-/* ══ manual ═══════════════════════════════════════════════ */
+/* ══ 8-BIT MARIO SOUNDBOARD JUKEBOX ═══════════════════════ */
+.section-soundboard {
+  margin: 32px 0;
+}
+.panel--soundboard {
+  background: var(--cream);
+}
+.soundboard-intro {
+  font-size: 19px;
+  color: var(--pink-ink);
+  text-align: center;
+  margin: -6px 0 16px;
+}
+.sfx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+.sfx-btn {
+  background: #fff;
+  border: var(--px) solid var(--pink-ink);
+  box-shadow: var(--px) var(--px) 0 var(--pink-soft);
+  padding: 10px 8px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: var(--pink-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  transition: transform 0.05s ease;
+}
+.sfx-btn span { font-size: 18px; line-height: 1; }
+.sfx-btn:hover { background: var(--pink-soft); }
+.sfx-btn:active, .sfx-btn.pop {
+  transform: translate(var(--px), var(--px));
+  box-shadow: none;
+  background: var(--gold);
+}
+.sfx-mario { border-color: var(--mario-red); }
+
+/* ══ MANUAL / INSTRUCTION BOOKLET ═════════════════════════ */
 .manual { margin-top: 26px; }
 .panel {
   background: var(--paper);
@@ -399,7 +606,7 @@ body.fs-on .page { padding: 6px; max-width: none; }
   font-family: 'Press Start 2P', monospace;
   font-size: 11px;
   color: #fff;
-  background: var(--pink);
+  background: var(--pink-deep);
   border: var(--px) solid var(--pink-ink);
   padding: 10px;
   margin: -6px 0 18px;
@@ -424,23 +631,51 @@ body.fs-on .page { padding: 6px; max-width: none; }
 .manual-cols b { color: var(--pink-deep); }
 .manual-list { margin: 0; padding-left: 18px; line-height: 1.2; }
 .manual-list li { margin-bottom: 7px; }
-.manual-tiny { font-size: 15px; opacity: .6; }
+.manual-tiny { font-size: 15px; opacity: .65; }
 
+/* ══ FOOTER ═══════════════════════════════════════════════ */
 .site-foot {
   display: flex; justify-content: space-between; align-items: center; gap: 12px;
-  margin-top: 22px; flex-wrap: wrap;
+  margin-top: 24px; flex-wrap: wrap;
   font-family: 'Press Start 2P', monospace;
   font-size: 7px;
   color: var(--pink-ink);
-  opacity: .75;
+  opacity: .8;
 }
-.foot-hearts { color: var(--pink); font-size: 12px; letter-spacing: .3em; }
+.foot-hearts { color: var(--pink-deep); font-size: 12px; letter-spacing: .3em; }
 
-/* ══ responsive ═══════════════════════════════════════════ */
-/* On phones the priority is: screen and thumbs in the same viewport.
-   Everything decorative gets tighter so nothing needs scrolling to play. */
+/* ══ FULLSCREEN STYLES ════════════════════════════════════ */
+.console-shell:fullscreen {
+  width: 100vw; height: 100vh;
+  background: #2a0f1f;
+  border: none; box-shadow: none;
+  padding: 10px;
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+}
+.console-shell:fullscreen > * { width: 100%; max-width: 860px; }
+.console-shell:fullscreen .crt-monitor {
+  max-width: min(100%, calc((100vh - 300px) * 1.143));
+  border-width: 8px;
+}
+.console-shell:fullscreen .hint { display: none; }
+
+body.fs-on { overflow: hidden; }
+body.fs-on .marquee-bar,
+body.fs-on .arcade-masthead,
+body.fs-on .section-cart-rack,
+body.fs-on .section-soundboard,
+body.fs-on .manual,
+body.fs-on .site-foot { display: none; }
+body.fs-on .page { padding: 6px; max-width: none; }
+
+/* ══ RESPONSIVE ═══════════════════════════════════════════ */
 @media (max-width: 720px) {
   .page { padding: 8px 8px 24px; }
+  .arcade-masthead { padding: 12px; }
   .console-shell { padding: 10px; }
   .hint { display: none; }
 
@@ -452,7 +687,7 @@ body.fs-on .page { padding: 6px; max-width: none; }
 
   .hud { grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 8px; }
   .hud-cell { padding: 5px 8px; }
-  .hud-cell:first-child { grid-column: 1 / -1; }   /* hearts get a full row */
+  .hud-cell:first-child { grid-column: 1 / -1; }
   .hud-cell--wide { grid-column: 1 / -1; }
   .hud-row { flex-wrap: wrap; }
   .hud-quest { font-size: 17px; }
@@ -479,15 +714,10 @@ body.fs-on .page { padding: 6px; max-width: none; }
   .rbtn--b { right: 62px; top: 34px; }
 }
 
-/* ══ landscape on a phone ═════════════════════════════════
-   Sideways there is no room for the page furniture, so the
-   decoration goes and the pad/buttons move either side of the
-   screen -- the way you'd actually hold a handheld.
-   ════════════════════════════════════════════════════════ */
 @media (orientation: landscape) and (max-height: 560px) and (pointer: coarse) {
   .console-shell:fullscreen { display: grid; padding: 8px; grid-template-rows: 1fr auto; }
   .console-shell:fullscreen > * { max-width: none; }
-  .marquee-bar, .cart-label, .manual, .site-foot, .console-feet { display: none; }
+  .marquee-bar, .arcade-masthead, .cart-label, .section-cart-rack, .section-soundboard, .manual, .site-foot, .console-feet { display: none; }
   .page { padding: 6px 8px; max-width: none; }
   .console-shell, .console-shell:fullscreen {
     padding: 8px;
@@ -500,9 +730,6 @@ body.fs-on .page { padding: 6px; max-width: none; }
   .crt-monitor, .console-shell:fullscreen .crt-monitor {
     grid-column: 2; grid-row: 1;
     border-width: 6px; padding: 4px;
-    /* cap the width from the height we have, so the 8:7 screen fits */
-    /* width:100% is required -- auto margins on a grid item turn off
-       stretch, which would leave the canvas at its intrinsic 256px */
     width: 100%;
     max-width: calc((100vh - 92px) * 1.143);
     justify-self: center;
