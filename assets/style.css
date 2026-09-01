@@ -14,22 +14,18 @@
 }
 
 :root {
-  --pink:        #ff5fa2;
-  --pink-deep:   #d3216b;
-  --pink-ink:    #7a0f42;
-  --pink-soft:   #ffb8d8;
-  --pink-pale:   #ffe3f0;
-  --cream:       #fff6ec;
-  --paper:       #fffafc;
-  --peach:       #ffd2b8;
-  --lav:         #cdb4ff;
-  --mint:        #8fe3c8;
-  --gold:        #ffe04f;
-  --mario-red:   #e52521;
-  --mario-blue:  #0080ff;
-  --mario-green: #00a800;
-  --ink:         #3d1029;
-  --shadow:      #ffa8cf;
+  --fy:          #ffd000;
+  --fy-dark:     #c8a000;
+  --fy-glow:     rgba(255, 208, 0, 0.35);
+  --carbon:      #0c0e14;
+  --carbon-card: #141720;
+  --carbon-border:#262a36;
+  --cyan:        #00e5ff;
+  --emerald:     #00e676;
+  --cream:       #f5f5f5;
+  --paper:       #181c26;
+  --ink:         #f0f3f8;
+  --shadow:      #000000;
 
   --px: 4px;
 }
@@ -39,7 +35,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: var(--pink-pale);
+  background: var(--carbon);
   color: var(--ink);
   font-family: 'VT323', ui-monospace, monospace;
   font-size: 20px;
@@ -51,12 +47,11 @@ body {
   min-height: 100vh;
   image-rendering: pixelated;
   background-image:
-    linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff),
-    linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff);
-  background-size: 8px 8px;
-  background-position: 0 0, 4px 4px;
+    linear-gradient(45deg, #12151e 25%, transparent 25%, transparent 75%, #12151e 75%, #12151e),
+    linear-gradient(45deg, #12151e 25%, transparent 25%, transparent 75%, #12151e 75%, #12151e);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
   background-attachment: fixed;
-  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24'><path d='M6 4h4v2h4V4h4v4h2v6h-2v2h-2v2h-2v2h-4v-2H8v-2H6v-2H4V8h2z' fill='%237a0f42'/><path d='M8 6h2v2h4V6h2v2h2v4h-2v2h-2v2h-4v-2H8v-2H6V8h2z' fill='%23ff5fa2'/></svg>") 0 0, auto;
 }
 
 body.playing { overflow: hidden; }
@@ -78,11 +73,12 @@ body::before {
 
 /* ══ MARQUEE TICKER ══════════════════════════════════════ */
 .marquee-bar {
-  background: var(--pink-deep);
-  border-bottom: var(--px) solid var(--pink-ink);
-  color: #fff;
+  background: var(--fy);
+  border-bottom: var(--px) solid var(--carbon-border);
+  color: #000;
   font-family: 'Press Start 2P', monospace;
   font-size: 10px;
+  font-weight: bold;
   line-height: 1;
   padding: 10px 0;
   overflow: hidden;
@@ -107,9 +103,9 @@ body::before {
 
 /* ══ ARCADE MASTHEAD & CRT MODE CONTROLS ══════════════════ */
 .arcade-masthead {
-  background: linear-gradient(180deg, #ffe9f3 0%, var(--paper) 100%);
-  border: var(--px) solid var(--pink-ink);
-  box-shadow: var(--px) var(--px) 0 var(--pink-deep), calc(var(--px)*2) calc(var(--px)*2) 0 var(--shadow);
+  background: linear-gradient(180deg, #1c202c 0%, var(--carbon-card) 100%);
+  border: var(--px) solid var(--carbon-border);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6), var(--px) var(--px) 0 var(--fy);
   padding: 18px 20px;
   margin-bottom: 20px;
   display: flex;
@@ -121,27 +117,28 @@ body::before {
 .masthead-brand { text-align: left; }
 .brand-badge {
   display: inline-block;
-  background: var(--pink-deep);
-  color: #fff;
+  background: var(--fy);
+  color: #000;
   font-family: 'Press Start 2P', monospace;
   font-size: 8px;
+  font-weight: bold;
   padding: 4px 8px;
-  border: 2px solid var(--pink-ink);
+  border: 2px solid #000;
   margin-bottom: 6px;
   letter-spacing: .1em;
 }
 .brand-title {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(20px, 5vw, 34px);
-  color: var(--pink-deep);
+  color: var(--fy);
   margin: 0;
-  text-shadow: 2px 2px 0 #fff, 4px 4px 0 var(--pink-soft);
+  text-shadow: 2px 2px 0 #000, 4px 4px 0 rgba(255,208,0,0.3);
   letter-spacing: .05em;
 }
 .brand-subtitle {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(7px, 1.8vw, 10px);
-  color: var(--pink-ink);
+  color: var(--cyan);
   margin: 8px 0 0;
   letter-spacing: .12em;
 }
@@ -155,23 +152,24 @@ body::before {
 .crt-label-tag {
   font-family: 'Press Start 2P', monospace;
   font-size: 8px;
-  color: var(--pink-deep);
+  color: var(--fy);
   margin-right: 4px;
 }
 .crt-btn {
-  background: var(--cream);
-  border: 2px solid var(--pink-ink);
-  color: var(--pink-ink);
+  background: #1e222e;
+  border: 2px solid var(--carbon-border);
+  color: #c8d2dc;
   font-family: 'Press Start 2P', monospace;
   font-size: 7px;
   padding: 6px 8px;
-  box-shadow: 2px 2px 0 var(--pink-soft);
+  box-shadow: 2px 2px 0 #000;
 }
-.crt-btn:hover { background: var(--pink-soft); }
+.crt-btn:hover { background: #2a3040; color: #fff; }
 .crt-btn.active {
-  background: var(--pink-deep);
-  color: #fff;
-  border-color: var(--pink-ink);
+  background: var(--fy);
+  color: #000;
+  font-weight: bold;
+  border-color: #000;
   box-shadow: inset 2px 2px 0 rgba(0,0,0,0.3);
 }
 
@@ -183,16 +181,16 @@ body[data-crt="gameboy"] .crt-monitor {
   filter: sepia(1) hue-rotate(50deg) saturate(3) contrast(1.4) brightness(0.85);
 }
 body[data-crt="scanlines"] .crt-scan {
-  background: linear-gradient(rgba(0,0,0,0) 50%, rgba(20,5,15,0.4) 50%);
+  background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.5) 50%);
   background-size: 100% 2px;
 }
 
 /* ══ CARTRIDGE LABEL ══════════════════════════════════════ */
 .cart-label {
   position: relative;
-  background: linear-gradient(180deg, var(--pink-soft) 0%, var(--pink-pale) 100%);
-  border: var(--px) solid var(--pink-ink);
-  box-shadow: var(--px) var(--px) 0 var(--pink-deep), calc(var(--px)*2) calc(var(--px)*2) 0 var(--shadow);
+  background: linear-gradient(180deg, #1e222e 0%, var(--carbon-card) 100%);
+  border: var(--px) solid var(--carbon-border);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5), var(--px) var(--px) 0 var(--fy);
   padding: 14px 18px 12px;
   margin-bottom: 20px;
   text-align: center;
@@ -201,7 +199,7 @@ body[data-crt="scanlines"] .crt-scan {
   display: flex; justify-content: center; gap: 10px; margin-bottom: 8px;
 }
 .cart-holes i {
-  width: 26px; height: 8px; background: var(--pink-ink); opacity: .35; display: block;
+  width: 26px; height: 8px; background: #000; opacity: .6; display: block;
 }
 .cart-title h1 {
   font-family: 'Press Start 2P', monospace;
